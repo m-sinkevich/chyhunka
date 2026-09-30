@@ -13,6 +13,10 @@
              URL: ${{ secrets.SUPABASE_URL }}
              KEY: ${{ secrets.SUPABASE_ANON_KEY }}
            run: |
+             URL=$(printf '%s' "$URL" | tr -d '[:space:]'); KEY=$(printf '%s' "$KEY" | tr -d '[:space:]')
              if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "Секреты SUPABASE_URL / SUPABASE_ANON_KEY не заданы"; exit 1; fi
              URL="${URL%%/rest/v1*}"; URL="${URL%/}"
-             curl -fsS -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" -d '{}'
+             echo "Адрес: $URL"
+             code=$(curl -sS -o body.txt -w '%{http_code}' -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}')
+             echo "Ответ сервера: HTTP $code"; cat body.txt; echo
+             [ "$code" -lt 300 ]
