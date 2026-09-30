@@ -1,5 +1,5 @@
 # Шаг 1. Основа фона поля «Чыгунки»: бумага, сепия, условный рельеф, леса, болота, реки и озёра.
-# Запуск из корня проекта: python3 tools/board_v2/compose.py
+# Запуск из корня проекта (после geo.py): python3 tools/board_v2/compose.py
 # Выход: tools/board_v2/build/base.png и masks.npz (для шага 2 — decorate.py).
 import json, math, os
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -40,11 +40,17 @@ lab_r, nr = ndimage.label(rivers_in)
 sz = ndimage.sum(rivers_in, lab_r, range(1, nr + 1))
 keep = np.zeros(nr + 1, bool); keep[1:] = sz > 400
 rivers_in = keep[lab_r]
-print('rivers px', rivers_in.sum())
+# Граница, реки и озёра теперь векторные (geo.py → decorate.py): чёткие при любом масштабе.
+# Здесь из них нужна только маска Беларуси; растровые реки и линии старой карты не рисуем.
+_geo = json.load(open(os.path.join(HERE, 'build/geo.json'), encoding='utf-8'))
+_m = np.zeros((PH, PW), np.uint8)
+cv2.fillPoly(_m, [np.round(np.array(_geo['belarus']) * S).astype(np.int32)], 1)
+bel = _m.astype(bool)
+water = np.zeros_like(bel); rivers_in = np.zeros_like(bel)
 local = cv2.GaussianBlur(lum, (0, 0), 10)
 lines = (lum < local - 9) & ~water
 edge_bel = cv2.morphologyEx(bel.astype(np.uint8), cv2.MORPH_GRADIENT, np.ones((3, 3), np.uint8)).astype(bool)
-nb_lines = lines & ~ndimage.binary_dilation(edge_bel, iterations=int(8 * S)) & ~bel
+nb_lines = np.zeros_like(bel)
 
 # ---------- бумага ----------
 paper = Image.open(os.path.join(HERE, 'src/paper.jpg')).convert('RGB').resize((PW, PH), Image.BICUBIC)
@@ -158,7 +164,7 @@ band = np.clip(1 - dist_in / (4.0 * S), 0, 1) * bel
 img = img + (np.array([176, 104, 78], np.float32) - img) * (band[..., None] * 0.35)
 line = cv2.GaussianBlur(edge_bel.astype(np.float32), (0, 0), 1.0)
 line = np.clip(line * 2.2, 0, 1)[..., None]
-img = img + (np.array([96, 64, 44], np.float32) - img) * line * 0.9
+# линия границы — векторная, в board.svg
 
 im = Image.fromarray(np.clip(img, 0, 255).astype(np.uint8))
 d = ImageDraw.Draw(im, 'RGBA')

@@ -123,7 +123,7 @@ supabase/schema.sql   таблицы, RLS, функции, Realtime
 supabase/tests/       проверка схемы на локальном PostgreSQL
 tests/                тесты движка, ботов и сетевого протокола (node --test)
 tools/                турнир ботов, браузерная проверка, экспорт поля из печатного генератора (make_web_board.py)
-tools/board_v2/       сборка оформления поля: compose.py (фон), decorate.py (реки, масштаб, украшения, сборка)
+tools/board_v2/       сборка оформления поля: geo.py (география), compose.py (фон), decorate.py (реки, границы, масштаб, украшения, сборка)
 ```
 
 ### Оформление поля и украшения
@@ -131,7 +131,8 @@ tools/board_v2/       сборка оформления поля: compose.py (ф
 Поле собирается двумя командами из корня проекта (нужны Python 3, numpy, opencv-python, scipy, scikit-image, Pillow):
 
 ```sh
-python3 tools/board_v2/compose.py      # фон: бумага, условный рельеф, леса, болота, реки
+python3 tools/board_v2/geo.py          # граница, реки, озёра (Natural Earth) → на схему поля
+python3 tools/board_v2/compose.py      # фон: бумага, условный рельеф, леса, болота
 python3 tools/board_v2/decorate.py     # подписи рек, масштаб, украшения → img/board_bg.jpg, img/board.svg, data/layout.json
 ```
 

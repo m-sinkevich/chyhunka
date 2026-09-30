@@ -44,14 +44,14 @@ export class Board {
 
   // ---------- масштаб и перемещение ----------
   apply() {
-    // вид всегда в пропорциях окна; отдалять только до краёв поля (без пустых полос вокруг), поле не уводить за край
+    // вид всегда в пропорциях окна; отдалять не дальше «всё поле целиком», поле не уводить за край
     const [fx, fy, fw, fh] = this.full;
     const r = this.svg.getBoundingClientRect();
     const ca = r.width > 0 && r.height > 0 ? r.width / r.height : fw / fh;
     let [x, y, w, hh] = this.vb;
     const cx = x + w / 2, cy = y + hh / 2;
     w = Math.max(w, hh * ca); // вписать текущий вид в пропорции окна
-    w = Math.min(w, fw, fh * ca); hh = w / ca;
+    w = Math.min(w, Math.max(fw, fh * ca)); hh = w / ca;
     x = cx - w / 2; y = cy - hh / 2;
     x = w >= fw ? fx + (fw - w) / 2 : Math.min(Math.max(x, fx), fx + fw - w);
     y = hh >= fh ? fy + (fh - hh) / 2 : Math.min(Math.max(y, fy), fy + fh - hh);
@@ -65,7 +65,7 @@ export class Board {
   }
   zoomAt(f, cx, cy) {
     const [x, y, w, h] = this.vb;
-    const nw = Math.min(this.full[2], Math.max(this.full[2] / 9, w / f));
+    const nw = Math.min(this.full[2] * 3, Math.max(this.full[2] / 9, w / f));
     const k = nw / w;
     const p = cx == null ? { x: x + w / 2, y: y + h / 2 } : this.toSvg(cx, cy);
     this.vb = [p.x - (p.x - x) * k, p.y - (p.y - y) * k, w * k, h * k];
@@ -219,8 +219,12 @@ export class Board {
     // подсветка городов маршрута и выбор города
     this.gHl.replaceChildren();
     const hp = hl.map((c) => L.cities[c]).filter(Boolean);
-    if (hp.length === 2) el('line', { x1: hp[0][0], y1: hp[0][1], x2: hp[1][0], y2: hp[1][1], class: 'hl-line' }, this.gHl);
+    if (hp.length === 2) {
+      el('line', { x1: hp[0][0], y1: hp[0][1], x2: hp[1][0], y2: hp[1][1], class: 'hl-line-under' }, this.gHl);
+      el('line', { x1: hp[0][0], y1: hp[0][1], x2: hp[1][0], y2: hp[1][1], class: 'hl-line' }, this.gHl);
+    }
     for (const p of hp) {
+      el('circle', { cx: p[0], cy: p[1], r: p[2] + 4.5, class: 'hl-under' }, this.gHl);
       el('circle', { cx: p[0], cy: p[1], r: p[2] + 5, class: 'hl-glow' }, this.gHl);
       el('circle', { cx: p[0], cy: p[1], r: p[2] + 4.5, class: 'hl' }, this.gHl);
       el('circle', { cx: p[0], cy: p[1], r: p[2] + 4.5, class: 'hl-wave' }, this.gHl);
