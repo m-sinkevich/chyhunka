@@ -1,0 +1,10 @@
+[
+  {"art": "bison.jpg", "near": "brest", "shift": [-15, -80], "width": 42, "rmin": 0, "rmax": 60},
+  {"art": "stork.jpg", "near": "luninets", "shift": [30, 18], "width": 17, "rmin": 0, "rmax": 50},
+  {"art": "stork.jpg", "near": "braslav", "shift": [0, 10], "width": 14, "rmin": 0, "rmax": 45},
+  {"art": "cranes.jpg", "near": [560, 715], "width": 70, "rmin": 0, "rmax": 120, "weight": 0.3, "box": [170, 120, 910, 705]},
+  {"art": "locomotive.jpg", "near": [135, 300], "width": 62, "rmin": 0, "rmax": 120, "weight": 0.2},
+  {"art": "compass.jpg", "near": [975, 110], "width": 58, "rmin": 0, "rmax": 110, "weight": 0.2,
+   "erase": [[470, 180, 550, 240], [170, 480, 240, 550], [790, 480, 850, 550]], "keep_below": 748},
+  {"art": "castle_mir.jpg", "near": "novogrudok", "width": 40}
+]
