@@ -215,7 +215,8 @@ test('конечные станции и соседи', () => {
   st.hands[0].red = 0; st.deck.push('red', 'red', 'red'); st.deck.splice(st.deck.indexOf('blue'), 3);
   st = act(st, { type: 'claim', seat: 0, route: 'r030', pay: { color: 'green', n: 2, loco: 0 } }); // Гродно — Белосток (Польша)
   assert.deepEqual(st.neighbors.got[0].map((g) => g.country).sort(), ['Литва', 'Польша']);
-  assert.equal(st.neighbors.stacks['Польша'][0], 7);
+  assert.deepEqual(st.neighbors.got[0].map((g) => g.points), [12, 12]);   // каждая страна — 12, без очерёдности
+  assert.equal(E.finalScore(st).rows[0].parts.neighbors, 24);
   st = pass(st); st = pass(st);
 });
 

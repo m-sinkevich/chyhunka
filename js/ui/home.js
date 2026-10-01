@@ -73,6 +73,7 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
         h('h3', 'С другого устройства'),
         h('p.small.muted', 'Код возврата выдаётся при входе в комнату (например «2-ABCD2345»: номер места и код).'),
         h('div.row', retRoom, retCode, retBtn))),
-    h('p.small.muted', { style: { textAlign: 'center', marginTop: '28px' } }, 'Правила: версия 0.3 · карта: 69 городов, 123 перегона · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./rules.js').then((r) => { r.initRules(app.E.M); r.showRules(); }); } }, 'полные правила'), ' · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./dialogs.js').then((d) => d.helpDialog()); } }, 'памятка'))));
+    h('p.small.muted.homefoot', { style: { textAlign: 'center', marginTop: '28px' } }, 'Правила: версия 0.3 · карта: 69 городов, 123 перегона · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./rules.js').then((r) => { r.initRules(app.E.M); r.showRules(); }); } }, 'полные правила'), ' · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./dialogs.js').then((d) => d.helpDialog()); } }, 'памятка'))));
+  root.append(h('div.love', 'Сделано с любовью для Коти ', h('span.heart', '♥')));
   if (joinCode) name.value ? join.focus() : name.focus();
 }

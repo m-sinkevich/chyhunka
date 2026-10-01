@@ -281,3 +281,17 @@ svg .closedlane { display: none; }
 .boardwrap, .boardwrap svg { user-select: none; -webkit-user-select: none; touch-action: none; }
 button.danger { color: #b3261e; border-color: #e3b1ac; }
 button.danger:hover { background: #fbe9e7; }
+
+/* главная: фон-коллаж и подпись */
+body.home { background: #EAE0C8 url(../img/home_bg.jpg) center top / cover no-repeat fixed; }
+body.home .screen { padding-bottom: 90px; }
+body.home .panel { background: rgba(250, 246, 236, .93); backdrop-filter: blur(2px); }
+body.home .hero h1 { text-shadow: 0 1px 0 #fff, 0 0 18px rgba(255, 250, 238, .9); }
+body.home .hero p { text-shadow: 0 0 10px rgba(255, 250, 238, .95); }
+.love { position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%); z-index: 5; white-space: nowrap;
+  font-family: var(--head); font-style: italic; font-size: 19px; color: #4E3B2A; letter-spacing: .02em;
+  padding: 6px 20px; border-radius: 20px; background: rgba(246, 239, 222, .88); box-shadow: 0 1px 6px rgba(60, 45, 20, .25); pointer-events: none; }
+.love .heart { color: #B3262E; font-style: normal; }
+body:not(.home) .love { display: none; }
+@media (max-width: 700px), (max-height: 640px) { .love { position: static; transform: none; display: table; margin: 18px auto 24px; font-size: 15px; padding: 4px 14px; white-space: normal; text-align: center; } body.home .screen { padding-bottom: 0; } }
+body.home .homefoot { display: table; margin: 28px auto 0 !important; padding: 4px 14px; border-radius: 14px; background: rgba(246, 239, 222, .9); }

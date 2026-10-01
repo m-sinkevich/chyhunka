@@ -146,6 +146,7 @@ const app = {
 
 async function route() {
   const hash = location.hash || '#/';
+  document.body.classList.toggle('home', hash === '#/' || hash === '#' || /^#\/join\//.test(hash));
   app.closeScreen();
   try {
     let m;

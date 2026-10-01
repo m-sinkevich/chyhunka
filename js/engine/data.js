@@ -8,7 +8,8 @@ export const COLOR_NAMES = {
   purple: 'фиолетовый', white: 'белый', black: 'чёрный', grey: 'серый', loco: 'Локомотив',
 };
 export const POLESIE = ['pinsk', 'luninets', 'kalinkovichi', 'mozyr', 'khoiniki'];
-export const NEIGHBOR_CARDS = [10, 7, 4, 2];
+export const NEIGHBOR_CARDS = [10, 7, 4, 2];   // прежний вариант (стопки), сейчас не используется
+export const NEIGHBOR_POINTS = 12;              // «Соседи»: каждая присоединённая страна — 12 очков каждому игроку
 export const TERMINUS_POINTS = 3;
 export const DEPOT_BONUS = 10;
 export const STATION_BONUS = 4;

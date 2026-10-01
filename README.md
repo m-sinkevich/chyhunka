@@ -134,6 +134,7 @@ tools/board_v2/       сборка оформления поля: geo.py (гео
 python3 tools/board_v2/geo.py          # граница, реки, озёра (Natural Earth) → на схему поля
 python3 tools/board_v2/compose.py      # фон: бумага, условный рельеф, леса, болота
 python3 tools/board_v2/decorate.py     # подписи рек, масштаб, украшения → img/board_bg.jpg, img/board.svg, data/layout.json
+node tools/board_v2/fix_labels.mjs     # (если подписи городов наезжают на вагоны) → src/label_fix.json, затем снова decorate.py
 ```
 
 Украшения (виньетки, зубр, аисты, паровоз и т. п.) — это список в `tools/board_v2/decor.json` (сейчас пустой).

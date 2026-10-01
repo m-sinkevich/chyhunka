@@ -308,46 +308,58 @@ export class Board {
   }
 
   // ---------- свободные места для значков ----------
+  /** Препятствия для значков: вагоны (повёрнутые прямоугольники), кружки городов, подписи. */
   obstacles() {
     if (this._obst) return this._obst;
-    const circles = []; const boxes = [];
-    const [cl] = this.L.car;
-    for (const cars of Object.values(this.L.routes)) {
-      for (const [x, y, a] of cars) {
-        const t = (a * Math.PI) / 180; const dx = Math.cos(t), dy = Math.sin(t);
-        for (let k = -2; k <= 2; k++) circles.push([x + dx * k * (cl / 5), y + dy * k * (cl / 5), 4.6]);
-      }
+    const [cl, cw] = this.L.car;
+    const cars = [];
+    for (const list of Object.values(this.L.routes)) for (const [x, y, a] of list) {
+      const t = (a * Math.PI) / 180; cars.push([x, y, Math.cos(t), Math.sin(t), cl / 2 + 1, cw / 2 + 1]);
     }
-    for (const [x, y, r] of Object.values(this.L.cities)) circles.push([x, y, r + 1.5]);
+    const circles = Object.values(this.L.cities).map(([x, y, r]) => [x, y, r + 1.8]);
+    const boxes = [];
     for (const t of this.root.querySelectorAll('text')) {
-      if (t.closest('g[data-r]')) continue;
-      try { const b = t.getBBox(); if (b.width) boxes.push([b.x - 1, b.y - 1, b.x + b.width + 1, b.y + b.height + 1]); } catch { /* нет разметки */ }
+      if (t.closest('g[data-r]') || t.closest('#map-geo')) continue;   // подписи рек можно слегка закрывать
+      try { const bb = t.getBBox(); if (bb.width) boxes.push([bb.x - 1, bb.y - 1, bb.x + bb.width + 1, bb.y + bb.height + 1]); } catch { /* нет разметки */ }
     }
-    return (this._obst = { circles, boxes });
+    return (this._obst = { cars, circles, boxes });
   }
+  /** Место для значка w×h рядом с городом: ближайшее, где он ничего не закрывает (или закрывает меньше всего). */
   spot(city, w, h) {
-    const key = city;
-    const used = (this.slotsUsed[key] ||= []);
+    const used = (this.slotsUsed.all ||= []);
     const [x, y, r] = this.L.cities[city];
-    const { circles, boxes } = this.obstacles();
-    const free = (cx, cy) => {
-      const x0 = cx - w / 2, y0 = cy - h / 2, x1 = cx + w / 2, y1 = cy + h / 2;
-      for (const [px, py, pr] of circles) {
-        const qx = Math.max(x0, Math.min(px, x1)), qy = Math.max(y0, Math.min(py, y1));
-        if ((qx - px) ** 2 + (qy - py) ** 2 < pr * pr) return false;
+    const { cars, circles, boxes } = this.obstacles();
+    const R = 90;
+    const near = cars.filter(([cx, cy]) => Math.abs(cx - x) < R && Math.abs(cy - y) < R);
+    const nearC = circles.filter(([cx, cy]) => Math.abs(cx - x) < R && Math.abs(cy - y) < R);
+    const nearB = boxes.filter(([a0, b0, a1, b1]) => a1 > x - R && a0 < x + R && b1 > y - R && b0 < y + R);
+    const hit = (px, py) => {
+      for (const [cx, cy, c, s, hl, hw] of near) {
+        const dx = px - cx, dy = py - cy;
+        if (Math.abs(dx * c + dy * s) <= hl && Math.abs(-dx * s + dy * c) <= hw) return 1;
       }
-      for (const [a0, b0, a1, b1] of boxes) if (x0 < a1 && x1 > a0 && y0 < b1 && y1 > b0) return false;
-      for (const [ux, uy, uw, uh] of used) if (Math.abs(cx - ux) < (w + uw) / 2 + 1 && Math.abs(cy - uy) < (h + uh) / 2 + 1) return false;
-      return true;
+      for (const [cx, cy, cr] of nearC) if ((px - cx) ** 2 + (py - cy) ** 2 <= cr * cr) return 1;
+      for (const [a0, b0, a1, b1] of nearB) if (px >= a0 && px <= a1 && py >= b0 && py <= b1) return 1;
+      for (const [ux, uy, uw, uh] of used) if (Math.abs(px - ux) <= uw / 2 + 1 && Math.abs(py - uy) <= uh / 2 + 1) return 1;
+      return 0;
     };
-    for (let d = r + Math.max(w, h) / 2 + 1.5; d < r + 40; d += 2) {
-      for (let k = 0; k < 24; k++) {
-        const ang = (-60 + k * 15) * Math.PI / 180;
+    const cost = (cx, cy) => {
+      let n = 0;
+      for (let i = 0; i <= 4; i++) for (let j = 0; j <= 4; j++) n += hit(cx - w / 2 + (w * i) / 4, cy - h / 2 + (h * j) / 4);
+      return n;
+    };
+    let best = null;
+    for (let d = r + Math.max(w, h) / 2 + 2; d < r + 60; d += 1.5) {
+      for (let k = 0; k < 36; k++) {
+        const ang = (-60 + k * 10) * Math.PI / 180;
         const cx = x + Math.cos(ang) * d, cy = y + Math.sin(ang) * d;
-        if (free(cx, cy)) { used.push([cx, cy, w, h]); return [cx, cy]; }
+        const c = cost(cx, cy);
+        if (c === 0) { used.push([cx, cy, w, h]); return [cx, cy]; }
+        const score = c * 10 + d;
+        if (!best || score < best[0]) best = [score, cx, cy];
       }
     }
-    const cx = x + r + w, cy = y - r - h; used.push([cx, cy, w, h]); return [cx, cy];
+    used.push([best[1], best[2], w, h]); return [best[1], best[2]];
   }
 
   /** Убрать с поля обозначения выключенных модулей: «?» путевых карт и «| 3» конечных станций. */

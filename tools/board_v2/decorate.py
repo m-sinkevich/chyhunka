@@ -182,6 +182,15 @@ svg = svg[:i0] + '<g id="score-table" transform="translate(0 0)">' + tbl + '</g>
 # подписи городов крупнее: малые города 5.4 → 6.4, узловые 6.2 → 7
 svg = re.sub(r'(<text [^>]*font-size=")5\.4("[^>]*paint-order="stroke">)', r'\g<1>6.4\2', svg)
 svg = re.sub(r'(<text [^>]*font-size=")6\.2("[^>]*paint-order="stroke">)', r'\g<1>7\2', svg)
+# сдвиги подписей городов, чтобы не закрывали вагоны и кружки (считает fix_labels.mjs)
+fix_path = os.path.join(HERE, 'src/label_fix.json')
+for name, f in (json.load(open(fix_path, encoding='utf-8')) if os.path.exists(fix_path) else {}).items():
+    def _fix(mm):
+        a = re.sub(r' text-anchor="[^"]*"', '', mm.group(1))
+        a = re.sub(r' x="[^"]*"', f' x="{f["x"]}"', a, count=1); a = re.sub(r' y="[^"]*"', f' y="{f["y"]}"', a, count=1)
+        return f'<text{a} text-anchor="{f["anchor"]}">{name}</text>'
+    svg, n = re.subn(r'<text((?: [^>]*)?paint-order="stroke")>' + re.escape(name) + '</text>', _fix, svg, count=1)
+    if not n: print('подпись не найдена:', name)
 # «ЛИТВА» — ниже, чтобы не прятаться под легендой
 svg = svg.replace('<text x="218.4" y="143.3" text-anchor="middle"', '<text x="120" y="262" text-anchor="middle"')
 

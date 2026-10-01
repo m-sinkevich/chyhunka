@@ -1,6 +1,6 @@
 // Применение действия к состоянию. Чистая функция: на вход состояние и действие,
 // на выход новое состояние и список событий для журнала. Ошибка правил — RuleError.
-import { COLORS, COLOR_NAMES, RACE_THRESHOLDS } from './data.js';
+import { COLORS, COLOR_NAMES, RACE_THRESHOLDS , NEIGHBOR_POINTS } from './data.js';
 import { drawCard, refillFaceUp, handSize } from './state.js';
 import { randInt } from './rng.js';
 import {
@@ -356,7 +356,8 @@ function finalizeClaim(ctx, seat, r, pay, extra, use, raid) {
 
 function checkNeighbors(ctx, seat) {
   const { st, M } = ctx;
-  const comp = components(ownRoutes(M, st, seat));
+  // перегоны окружной (между зарубежными пунктами) для «Соседей» не считаются: страны соединяет только сеть через Беларусь
+  const comp = components(ownRoutes(M, st, seat).filter((r) => !r.ring));
   const groups = {};
   for (const [city, country] of Object.entries(M.country)) if (comp.has(city)) (groups[comp.find(city)] ||= new Set()).add(country);
   const got = st.neighbors.got[seat];
@@ -364,9 +365,9 @@ function checkNeighbors(ctx, seat) {
     if (set.size < 2) continue;
     for (const country of set) {
       if (got.some((g) => g.country === country)) continue;
-      const pts = st.neighbors.stacks[country].shift() ?? 0;
+      const pts = st.cfg.neighborsFlat || NEIGHBOR_POINTS;
       got.push({ country, points: pts });
-      ctx.log(`${ctx.name(seat)} соединил страны и берёт карту «${country}»: ${pts} очк.`, 'all', { kind: 'neighbors', country, points: pts });
+      ctx.log(`${ctx.name(seat)} соединил страны: «${country}» +${pts} очк.`, 'all', { kind: 'neighbors', country, points: pts });
     }
   }
 }
