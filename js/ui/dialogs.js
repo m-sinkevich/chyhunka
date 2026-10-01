@@ -53,6 +53,8 @@ export function claimDialog(G, rid) {
   const rc = [];
   const sibClaimed = M.siblings[rid].some((s) => v.claims[s] != null);
   if (mine.includes('e1') && sibClaimed) rc.push(['e1', 'Ремонтная бригада — занять второй ряд']);
+  // второй ряд закрыт (2–3 игрока или дуэль) — без «Ремонтной бригады» его не занять, поэтому отмечаем её сразу
+  if (mine.includes('e1') && sibClaimed && (v.n <= 3 || v.cfg.duelOn)) use.e1 = true;
   if (mine.includes('e2') && r.color !== 'grey') rc.push(['e2', 'Перекраска — оплатить как серый']);
   if (mine.includes('e5') && r.tunnel && !r.ghost) rc.push(['e5', 'Дипломатический коридор — без погранконтроля']);
   if (mine.includes('e6')) rc.push(['e6', 'Запасной локомотив — +1 Локомотив']);
@@ -86,7 +88,7 @@ export function claimDialog(G, rid) {
       h('div', 'Всего: ', h('b', pts), ' (без учёта экспресса)')),
     h('h4', 'Оплата'), optsBox, note,
     rc.length ? h('h4', 'Путевые карты') : null,
-    ...rc.map(([k, label]) => h('label.row', h('input', { type: 'checkbox', onchange: (e) => { use[k] = e.target.checked; render(); } }), label)),
+    ...rc.map(([k, label]) => h('label.row', h('input', { type: 'checkbox', checked: Boolean(use[k]), onchange: (e) => { use[k] = e.target.checked; render(); } }), label)),
     depotCities.length ? h('h4', 'Склады (1921)') : null,
     ...depotCities.map((c) => {
       const o = v.depots[c];

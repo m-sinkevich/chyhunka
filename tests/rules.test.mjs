@@ -233,3 +233,16 @@ test('действия других игроков вне очереди отк�
   const st = start(3);
   rejects(st, { type: 'draw', seat: 1, source: 'deck' }, /не ваш ход/);
 });
+
+test('дуэль: «Ремонтная бригада» открывает закрытый второй ряд', () => {
+  let st = start(2, { duel: 'auto' });
+  assert.ok(st.cfg.duelOn);
+  give(st, 0, { red: 2 }); give(st, 1, { white: 2 });
+  st = act(st, { type: 'claim', seat: 0, route: 'r001', pay: { color: 'red', n: 2, loco: 0 } });
+  // без путевой карты второй ряд закрыт
+  rejects(st, { type: 'claim', seat: 1, route: 'r002', pay: { color: 'white', n: 2, loco: 0 } }, /закрыт/);
+  st.routeCards[1].push('e1');
+  st = act(st, { type: 'claim', seat: 1, route: 'r002', pay: { color: 'white', n: 2, loco: 0 }, use: { e1: true } });
+  assert.equal(st.claims.r002, 1);
+  assert.ok(!st.routeCards[1].includes('e1'));
+});

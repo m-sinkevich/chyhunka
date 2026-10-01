@@ -117,7 +117,7 @@ export function renderOffline(root, app) {
               h('td', colorSelect(b.color, false, (c) => { const o = [me, ...bots].find((x) => x !== b && x.color === c); if (o) o.color = b.color; b.color = c; render(); }), ' ',
                 h('button.small', { disabled: bots.length <= 1, onclick: () => { bots.splice(i, 1); render(); }, title: 'Убрать бота' }, '×'))))),
           h('div.row', h('button.small', { disabled: bots.length >= 4, onclick: () => { bots.push({ level: 'medium', color: nextColor() }); render(); } }, '+ бот')),
-          h('p.small.muted', 'Лёгкий — делает ошибки; Средний — строит кратчайшие пути к маршрутам; Магистральщик — собирает магистрали сквозным экспрессом.')),
+          h('p.small.muted', 'Лёгкий — делает ошибки; Средний — строит кратчайшие пути к маршрутам; Магистральщик — собирает магистрали сквозным экспрессом; Сильный — планирует общую сеть, копит нужные карты, гонится за модулями и бонусами; Эксперт — то же, плюс сравнивает несколько планов, подбирает лучшие наборы маршрутов и перекрывает соперникам ключевые перегоны.')),
         h('div.panel', h('h2', 'Настройки партии'), form,
           h('button.primary', { onclick: () => { if (!form.valid()) return toast('Выберите ровно 3 цели', 'err'); app.startOffline(me, bots, form.getConfig()); } }, 'Начать партию')))));
   };

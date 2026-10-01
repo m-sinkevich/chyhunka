@@ -27,7 +27,7 @@ export function routeBlock(M, st, seat, r, use = {}) {
     if (st.n <= 3 || st.cfg.duelOn) return 'Второй ряд двойного перегона закрыт при 2–3 игроках';
     if (owner === seat) return 'Нельзя занять оба ряда двойного перегона';
   }
-  if (st.trains[seat] < r.length) return 'Не хватает вагонов';
+  if (st.trains[seat] < r.length) return `Не хватает вагонов: перегон на ${r.length}, а у вас осталось ${st.trains[seat]}`;
   return null;
 }
 

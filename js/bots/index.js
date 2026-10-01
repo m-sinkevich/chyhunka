@@ -2,11 +2,14 @@
 import { easyMove } from './easy.js';
 import { mediumMove } from './medium.js';
 import { mainlineMove } from './mainline.js';
+import { smartMove } from './smart.js';
 
 export const BOTS = {
   easy: { name: 'Лёгкий', move: easyMove },
   medium: { name: 'Средний', move: mediumMove },
   mainline: { name: 'Магистральщик', move: mainlineMove },
+  strong: { name: 'Сильный', move: smartMove('strong') },
+  expert: { name: 'Эксперт', move: smartMove('expert') },
 };
 
 /** Ход бота с защитой: если бот ошибся, берётся простое допустимое действие. */

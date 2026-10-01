@@ -164,8 +164,11 @@ export class Board {
       g.classList.toggle('claimed', v.claims[rid] != null);
       // при 2–3 игроках и в дуэли второй ряд двойного перегона закрывается — убираем его с поля
       const closed = (v.n <= 3 || v.cfg.duelOn) && v.claims[rid] == null && M.siblings[rid].some((x) => v.claims[x] != null);
-      g.classList.toggle('closedlane', closed);
-      this.trackEls[rid]?.classList.toggle('closedlane', closed);
+      // с путевой картой «Ремонтная бригада» закрытый второй ряд можно занять — тогда он виден и доступен
+      const repair = closed && v.me >= 0 && (v.routeCards?.[v.me] || []).includes('e1');
+      g.classList.toggle('closedlane', closed && !repair);
+      g.classList.toggle('repairlane', repair);
+      this.trackEls[rid]?.classList.toggle('closedlane', closed && !repair);
     }
     // поезда игроков
     this.gClaims.replaceChildren();
