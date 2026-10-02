@@ -9,7 +9,9 @@ export const COLOR_NAMES = {
 };
 export const POLESIE = ['pinsk', 'luninets', 'kalinkovichi', 'mozyr', 'khoiniki'];
 export const NEIGHBOR_CARDS = [10, 7, 4, 2];   // прежний вариант (стопки), сейчас не используется
-export const NEIGHBOR_POINTS = 12;              // «Соседи»: каждая присоединённая страна — 12 очков каждому игроку
+export const NEIGHBOR_POINTS = 8;               // запасной вариант «по N за страну» (cfg.neighborsFlat), сейчас действует шкала
+export const NEIGHBOR_SCALE = [0, 0, 12, 20, 30, 42]; // «Соседи»: очки по числу соединённых стран (2 — 12, 3 — 20, 4 — 30, 5 — 42)
+export const NEIGHBOR_MIN_INNER = 2;            // на пути между странами — не меньше 2 перегонов внутри Беларуси
 export const TERMINUS_POINTS = 3;
 export const DEPOT_BONUS = 10;
 export const STATION_BONUS = 4;
@@ -45,6 +47,8 @@ export function prepare(map) {
   for (const p of map.tourist) M.postcards[p.id] = p;
   for (const e of map.events) M.events[e.id] = e;
   for (const g of map.goals) M.goals[g.id] = g;
+  M.inBelarus = (r) => M.cities[r.from].type !== 'ext' && M.cities[r.to].type !== 'ext';
+  M.touchesBelarus = (r) => M.cities[r.from].type !== 'ext' || M.cities[r.to].type !== 'ext';
   M.isBorder = (r) => (M.cities[r.from].type === 'ext') !== (M.cities[r.to].type === 'ext');
   M.other = (r, c) => (r.from === c ? r.to : r.from);
   M.routeName = (r) => `${M.cities[r.from].name} — ${M.cities[r.to].name}`;

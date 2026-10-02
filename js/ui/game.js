@@ -4,6 +4,7 @@ import { Board } from './board.js';
 import { cardEl, backEl, ticketEl, postcardEl, pdot, routeTipHtml, cityTipHtml } from './cards.js';
 import { ticketsDialog, claimDialog, tunnelDialog, discardDialog, swapDialog, fromDiscardDialog, vitrinaDialog, stationDialog, helpDialog, phrasesDialog } from './dialogs.js';
 import { showResults } from './results.js';
+import { cityDialog } from './cityinfo.js';
 import { legalFromView, stateFromView } from '../engine/viewstate.js';
 import { bestStationUse } from '../engine/scoring.js';
 import { components } from '../engine/rules.js';
@@ -46,6 +47,7 @@ export class GameScreen {
       (this.soundBtn = h('button.small.ib', { onclick: () => this.toggleSound() })),
       h('button.small.ib', { onclick: () => settingsDialog(), title: 'Настройки: анимации, подсветка ходов, звук' }, icon('gear')),
       h('button.small.ib', { onclick: () => showRules(null, this.view?.cfg), title: 'Полные правила с примерами' }, icon('book'), ' Правила'),
+      (this.resBtn = h('button.small.primary', { style: { display: 'none' }, onclick: () => showResults(this), title: 'Итоговая таблица: очки по статьям, маршруты, цели' }, icon('trophy', null, 15), ' Итоги')),
       h('button.small', { onclick: () => helpDialog(), title: 'Краткая памятка' }, 'Памятка'),
       h('button.small', { onclick: () => this.menu() }, 'Меню'));
     this.paintSound();
@@ -96,6 +98,7 @@ export class GameScreen {
     this.render();
     this.playEvents();
     this.autoDialogs();
+    if (this.resBtn) this.resBtn.style.display = v.phase === 'over' ? '' : 'none';
     if (v.phase === 'over' && !this.shownResults) { this.shownResults = true; setTimeout(() => showResults(this), 600); }
   }
 
@@ -176,9 +179,18 @@ export class GameScreen {
     const waiting = new Set(v.pending ? [v.pending.seat] : v.phase === 'setup' ? v.setup.waiting : [v.turn]);
     const isHost = this.ctrl.mode === 'host';
     const stat = (ic, val, title) => h('span.st', { title }, icon(ic, title, 14), ' ', val);
+    const top = Math.max(...v.score);
+    const lead = v.phase === 'over' && v.result ? [v.result.order[0]] : top > 0 ? v.score.map((x, i) => (x === top ? i : -1)).filter((i) => i >= 0) : [];
+    const botBadge = (level) => {
+      const B = BOTS[level] || { name: 'бот', rank: 0, desc: '' };
+      const tip = `Бот «${B.name}»` + (B.rank ? ` — уровень ${B.rank} из 4` : '') + (B.desc ? `: ${B.desc}` : '');
+      return h('span.botlv', { title: tip, 'aria-label': tip }, icon(BOTS[level] ? 'bot_' + level : 'bot', null, 20));
+    };
+    const wonGoals = (s) => (v.phase === 'over' && v.result ? v.result.rows[s].goals.map((g) => g.id) : v.goals.open.filter((g) => v.goals.race[g] === s)).map((g) => M.goals[g]);
     const pls = h('div.players', v.players.map((p, s) => {
       const si = info[s] || {};
-      const bot = si.kind === 'bot';
+      const bot = si.kind === 'bot' || (si.kind == null && p.bot);
+      if (bot && !si.level) si.level = p.bot || 'medium';
       const online = bot || this.ctrl.mode === 'local' || this.ctrl.online.has(s);
       const bubble = this.bubbles[s] && Date.now() - this.bubbles[s].t < 6000 ? h('span.bubble', this.bubbles[s].text) : null;
       const ch = v.chain[s];
@@ -199,10 +211,13 @@ export class GameScreen {
         : !online ? h('button.link.small', { onclick: () => this.replaceDialog(s) }, 'заменить ботом') : null) : null;
       return h('div.pl' + (waiting.has(s) && v.phase !== 'over' ? '.turn' : ''), { 'data-seat': s, style: { '--pc': playerColor(p.color) } },
         h('div.nm', h('span.on' + (online ? '.yes' : ''), { title: online ? 'в сети' : 'не в сети' }), pdot(p.color), si.name || p.name,
-          bot ? h('span.badge', { title: 'Бот ' + (BOTS[si.level]?.name || '') }, icon('bot', null, 13), ' ', BOTS[si.level]?.name || 'бот') : null,
+          bot ? botBadge(si.level) : null,
+          lead.includes(s) ? h('span.crown', { title: v.phase === 'over' ? 'Победитель' : (lead.length > 1 ? 'Делит лидерство по очкам на треке' : 'Лидер по очкам на треке') + ' (маршруты, цели и бонусы считаются в конце)' }, '♛') : null,
           s === v.me ? h('span.badge.gold', 'вы') : null,
           s === v.me && v.phase !== 'over' ? myScore(v.score[s]) : h('span.score', { title: 'Очки на треке: перегоны, сквозной экспресс, электрификация. Маршруты, цели и бонусы добавятся в конце партии' }, v.score[s])),
-        h('div.stats', stats), hostBtns, bubble);
+        h('div.stats', stats),
+        wonGoals(s).length ? h('div.wongoals', wonGoals(s).map((G) => h('span.wongoal', { title: `Цель выполнена: «${G.name}» — +${G.points} очк. (${v.cfg.duelOn ? G.race : G.rule})` }, icon('trophy', null, 14), ' ', G.name, h('b', ` +${G.points}`)))) : null,
+        hostBtns, bubble);
     }));
     const goals = v.goals.open.map((g) => {
       const G = M.goals[g]; const won = v.goals.race[g];
@@ -344,7 +359,7 @@ export class GameScreen {
       v.cfg.modules.depots ? h('button', { disabled: !has('placeDepot'), onclick: () => this.setMode('depot'), title: 'Бесплатно поставить депо со склада в город без депо (ход продолжается)' }, icon('depot'), ' Поставить депо') : null,
       has('vitrina') ? h('button', { onclick: () => vitrinaDialog(this) }, '«Витрина»') : null,
       has('fromDiscard') ? h('button', { onclick: () => fromDiscardDialog(this) }, '«Со склада»') : null,
-      has('pass') ? h('button', { onclick: () => this.act({ type: 'pass' }) }, 'Пропустить ход') : null));
+      has('pass') ? h('button', { onclick: () => this.act({ type: 'pass' }) }, v.endAfterTurnNo != null ? 'Пропустить последний ход' : 'Пропустить ход') : null));
     if (this.ctrl.mode === 'local' && this.ctrl.seatsInfo().some((x) => x.kind === 'bot')) R.append(h('label.row.small', h('input', { type: 'checkbox', checked: this.ctrl.fast, onchange: (e) => this.ctrl.setFast(e.target.checked) }), 'Боты ходят быстро'));
     if (v.endAfterTurnNo != null && v.phase !== 'over') R.append(h('div.banner.last', 'Последний круг!'));
     if (this.ctrl.mode === 'guest' && this.ctrl.presenceSeen && !this.ctrl.hostOnline && v.phase !== 'over') R.append(h('div.banner.warn', 'Хозяин не в сети. Ходы сохранятся и будут обработаны, когда он вернётся.'));
@@ -365,7 +380,7 @@ export class GameScreen {
     }))));
     if (v.cfg.modules.tourism) {
       const pcs = v.postcards[me] || [];
-      B.append(h('div', h('h4', 'Открытки'), h('div.tlist', pcs.map((id) => postcardEl(M, id, { done: this.touches(M.postcards[id].city), onenter: () => this.highlight([M.postcards[id].city], true), onleave: () => this.highlight([]) })))));
+      B.append(h('div', h('h4', 'Открытки'), h('div.pcards', pcs.map((id) => { const el = postcardEl(M, id, { done: this.touches(M.postcards[id].city), onenter: () => this.highlight([M.postcards[id].city], true), onleave: () => this.highlight([]) }); el.addEventListener('dblclick', () => cityDialog(this, M.postcards[id].city)); return el; }))));
     }
     const rc = v.routeCards[me] || [];
     if (v.cfg.modules.routeCards) B.append(h('div', h('h4', 'Путевые карты'), h('div.tlist', rc.length ? rc.map((id) => h('div.ticket', { title: M.events[id].text }, '❓ ', M.events[id].name)) : h('span.muted.small', 'нет'))));
@@ -432,6 +447,10 @@ export class GameScreen {
   select(rid) { this.selRoute = rid; this.render(); }
   clickCity(cid) {
     const v = this.view;
+    // двойной клик (или двойное касание) по городу — окно «О городе»
+    const now = Date.now();
+    if (!this.mode && this.lastCity?.id === cid && now - this.lastCity.t < 450) { this.lastCity = null; return cityDialog(this, cid); }
+    this.lastCity = { id: cid, t: now };
     if (this.mode === 'station') {
       const st = this.legal.find((a) => a.type === 'station');
       if (!st || !st.cities.includes(cid)) return toast('Здесь станцию поставить нельзя');

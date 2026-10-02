@@ -5,6 +5,7 @@
 // срочность спорных перегонов и концовку партии.
 import { BotContext } from './common.js';
 import { COLORS, POLESIE } from '../engine/data.js';
+import { neighborCountries, neighborPoints } from '../engine/rules.js';
 import { mediumTurn } from './medium.js';
 
 const CFG = {
@@ -84,6 +85,7 @@ class Smart extends BotContext {
       const p = M.postcards[id];
       if (!this.touched(p.city)) list.push({ kind: 'card', a: p.city, pts: p.points, id });
     }
+    if (!extraTickets.length) { const nb = this.nbGoal(); if (nb) list.push(nb); }
     return list;
   }
   /** Строит план: набор перегонов, соединяющих всё, что нужно. Несколько порядков — берётся самый дешёвый. */
@@ -97,7 +99,7 @@ class Smart extends BotContext {
       const planned = new Map(); let cost = 0; const failed = [];
       for (const g of order) {
         let res;
-        if (g.kind === 'ticket') {
+        if (g.kind !== 'card') {
           const net = this.netFrom(g.a, planned);
           res = net.has(g.b) ? { cost: 0, todo: [] } : this.path([...net], g.b, planned);
         } else {
@@ -149,7 +151,7 @@ class Smart extends BotContext {
     // открытки
     if (v.cfg.modules.tourism) for (const id of v.postcards[me] || []) { const p = M.postcards[id]; if ((p.city === r.from || p.city === r.to) && !this.touched(p.city)) s += p.points * 1.6; }
     // «Соседи»: новые страны в сети через Беларусь (окружная не считается)
-    if (v.cfg.modules.neighbors && !r.ring) s += this.neighborGain(r) * 12;
+    if (v.cfg.modules.neighbors && !r.ring) s += this.neighborGain(r);
     // цели
     for (const gid of v.goals.open || []) {
       if (v.goals.race && v.goals.race[gid] != null) continue;
@@ -161,17 +163,26 @@ class Smart extends BotContext {
         case 'g_polesie': if (POLESIE.includes(r.from) || POLESIE.includes(r.to)) s += 0.35 * r.length * k; break;
         case 'g_ring': if (r.ring) s += 0.5 * r.length * k; break;
         case 'g_local': for (const c of [r.from, r.to]) if (!this.touched(c)) s += 0.4 * k; break;
-        case 'g_express': if (this.extendsNet(r)) s += 0.25 * r.length * k; break;
+        case 'g_express': if (M.touchesBelarus(r) && this.extendsNet(r)) s += 0.25 * r.length * k; break;
         default: break;
       }
     }
     return s;
   }
   extendsNet(r) { return this.touched(r.from) || this.touched(r.to); }
+  /** Страны, уже соединённые моей сетью (по действующему правилу «Соседей»). */
+  nbHave() { return (this._nbHave ||= neighborCountries(this.M, this.M.routeList.filter((x) => this.mine(x)), this.v.cfg)); }
+  /** Очки за k стран вместо k0, с учётом «Перекрёстка Европы». */
+  nbPts(k0, k1) {
+    const { v } = this;
+    let p = neighborPoints(v.cfg, k1) - neighborPoints(v.cfg, k0);
+    if (v.cfg.neighborsCross && v.neighbors?.cross == null && k0 < (v.cfg.neighborsCrossAt || 4) && k1 >= (v.cfg.neighborsCrossAt || 4)) p += v.cfg.neighborsCross;
+    return p;
+  }
+  /** Сколько очков «Соседей» даст захват перегона r прямо сейчас. */
   neighborGain(r) {
-    const { M, v, me } = this;
-    const got = new Set((v.neighbors?.got?.[me] || []).map((g) => g.country));
-    // сеть без окружной + этот перегон
+    const { M, v } = this;
+    // быстрая проверка: после захвата в одной сети должны оказаться пункты двух стран
     const own = M.routeList.filter((x) => (this.mine(x) && !x.ring) || x.id === r.id);
     const parent = {};
     const find = (x) => (parent[x] === x ? x : (parent[x] = find(parent[x])));
@@ -180,8 +191,34 @@ class Smart extends BotContext {
     const countries = new Set();
     for (const [c, ctry] of Object.entries(M.country)) if (c in parent && find(c) === root) countries.add(ctry);
     if (countries.size < 2) return 0;
-    let n = 0; for (const c of countries) if (!got.has(c)) n++;
-    return n;
+    const k0 = this.nbHave().size, k1 = neighborCountries(M, own, v.cfg).size;
+    return k1 > k0 ? this.nbPts(k0, k1) : 0;
+  }
+  /** Цель плана: дотянуть сеть до пункта ещё не соединённой страны (если это окупается). */
+  nbGoal() {
+    const { M, v } = this;
+    if (!v.cfg.modules.neighbors || this.P.nbChase === false) return null;
+    const have = this.nbHave();
+    const none = new Map();
+    let best = null;
+    for (const [a, ca] of Object.entries(M.country)) {
+      if (!this.touched(a)) continue;
+      const net = this.comp(a, none);
+      const inner = M.routeList.filter((x) => this.mine(x) && M.inBelarus(x) && net.has(x.from)).length;
+      for (const [b, cb] of Object.entries(M.country)) {
+        if (cb === ca || net.has(b) || (have.has(ca) && have.has(cb))) continue;
+        const res = this.path([...net], b, none);
+        if (!res) continue;
+        if (inner + res.todo.filter((x) => M.inBelarus(x)).length < 2) continue;
+        if (res.todo.some((x) => x.ring)) continue;
+        const cost = res.todo.reduce((s2, x) => s2 + x.length, 0);
+        const k0 = have.size, k1 = Math.max(2, k0 + (have.has(ca) ? 1 : 2) - (have.has(cb) ? 1 : 0));
+        const pts = this.nbPts(k0, k1);
+        if (cost > 14 || pts < cost * 0.7) continue;
+        if (!best || pts - cost > best.pts - best.cost) best = { kind: 'nb', a, b, pts, cost, id: 'nb' };
+      }
+    }
+    return best;
   }
   /** Спорность: одиночный перегон на плане, рядом с чужими сетями — занять раньше. */
   contested(r) {
@@ -208,7 +245,7 @@ class Smart extends BotContext {
       val *= spare > 12 ? 0.55 : spare > 6 ? 0.3 : 0.1;
       if (r.length <= 2) val -= 1.5;
     }
-    val += this.moduleBonus(r);
+    val += this.moduleBonus(r) * (this.P.modW ?? 1) + (this.P.longW || 0) * Math.max(0, r.length - 3);
     // цена карт: Локомотивы и цвета, нужные плану
     const need = this.need(plan);
     val -= p.loco * (this.endSoon ? 0.6 : 2.2);
@@ -430,7 +467,7 @@ class Smart extends BotContext {
     if (best && bv >= threshold) return this.withRaid(best);
     // 3) все маршруты выполнены — добрать новые, пока есть вагоны и время
     const slack = this.myTrains - plan.cost;
-    const wantMore = !this.endSoon && this.minOpp >= 13 && slack >= (this.level === 'expert' ? 13 : 15) && (plan.cost <= 6 || !openGoals);
+    const wantMore = !this.endSoon && this.minOpp >= 13 && slack >= (this.P.slackNeed ?? (this.level === 'expert' ? 13 : 15)) && (plan.cost <= 6 || !openGoals);
     if (wantMore) {
       const row = this.legal.find((a) => a.type === 'ticketRow');
       if (row) { const pick = this.pickTickets(row.row, 1, 9).slice(0, 2).map((id) => row.row.indexOf(id)).filter((i) => i >= 0); if (pick.length) return { type: 'ticketRow', seat: me, picks: pick }; }

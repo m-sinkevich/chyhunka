@@ -298,3 +298,51 @@ body.home .hero p { text-shadow: 0 0 10px rgba(255, 250, 238, .95); }
 body:not(.home) .love { display: none; }
 @media (max-width: 700px), (max-height: 640px) { .love { position: static; transform: none; display: table; margin: 18px auto 24px; font-size: 15px; padding: 4px 14px; white-space: normal; text-align: center; } body.home .screen { padding-bottom: 0; } }
 body.home .homefoot { display: table; margin: 28px auto 0 !important; padding: 4px 14px; border-radius: 14px; background: rgba(246, 239, 222, .9); }
+/* в узком/низком окне блоки боковой панели не должны сжиматься до нуля (иначе пропадают открытые маршруты дуэли) */
+.side > * { flex-shrink: 0; }
+.tlist > * { flex-shrink: 0; }
+/* уровень бота: точки 1–4; корона лидера */
+.botlv { cursor: help; display: inline-flex; }
+.wongoals { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.wongoal { display: inline-flex; align-items: center; gap: 2px; padding: 1px 7px; border-radius: 9px; background: #E6F2E3; border: 1px solid #9CC596; font-size: 12px; cursor: help; }
+.pips { display: inline-flex; gap: 2px; margin-left: 5px; vertical-align: 1px; }
+.pips i { width: 5px; height: 5px; border-radius: 50%; background: rgba(0, 0, 0, .18); }
+.pips i.on { background: var(--acc); }
+.crown { color: #B8860B; font-size: 17px; line-height: 1; cursor: help; text-shadow: 0 1px 0 #fff; }
+.pl .nm > * { flex-shrink: 0; }
+/* мини-открытки */
+.pcards { display: flex; flex-wrap: wrap; gap: 6px; max-width: 330px; }
+.pcard { position: relative; width: 98px; height: 68px; border-radius: 5px; overflow: hidden; background: #fffdf6; border: 3px solid #fffdf6; outline: 1px solid var(--line); box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: help; transition: transform .15s; flex-shrink: 0; }
+.pcard img { width: 100%; height: 100%; object-fit: cover; filter: sepia(.35) saturate(.9); display: block; }
+.pcard.noimg { background: repeating-linear-gradient(135deg, #EFE4C8 0 6px, #E8DAB8 6px 12px); }
+.pcard.noimg::before { content: '✉'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 26px; color: rgba(74,44,28,.35); }
+.pcard .pname { position: absolute; left: 0; right: 0; bottom: 0; padding: 8px 4px 2px; font: 700 11px/1.1 var(--head); color: #fff; text-shadow: 0 1px 2px #000; background: linear-gradient(transparent, rgba(0,0,0,.65)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pcard .stamp { position: absolute; top: 2px; right: 2px; min-width: 19px; height: 22px; padding: 0 3px; display: grid; place-items: center; background: #fffdf6; color: var(--acc); font: 700 13px var(--head); border: 1px dashed var(--acc); border-radius: 2px; }
+.pcard .pdone { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #3E8E41; color: #fff; display: grid; place-items: center; font-size: 12px; }
+.pcard.done { outline: 2px solid #3E8E41; }
+.pcard:hover, .pcard:focus-visible { transform: scale(1.9); z-index: 30; transform-origin: bottom center; }
+label.row .pcard:hover { transform-origin: center left; }
+/* окно «О городе» */
+.citydlg { max-width: 520px; }
+.cinfo { display: flex; flex-direction: column; gap: 10px; }
+.chead { display: flex; gap: 12px; align-items: flex-start; }
+.chead p { margin: 4px 0 0; }
+.arms { width: 72px; height: 84px; object-fit: contain; flex-shrink: 0; }
+.arms.ph { display: grid; place-items: center; font: 700 34px var(--head); color: #fff; background: var(--acc); clip-path: polygon(0 0, 100% 0, 100% 62%, 50% 100%, 0 62%); }
+.cfacts { font-size: 13px; color: var(--muted, #6b5d4a); }
+.cphoto { margin: 0; border: 6px solid #fffdf6; outline: 1px solid var(--line); box-shadow: 0 2px 6px rgba(0,0,0,.2); background: #fffdf6; }
+.cphoto img { width: 100%; max-height: 260px; object-fit: cover; display: block; filter: sepia(.2); }
+.cphoto figcaption { font: italic 13px var(--head); padding: 5px 2px 0; text-align: center; }
+.cphoto.none img { display: none; }
+.cphoto.none { border: none; outline: none; box-shadow: none; background: none; }
+.cphoto.none figcaption::before { content: 'Достопримечательность: '; font-style: normal; font-weight: 700; }
+.cphoto.none figcaption { text-align: left; padding: 0; }
+.crail { margin: 0; }
+.cgame h4 { margin: 0 0 4px; } .cgame ul { margin: 0 0 6px; padding-left: 18px; font-size: 13px; }
+.ccredit { font-size: 11px; color: var(--muted, #6b5d4a); margin: 0; }
+.carms { flex-shrink: 0; width: 76px; text-align: center; }
+.cnote { font-size: 10px; line-height: 1.1; color: var(--muted, #6b5d4a); }
+.cwiki { border-top: 1px solid var(--line); padding-top: 8px; }
+.cwiki summary { font: 700 15px var(--head); cursor: pointer; margin-bottom: 4px; }
+.cwiki p { margin: 0 0 6px; font-size: 14px; }
+.citydlg .modal-body { max-height: 78vh; overflow: auto; }

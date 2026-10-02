@@ -1,5 +1,5 @@
 // Правила: можно ли занять перегон, варианты оплаты, лидеры, сети игроков, метрики целей.
-import { COLORS, POLESIE } from './data.js';
+import { COLORS, POLESIE, NEIGHBOR_POINTS, NEIGHBOR_MIN_INNER, NEIGHBOR_SCALE } from './data.js';
 import { handSize } from './state.js';
 
 export class RuleError extends Error {}
@@ -126,7 +126,7 @@ export function goalMetric(M, st, seat, gid, net) {
   const own = ownRoutes(M, st, seat);
   const comp = components(net || own);
   switch (gid) {
-    case 'g_express': return longestTrail(M, own);
+    case 'g_express': return longestTrail(M, own.filter((r) => M.touchesBelarus(r))); // внутренние и приграничные перегоны; окружная (оба конца за границей) не считается
     case 'g_ring': return longestTrail(M, own.filter((r) => r.ring));
     case 'g_globe': return st.tickets[seat].filter((t) => comp.same(M.tickets[t].from, M.tickets[t].to)).length;
     case 'g_tourist': return st.postcards[seat].filter((p) => comp.has(M.postcards[p].city)).length;
@@ -144,4 +144,51 @@ export const cardsInHand = (st, seat) => handSize(st.hands[seat]);
 /** Можно ли ещё что-то взять из колоды/сброса/складов. */
 export function canDrawDeck(st) {
   return st.deck.length > 0 || st.discard.length > 0 || (st.cfg.modules.depots && st.warehouses.some((w) => w.length));
+}
+
+/**
+ * «Соседи»: какие страны игрок соединил. routes — его перегоны; окружная не учитывается.
+ * cfg.neighborsRule (по умолчанию 'path2'): 'any2' — в сети, касающейся двух стран, есть 2 перегона внутри Беларуси (где угодно);
+ *                    'path2' — между пунктами двух стран есть путь по своим перегонам, и на нём не меньше 2 перегонов внутри Беларуси.
+ */
+export function neighborCountries(M, routes, cfg = {}) {
+  const net = routes.filter((r) => !r.ring);
+  const need = cfg.neighborsMinInner ?? NEIGHBOR_MIN_INNER;
+  const out = new Set();
+  if ((cfg.neighborsRule || 'path2') === 'any2') {
+    const comp = components(net);
+    const inner = {}, groups = {};
+    for (const r of net) if (M.inBelarus(r)) inner[comp.find(r.from)] = (inner[comp.find(r.from)] || 0) + 1;
+    for (const [city, country] of Object.entries(M.country)) if (comp.has(city)) (groups[comp.find(city)] ||= new Set()).add(country);
+    for (const [root, set] of Object.entries(groups)) if (set.size >= 2 && (inner[root] || 0) >= need) for (const c of set) out.add(c);
+    return out;
+  }
+  const adj = {};
+  for (const r of net) { (adj[r.from] ||= []).push(r); (adj[r.to] ||= []).push(r); }
+  const total = new Set(Object.keys(adj).map((c) => M.country[c]).filter(Boolean)).size;
+  const used = new Set(); let budget = 30000;
+  for (const a of Object.keys(adj)) {
+    const ca = M.country[a];
+    if (!ca) continue;
+    const dfs = (u, k) => {
+      if (budget-- < 0) return;
+      const cu = M.country[u];
+      if (cu && cu !== ca && k >= need) { out.add(ca); out.add(cu); }
+      for (const r of adj[u]) {
+        if (used.has(r.id)) continue;
+        used.add(r.id); dfs(M.other(r, u), k + (M.inBelarus(r) ? 1 : 0)); used.delete(r.id);
+        if (out.size >= total) return;
+      }
+    };
+    dfs(a, 0);
+    if (out.size >= total) break;
+  }
+  return out;
+}
+/** Очки «Соседей» за k соединённых стран: шкала cfg.neighborsScale (массив по k) или по neighborsFlat за страну. */
+export function neighborPoints(cfg, k) {
+  if (k < 2) return 0;
+  if (cfg.neighborsFlat) return k * cfg.neighborsFlat;
+  const scale = cfg.neighborsScale || NEIGHBOR_SCALE;
+  return scale[Math.min(k, scale.length - 1)] || 0;
 }

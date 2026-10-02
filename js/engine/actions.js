@@ -53,7 +53,8 @@ export function legalActions(M, st, seat) {
   if (rc.includes('e3') && st.faceUp.length) out.push({ type: 'vitrina', seat, template: true });
   if (rc.includes('e4') && st.discard.length) out.push({ type: 'fromDiscard', seat, template: true });
   if (st.cfg.modules.depots && st.depotsHome[seat] > 0) out.push({ type: 'placeDepot', seat, template: true });
-  if (!hasRealAction(M, st, seat)) out.push({ type: 'pass', seat });
+  // пропуск: когда сделать ничего нельзя, а в последнем круге — по желанию (например, вагоны кончились)
+  if (!hasRealAction(M, st, seat) || (st.endAfterTurnNo != null && !st.ts.drawn)) out.push({ type: 'pass', seat });
   return out;
 }
 

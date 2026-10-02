@@ -133,7 +133,7 @@ tools/board_v2/       сборка оформления поля: geo.py (гео
 ```sh
 python3 tools/board_v2/geo.py          # граница, реки, озёра (Natural Earth) → на схему поля
 python3 tools/board_v2/compose.py      # фон: бумага, условный рельеф, леса, болота
-python3 tools/board_v2/decorate.py     # подписи рек, масштаб, украшения → img/board_bg.jpg, img/board.svg, data/layout.json
+python3 tools/board_v2/decorate.py     # подписи рек, масштаб, заливка соседних стран, флаги в ромбах, украшения → img/board_bg.jpg, img/board.svg, data/layout.json
 node tools/board_v2/fix_labels.mjs     # (если подписи городов наезжают на вагоны) → src/label_fix.json, затем снова decorate.py
 ```
 
@@ -146,6 +146,21 @@ node tools/board_v2/fix_labels.mjs     # (если подписи городов
 перегенерируйте раскладку скриптом `tools/make_web_board.py` (в папке с исходниками печатного поля),
 положите новые `img/board.svg` и `data/layout.json` в `tools/board_v2/src/` как `board_base.svg` и `layout_base.json`
 и заново выполните обе команды оформления.
+
+### Окно «О городе» и открытки
+
+Двойной клик по городу открывает окно с гербом, справкой, достопримечательностью и железнодорожным фактом.
+Тексты лежат в `data/cities_info.json` (их можно править в Блокноте). Картинки — в `img/cities/<id>.jpg` (фото, оно же на открытке)
+и `img/cities/arms/<id>.png` (герб). Скачать их из Википедии и Викисклада одним разом:
+
+```sh
+py tools/fetch_city_images.py        # Windows; на Linux/macOS — python3 tools/fetch_city_images.py
+```
+
+Он же скачивает вступление и раздел «История» из статей Википедии в `data/cities_wiki.json` (показываются в окне города со ссылкой на источник).
+Если герба города нет, берётся герб района (с подписью); если нет фото — ближайшая к городу фотография с Викисклада.
+Скрипт ничего не требует, кроме Python 3, пропускает уже скачанное и записывает авторов и лицензии в `img/cities/credits.json`
+(они показываются в окне города). Свою картинку можно положить вручную под тем же именем. Нет файла — игра рисует заглушку.
 
 ## 7. Проверки
 

@@ -28,6 +28,8 @@ export function makeEngine(map) {
     publicView: (st) => publicView(M, st),
     finalScore: (st) => finalScore(M, st),
     rules,
+    neighborCountries: (routes, cfg = {}) => rules.neighborCountries(M, routes, cfg),
+    neighborPoints: (k, cfg = {}) => rules.neighborPoints(cfg, k),
     /** Кто сейчас должен действовать: список мест. */
     waitingFor: (st) => {
       if (st.phase === 'over') return [];

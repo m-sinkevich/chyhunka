@@ -65,6 +65,7 @@ export function cityTipHtml(M, v, cid) {
   const st = v.stationsAt?.[cid];
   if (st?.length) s += `<br>Станции: ${st.map((x) => escapeHtml(v.players[x].name)).join(', ')}`;
   if (v.depots?.[cid] != null) s += `<br>Депо: ${escapeHtml(v.players[v.depots[cid]].name)}`;
+  s += '<br><span style="opacity:.7">двойной клик — о городе</span>';
   return s;
 }
 const escapeHtml = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -76,8 +77,14 @@ export function ticketEl(M, id, { done, onenter, onleave, onclick, sel, extra } 
     { onmouseenter: onenter, onmouseleave: onleave, onclick, title: long ? 'Длинный маршрут' : '' },
     done ? '✓' : null, `${M.cities[t.from].name} — ${M.cities[t.to].name}`, extra, h('span.pts', t.points));
 }
-export function postcardEl(M, id, { done, onenter, onleave } = {}) {
+/** Мини-открытка: фото достопримечательности (img/cities/<id>.jpg), город и цена на «марке». Нет фото — бумажная заглушка. */
+export function postcardEl(M, id, { done, onenter, onleave, onclick } = {}) {
   const p = M.postcards[id];
-  return h('div.ticket' + (done ? '.done' : ''), { onmouseenter: onenter, onmouseleave: onleave }, done ? '✓' : '✉', ` ${M.cities[p.city].name}`, h('span.pts', p.points));
+  const name = M.cities[p.city].name;
+  const el = h('div.pcard' + (done ? '.done' : ''), { onmouseenter: onenter, onmouseleave: onleave, onclick, tabindex: 0,
+    title: `Открытка «${name}»: ${done ? '+' : '±'}${p.points} очк. — ${done ? 'ваша сеть уже касается города' : 'дотяните сеть до города, иначе в конце −' + p.points}. Двойной клик — о городе` },
+  h('img', { src: `img/cities/${p.city}.jpg`, alt: '', loading: 'lazy', onerror: (e) => { e.target.remove(); el.classList.add('noimg'); } }),
+  h('span.stamp', p.points), done ? h('span.pdone', '✓') : null, h('span.pname', name));
+  return el;
 }
 export const allColors = COLORS;

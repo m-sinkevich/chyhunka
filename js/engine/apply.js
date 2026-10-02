@@ -1,11 +1,12 @@
 // Применение действия к состоянию. Чистая функция: на вход состояние и действие,
 // на выход новое состояние и список событий для журнала. Ошибка правил — RuleError.
-import { COLORS, COLOR_NAMES, RACE_THRESHOLDS , NEIGHBOR_POINTS } from './data.js';
+import { COLORS, COLOR_NAMES, RACE_THRESHOLDS } from './data.js';
 import { drawCard, refillFaceUp, handSize } from './state.js';
 import { randInt } from './rng.js';
 import {
   RuleError, fail, leaders, isSoleLeader, blindOnly, routeBlock, checkRoutePay, stationBlock,
   checkStationPay, stationCost, ownRoutes, components, goalMetric, canDrawDeck,
+  neighborCountries, neighborPoints,
 } from './rules.js';
 import { finalScore } from './scoring.js';
 
@@ -243,9 +244,10 @@ const TURN = {
 
   pass(ctx, seat) {
     const { st } = ctx;
-    if (hasRealAction(ctx.M, st, seat)) fail('Пропустить ход можно, только если сделать ничего нельзя');
-    st.passes++;
-    ctx.log(`${ctx.name(seat)} пропускает ход: действий нет`, 'all', { kind: 'pass' });
+    const forced = !hasRealAction(ctx.M, st, seat);
+    if (!forced && !(st.endAfterTurnNo != null && !st.ts.drawn)) fail('Пропустить ход можно, только если сделать ничего нельзя, или в последнем круге');
+    if (forced) st.passes++;
+    ctx.log(forced ? `${ctx.name(seat)} пропускает ход: действий нет` : `${ctx.name(seat)} пропускает последний ход`, 'all', { kind: 'pass' });
     finishAction(ctx);
   },
 };
@@ -356,19 +358,20 @@ function finalizeClaim(ctx, seat, r, pay, extra, use, raid) {
 
 function checkNeighbors(ctx, seat) {
   const { st, M } = ctx;
-  // перегоны окружной (между зарубежными пунктами) для «Соседей» не считаются: страны соединяет только сеть через Беларусь
-  const comp = components(ownRoutes(M, st, seat).filter((r) => !r.ring));
-  const groups = {};
-  for (const [city, country] of Object.entries(M.country)) if (comp.has(city)) (groups[comp.find(city)] ||= new Set()).add(country);
+  const set = neighborCountries(M, ownRoutes(M, st, seat), st.cfg);
   const got = st.neighbors.got[seat];
-  for (const set of Object.values(groups)) {
-    if (set.size < 2) continue;
-    for (const country of set) {
-      if (got.some((g) => g.country === country)) continue;
-      const pts = st.cfg.neighborsFlat || NEIGHBOR_POINTS;
-      got.push({ country, points: pts });
-      ctx.log(`${ctx.name(seat)} соединил страны: «${country}» +${pts} очк.`, 'all', { kind: 'neighbors', country, points: pts });
-    }
+  const have = got.filter((g) => !g.bonus).map((g) => g.country);
+  const fresh = [...set].filter((c) => !have.includes(c));
+  if (!fresh.length) return;
+  const k1 = have.length + fresh.length;
+  const delta = neighborPoints(st.cfg, k1) - neighborPoints(st.cfg, have.length);
+  fresh.forEach((country, i) => got.push({ country, points: i ? 0 : delta }));   // очки шкалы записываются на первую из новых стран
+  const all = [...have, ...fresh];
+  ctx.log(`${ctx.name(seat)} соединил страны: ${all.join(', ')} — ${all.length} ${all.length < 5 ? 'страны' : 'стран'}, +${delta} очк. (всего ${neighborPoints(st.cfg, k1)})`, 'all', { kind: 'neighbors', countries: all, points: delta });
+  if (st.cfg.neighborsCross && st.neighbors.cross == null && k1 >= (st.cfg.neighborsCrossAt || 4)) {
+    st.neighbors.cross = seat;
+    got.push({ country: 'Перекрёсток Европы', points: st.cfg.neighborsCross, bonus: true });
+    ctx.log(`${ctx.name(seat)} первым соединил 4 страны — «Перекрёсток Европы» +${st.cfg.neighborsCross} очк.`, 'all', { kind: 'neighbors', points: st.cfg.neighborsCross });
   }
 }
 

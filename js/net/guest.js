@@ -13,7 +13,7 @@ export class GuestGame {
     if (!this.view) return [];
     return this.view.players.map((p) => {
       const s = this.seatsDb.find((x) => x.seat === p.dbSeat) || {};
-      return { name: s.name || p.name, color: p.color, kind: s.kind || (p.bot ? 'bot' : 'human'), level: s.bot_level, dbSeat: p.dbSeat };
+      return { name: s.name || p.name, color: p.color, kind: s.kind || (p.bot ? 'bot' : 'human'), level: s.bot_level || p.bot || undefined, dbSeat: p.dbSeat };
     });
   }
   engineSeat(db) { return this.view ? this.view.players.findIndex((p) => p.dbSeat === db) : -1; }
@@ -43,7 +43,11 @@ export class GuestGame {
   }
   addEvent(e) {
     if (e.id != null) { if (this.eventIds.has(e.id)) return; this.eventIds.add(e.id); }
-    this.events.push({ text: e.text, seq: e.seq, vis: e.visibility == null ? 'all' : e.visibility, ...(e.data || {}) });
+    const ev = { text: e.text, seq: e.seq, vis: e.visibility == null ? 'all' : e.visibility, ...(e.data || {}), _id: e.id };
+    // события приходят по сети не всегда по порядку — ставим по номеру, иначе «Ходит X» окажется между двумя взятыми картами
+    let i = this.events.length;
+    if (e.id != null) while (i > 0 && (this.events[i - 1]._id == null ? false : this.events[i - 1]._id > e.id)) i--;
+    this.events.splice(i, 0, ev);
     if (this.events.length > 400) this.events.splice(0, this.events.length - 400);
   }
   reloadViewSoon() {

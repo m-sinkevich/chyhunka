@@ -5,11 +5,11 @@ import { mainlineMove } from './mainline.js';
 import { smartMove } from './smart.js';
 
 export const BOTS = {
-  easy: { name: 'Лёгкий', move: easyMove },
-  medium: { name: 'Средний', move: mediumMove },
-  mainline: { name: 'Магистральщик', move: mainlineMove },
-  strong: { name: 'Сильный', move: smartMove('strong') },
-  expert: { name: 'Эксперт', move: smartMove('expert') },
+  easy: { name: 'Лёгкий', rank: 1, desc: 'делает ошибки', move: easyMove },
+  medium: { name: 'Средний', rank: 2, desc: 'строит кратчайшие пути к маршрутам', move: mediumMove },
+  mainline: { name: 'Магистральщик', rank: 2, desc: 'собирает магистрали сквозным экспрессом', move: mainlineMove },
+  strong: { name: 'Сильный', rank: 3, desc: 'планирует общую сеть, копит нужные карты, берёт модули и бонусы', move: smartMove('strong') },
+  expert: { name: 'Эксперт', rank: 4, desc: 'сравнивает планы, подбирает лучшие маршруты, перекрывает соперников', move: smartMove('expert') },
 };
 
 /** Ход бота с защитой: если бот ошибся, берётся простое допустимое действие. */

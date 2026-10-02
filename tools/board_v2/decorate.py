@@ -136,7 +136,7 @@ def d_of(p, close=False): return 'M' + ' L'.join(f'{x:.1f} {y:.1f}' for x, y in 
 parts = ['<g id="map-geo" pointer-events="none" stroke-linejoin="round" stroke-linecap="round">']
 parts.append(f'<clipPath id="board-clip"><rect x="0" y="0" width="{W}" height="{H}"/></clipPath><g clip-path="url(#board-clip)">')
 for b_ in GEO['borders']:   # границы соседей
-    parts.append(f'<path d="{d_of(chaikin(b_["pts"], 1))}" fill="none" stroke="#9A8E76" stroke-width="0.8" stroke-dasharray="4 1.6 1 1.6" opacity="0.9"/>')
+    parts.append(f'<path d="{d_of(chaikin(b_["pts"], 1))}" fill="none" stroke="#5E4A36" stroke-width="1.15" stroke-dasharray="5 1.8 1.2 1.8" opacity="0.9"/>')
 for l in GEO['lakes']:
     parts.append(f'<path d="{d_of(chaikin(l["pts"], 2), True)}" fill="{WATER}" stroke="{RIVER}" stroke-width="0.35"/>')
 for r in sorted(GEO['rivers'], key=lambda r: r['major']):
@@ -161,6 +161,29 @@ for k in range(0, KM, 25):
 for k in range(0, KM + 1, 25): g.append(f'<text x="{k * mpk:.2f}" y="{ry + 7.5}" font-size="5" text-anchor="middle">{k}</text>')
 g.append(f'<text x="{bw + 3:.2f}" y="{ry + 1.7}" font-size="5.2">км</text></g>')
 parts += g + ['</g>']
+
+# ---------- соседние страны: акварельная кайма своего цвета вдоль границ (как на старых политических картах) ----------
+MAPD = json.load(open(os.path.join(ROOT, 'data/map.json'), encoding='utf-8'))
+CITIES = list(MAPD['cities'].values()) if isinstance(MAPD['cities'], dict) else MAPD['cities']
+EXT = {c['id']: c['country'].split(' ')[0] for c in CITIES if c['type'] == 'ext'}
+TINT = {'Литва': (112, 150, 78), 'Латвия': (150, 62, 78), 'Россия': (78, 112, 168), 'Украина': (214, 170, 48), 'Польша': (200, 84, 110)}
+walls = np.zeros((PH, PW), np.uint8)
+for b_ in GEO['borders'] + [{'pts': GEO['belarus'] + GEO['belarus'][:1]}]:
+    cv2.polylines(walls, [np.round(chaikin(b_['pts'], 1) * S).astype(np.int32)], False, 1, thickness=3)
+lab, _n = ndimage.label(walls == 0)
+home = lab[int(P['minsk'][1] * S), int(P['minsk'][0] * S)]
+arr = np.asarray(im.convert('RGB')).astype(np.float32)
+for country, col in TINT.items():
+    ids = {int(lab[int(P[c][1] * S), int(P[c][0] * S)]) for c, k in EXT.items() if k == country} - {0}
+    assert ids and home not in ids, f'граница не замкнута: {country}'
+    mask = np.isin(lab, list(ids))
+    mask = ndimage.binary_dilation(mask, iterations=2) & (lab != home)
+    d = ndimage.distance_transform_edt(mask)
+    al = np.where(mask, 0.09 + 0.24 * np.exp(-d / (14 * S)), 0).astype(np.float32)
+    al = cv2.GaussianBlur(al, (0, 0), 1.2)[..., None]
+    arr = arr * (1 - al) + np.array(col, np.float32) * al
+    print('страна', country, '· участков', len(ids), '· доля поля %.1f%%' % (mask.mean() * 100))
+im = Image.fromarray(arr.clip(0, 255).astype(np.uint8))
 
 # ---------- сборка: фон, SVG, layout ----------
 im.convert('RGB').save(os.path.join(ROOT, 'img/board_bg.jpg'), quality=86, optimize=True, progressive=True)
@@ -191,8 +214,27 @@ for name, f in (json.load(open(fix_path, encoding='utf-8')) if os.path.exists(fi
         return f'<text{a} text-anchor="{f["anchor"]}">{name}</text>'
     svg, n = re.subn(r'<text((?: [^>]*)?paint-order="stroke")>' + re.escape(name) + '</text>', _fix, svg, count=1)
     if not n: print('подпись не найдена:', name)
-# «ЛИТВА» — ниже, чтобы не прятаться под легендой
-svg = svg.replace('<text x="218.4" y="143.3" text-anchor="middle"', '<text x="120" y="262" text-anchor="middle"')
+# «ЛИТВА» — правее легенды, внутри своей заливки
+svg = svg.replace('<text x="218.4" y="143.3" text-anchor="middle"', '<text x="268" y="214" text-anchor="middle"')
+
+# флаги в ромбах зарубежных пунктов
+FLAG = {'Литва': [('#F2C230', 6.2), ('#2E7D4F', 4.6), ('#B8323A', 6.2)], 'Латвия': [('#8E2A35', 7.0), ('#F4EFE2', 3.0), ('#8E2A35', 7.0)],
+        'Россия': [('#F4EFE2', 6.2), ('#2F55A0', 4.6), ('#C03A3A', 6.2)], 'Украина': [('#3B6FB5', 8.5), ('#F2C230', 8.5)], 'Польша': [('#F4EFE2', 8.5), ('#C8364A', 8.5)]}
+R_ = 6 * math.sqrt(2)
+def _flag(mm):
+    x, y = float(mm.group(1)), float(mm.group(2))
+    cid = next((c for c in EXT if abs(P[c][0] - x) < 0.6 and abs(P[c][1] - y) < 0.6), None)
+    if cid is None: return mm.group(0)
+    dia = f'{x:.2f},{y - R_:.2f} {x + R_:.2f},{y:.2f} {x:.2f},{y + R_:.2f} {x - R_:.2f},{y:.2f}'
+    out = [f'<g class="flag" data-country="{EXT[cid]}"><clipPath id="fl-{cid}"><polygon points="{dia}"/></clipPath><g clip-path="url(#fl-{cid})">']
+    yy = y - R_
+    for col, hh in FLAG[EXT[cid]]:
+        out.append(f'<rect x="{x - R_:.2f}" y="{yy:.2f}" width="{2 * R_:.2f}" height="{hh + 0.05:.2f}" fill="{col}"/>'); yy += hh
+    out.append(f'</g><polygon points="{dia}" fill="none" stroke="#2B2B2B" stroke-width="1"/></g>')
+    return ''.join(out)
+svg, nfl = re.subn(r'<rect x="[\d.]+" y="[\d.]+" width="12" height="12" transform="rotate\(45 ([\d.]+) ([\d.]+)\)"[^>]*/>', _flag, svg)
+assert svg.count('class="flag"') == len(EXT), 'не все флаги расставлены'
+svg = svg.replace('>Зарубежный пункт<', '>Зарубежный пункт (флаг страны)<')
 
 assert 'map-geo' in svg and 'id="legend"' in svg and 'БЕЛАРУСЬ' not in svg, 'не удалось собрать SVG'
 open(os.path.join(ROOT, 'img/board.svg'), 'w', encoding='utf-8').write(svg)

@@ -213,10 +213,17 @@ test('конечные станции и соседи', () => {
   st = pass(st); st = pass(st);
   for (const c of ['red', 'red', 'red']) { st.deck.splice(st.deck.indexOf(c), 1); st.deck.push(c); } // погранконтроль без доплаты
   st.hands[0].red = 0; st.deck.push('red', 'red', 'red'); st.deck.splice(st.deck.indexOf('blue'), 3);
-  st = act(st, { type: 'claim', seat: 0, route: 'r030', pay: { color: 'green', n: 2, loco: 0 } }); // Гродно — Белосток (Польша)
-  assert.deepEqual(st.neighbors.got[0].map((g) => g.country).sort(), ['Литва', 'Польша']);
-  assert.deepEqual(st.neighbors.got[0].map((g) => g.points), [12, 12]);   // каждая страна — 12, без очерёдности
-  assert.equal(E.finalScore(st).rows[0].parts.neighbors, 24);
+  // «Соседи»: на пути между странами нужно не меньше 2 перегонов внутри Беларуси
+  const M = E.M;
+  const st1 = act(structuredClone(st), { type: 'claim', seat: 0, route: 'r030', pay: { color: 'green', n: 2, loco: 0 } });
+  assert.deepEqual(st1.neighbors.got[0], []);   // Вильнюс — Гродно — Белосток: внутренних перегонов нет
+  assert.equal(E.neighborCountries(M.routeList.filter((r) => ['r100', 'r030'].includes(r.id))).size, 0);
+  const stub = M.routeList.filter((r) => M.inBelarus(r) && !r.ghost && (r.from === 'grodno' || r.to === 'grodno'));
+  const far = M.routeList.find((r) => M.inBelarus(r) && r.id !== stub[0].id && [r.from, r.to].includes(M.other(stub[0], 'grodno')));
+  assert.equal(E.neighborCountries([M.routes.r100, M.routes.r030, stub[0], far]).size, 0);   // тупиковая ветка в стороне не помогает
+  const via = (ids) => E.neighborCountries(ids.map((c, i) => i && M.routeList.find((r) => !r.ghost && [r.from, r.to].includes(c) && [r.from, r.to].includes(ids[i - 1]))).filter(Boolean));
+  assert.deepEqual([...via(['bialystok', 'grodno', 'mosty', 'lida', 'vilnius'])].sort(), ['Литва', 'Польша']);
+  assert.deepEqual([0, 1, 2, 3, 4, 5].map((k) => E.neighborPoints(k)), [0, 0, 12, 20, 30, 42]);
   st = pass(st); st = pass(st);
 });
 
@@ -245,4 +252,18 @@ test('дуэль: «Ремонтная бригада» открывает за�
   st = act(st, { type: 'claim', seat: 1, route: 'r002', pay: { color: 'white', n: 2, loco: 0 }, use: { e1: true } });
   assert.equal(st.claims.r002, 1);
   assert.ok(!st.routeCards[1].includes('e1'));
+});
+
+test('последний круг: ход можно пропустить; экспресс считает приграничные, но не окружную', () => {
+  let st = start(2);
+  assert.ok(!E.legal(st, st.turn).some((a) => a.type === 'pass'));
+  assert.throws(() => act(st, { type: 'pass', seat: st.turn }));
+  st.endAfterTurnNo = st.turnNo + 1;
+  const seat = st.turn;
+  assert.ok(E.legal(st, seat).some((a) => a.type === 'pass'));
+  st = act(st, { type: 'pass', seat });
+  assert.notEqual(st.turn, seat);
+  const M = E.M;
+  const border = M.routeList.find((r) => M.isBorder(r)), ring = M.routeList.find((r) => r.ring);
+  assert.ok(M.touchesBelarus(border) && !M.touchesBelarus(ring));
 });
