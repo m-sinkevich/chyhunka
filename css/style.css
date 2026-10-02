@@ -346,3 +346,29 @@ label.row .pcard:hover { transform-origin: center left; }
 .cwiki summary { font: 700 15px var(--head); cursor: pointer; margin-bottom: 4px; }
 .cwiki p { margin: 0 0 6px; font-size: 14px; }
 .citydlg .modal-body { max-height: 78vh; overflow: auto; }
+/* сыгранные путевые карты */
+.rcard.used { opacity: .55; background: var(--paper3); font-style: italic; }
+.rcard.used .pts { font-weight: 400; }
+/* открытки в окне выбора: крупные, без увеличения — иначе картинка наезжает на галочку и мигает */
+label.row .pcard { width: 168px; height: 112px; }
+label.row .pcard:hover, label.row .pcard:focus-visible { transform: none; }
+label.row .pcard .pname { font-size: 14px; padding: 14px 6px 4px; }
+label.row .pcard .stamp { min-width: 26px; height: 30px; font-size: 17px; }
+/* путевая карта: крупная карточка */
+.rc-splash { width: 300px; padding: 14px 16px 16px; border-radius: 12px; background: #fffdf6; border: 3px solid var(--pc, var(--gold)); box-shadow: 0 12px 40px rgba(0,0,0,.45), 0 0 0 6px rgba(255,253,246,.6); text-align: center; font-family: var(--body, inherit); }
+.rc-splash .rc-top { display: flex; align-items: center; justify-content: center; gap: 6px; font: 700 13px var(--head); letter-spacing: .08em; text-transform: uppercase; color: #6b5d4a; }
+.rc-splash .rc-who { margin-top: 6px; font-weight: 700; color: var(--pc, #333); }
+.rc-splash .rc-name { margin: 6px 0; font: 700 24px/1.15 var(--head); }
+.rc-splash .rc-text { font-size: 15px; line-height: 1.35; }
+.rc-splash .rc-kind { margin-top: 10px; display: inline-block; padding: 2px 10px; border-radius: 10px; background: var(--paper3); font-size: 12px; font-weight: 700; }
+.rc-splash.k-leader .rc-kind { background: var(--acc); color: #fff; }
+.rc-splash.k-keep .rc-kind { background: var(--gold); }
+.rc-splash.k-hidden .rc-name { font-size: 54px; color: #B8860B; }
+/* язык */
+.langbar { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+.langsel { width: auto; min-width: 0; padding: 4px 8px; font-size: 14px; }
+/* пасхалка */
+.kkname { cursor: pointer; }
+.kk-over { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: rgba(20, 14, 8, .78); cursor: pointer; animation: kkin .35s ease-out; }
+.kk-over img { max-width: 92vw; max-height: 92vh; border: 10px solid #fffdf6; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: rotate(-1.5deg); }
+@keyframes kkin { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }

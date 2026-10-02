@@ -12,6 +12,7 @@ import { renderHome } from './ui/home.js';
 import { renderLobby, renderOffline } from './ui/lobby.js';
 import { GameScreen } from './ui/game.js';
 import { PUBLIC_URL } from '../config.js';
+import { APP_VERSION } from './version.js';
 
 const root = document.getElementById('app');
 
@@ -171,7 +172,8 @@ app.route = route;
 async function boot() {
   try {
     const [map, layout, svgText] = await Promise.all([
-      fetch('data/map.json').then((r) => r.json()), fetch('data/layout.json').then((r) => r.json()), fetch('img/board.svg').then((r) => r.text()),
+      fetch('data/map.json?v=' + APP_VERSION).then((r) => r.json()), fetch('data/layout.json?v=' + APP_VERSION).then((r) => r.json()),
+      fetch('img/board.svg?v=' + APP_VERSION).then((r) => r.text()).then((t) => t.replace('img/board_bg.jpg', 'img/board_bg.jpg?v=' + APP_VERSION)),
     ]);
     app.E = makeEngine(map); app.layout = layout; app.svgText = svgText;
   } catch (e) {

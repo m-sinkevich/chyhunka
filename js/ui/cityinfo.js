@@ -5,6 +5,7 @@ import { h, modal } from './dom.js';
 import { COLOR_NAMES } from '../engine/data.js';
 import { playerColor } from '../net/room.js';
 
+const raw = (s) => document.createTextNode(s || '');   // тексты о городах пока только на русском — не переводим кусками
 let INFO = null, CREDITS = null, WIKI = null;
 const load = () => (INFO ? Promise.resolve() : Promise.all([
   fetch('data/cities_info.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
@@ -24,9 +25,9 @@ function arms(cid, name, note) {
 export async function cityDialog(G, cid) {
   await load();
   const M = G.M, v = G.view, c = M.cities[cid], I = INFO[cid] || {};
-  const facts = [I.region, I.year ? (/^\d+$/.test(I.year) ? `первое упоминание — ${I.year} г.` : `известен с ${I.year}`) : null, I.pop ? `население ${I.pop}` : null].filter(Boolean);
+  const facts = [I.year ? (/^\d+$/.test(I.year) ? `первое упоминание — ${I.year} г.` : `известен с ${I.year}`) : null, I.pop ? `население ${I.pop}` : null].filter(Boolean);
   const photo = h('figure.cphoto', h('img', { src: cityPhoto(cid), alt: I.sight || c.name, loading: 'lazy', onerror: () => photo.classList.add('none') }),
-    h('figcaption', I.sight || ''));
+    h('figcaption', raw(I.sight)));
   // игровая информация
   const owner = (r) => (v.claims[r.id] != null ? v.players[v.claims[r.id]] : null);
   const routes = M.adj[cid].map((r) => {
@@ -46,16 +47,16 @@ export async function cityDialog(G, cid) {
   const cr = CREDITS[cid] || {};
   const credit = [cr.photo && `фото: ${cr.photo.author || 'Викисклад'}${cr.photo.license ? ', ' + cr.photo.license : ''}`, cr.arms && `герб: ${cr.arms.author || 'Викисклад'}${cr.arms.license ? ', ' + cr.arms.license : ''}`].filter(Boolean).join(' · ');
   const W = WIKI[cid];
-  const paras = (t) => t.split('\n').filter(Boolean).map((x) => h('p', x));
+  const paras = (t) => t.split('\n').filter(Boolean).map((x) => h('p', raw(x)));
   const wiki = W && (W.history || W.intro) ? h('details.cwiki', { open: true }, h('summary', W.history ? 'История' : 'О городе подробнее'),
     paras(W.history || W.intro),
     h('p.ccredit', 'Текст: ', h('a', { href: W.url, target: '_blank', rel: 'noopener' }, `Википедия — «${W.title}»`), ', лицензия CC BY-SA 4.0')) : null;
   modal({
     title: c.name, cls: 'citydlg',
     body: h('div.cinfo',
-      h('div.chead', h('div.carms', arms(cid, c.name, cr.arms?.note), cr.arms?.note ? h('div.cnote', cr.arms.note) : null), h('div', h('div.cfacts', facts.join(' · ') || (c.type === 'ext' ? 'зарубежный пункт' : '')), h('p', I.about || ''))),
+      h('div.chead', h('div.carms', arms(cid, c.name, cr.arms?.note), cr.arms?.note ? h('div.cnote', cr.arms.note) : null), h('div', h('div.cfacts', I.region || facts.length ? raw([I.region, ...facts].filter(Boolean).join(' · ')) : (c.type === 'ext' ? 'зарубежный пункт' : '')), h('p', raw(I.about)))),
       photo,
-      I.rail ? h('p.crail', h('b', 'Железная дорога. '), I.rail) : null,
+      I.rail ? h('p.crail', h('b', 'Железная дорога. '), raw(I.rail)) : null,
       wiki,
       game,
       credit ? h('p.ccredit', credit, ' (Википедия / Викисклад)') : null),

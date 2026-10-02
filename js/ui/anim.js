@@ -31,3 +31,24 @@ export function bump(el) {
 }
 
 export const animOn = () => prefs.animMs > 0;
+
+/** Крупная карточка по центру области box: появляется, держится hold мс и улетает к элементу to. */
+export function splash(node, box, to, { hold = 2600, delay = 0 } = {}) {
+  const b = box?.getBoundingClientRect?.();
+  if (!b) return Promise.resolve();
+  node.style.cssText += `;position:fixed;left:${b.left + b.width / 2}px;top:${b.top + b.height / 2}px;z-index:900;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.2)`;
+  return new Promise((done) => setTimeout(() => {
+    document.body.append(node);
+    const t = to?.getBoundingClientRect?.();
+    const dx = t ? t.left + t.width / 2 - (b.left + b.width / 2) : 0, dy = t ? t.top + t.height / 2 - (b.top + b.height / 2) : 0;
+    const total = 450 + hold + 550;
+    const a = node.animate([
+      { opacity: 0, transform: 'translate(-50%,-50%) scale(.2) rotate(-8deg)', offset: 0 },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1.08) rotate(2deg)', offset: 350 / total },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1) rotate(0)', offset: 450 / total },
+      { opacity: 1, transform: 'translate(-50%,-50%) scale(1) rotate(0)', offset: (450 + hold) / total },
+      { opacity: 0, transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px)) scale(.15)`, offset: 1 },
+    ], { duration: total, easing: 'ease-out' });
+    a.onfinish = () => { node.remove(); if (to instanceof Element) bump(to); done(); };
+  }, delay));
+}

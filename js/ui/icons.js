@@ -1,3 +1,4 @@
+import { tr } from '../i18n.js';
 // Пиктограммы интерфейса (SVG, цвет — currentColor). icon('wagon', 'подсказка') → <span class="ico">.
 const P = {
   wagon: '<rect x="1.5" y="4" width="13" height="7" rx="1.5"/><rect x="3.5" y="5.8" width="2.4" height="2.2" fill="#fff" stroke="none"/><rect x="6.8" y="5.8" width="2.4" height="2.2" fill="#fff" stroke="none"/><rect x="10.1" y="5.8" width="2.4" height="2.2" fill="#fff" stroke="none"/><circle cx="4.5" cy="12.6" r="1.3"/><circle cx="11.5" cy="12.6" r="1.3"/>',
@@ -45,6 +46,6 @@ export function icon(name, title, size = 16) {
   const s = document.createElement('span');
   s.className = 'ico';
   s.innerHTML = iconSvg(name, size);
-  if (title) { s.title = title; s.setAttribute('aria-label', title); }
+  if (title) { s.title = tr(title); s.setAttribute('aria-label', tr(title)); }
   return s;
 }

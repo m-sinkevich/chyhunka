@@ -1,5 +1,6 @@
 // Игровое поле: то же SVG, что и печатная версия, плюс слой с поездами игроков, станциями, депо и треком очков.
 // Масштаб колёсиком/щипком, перетаскивание, клик по перегону или городу.
+import { tr, trHtml, trDom } from '../i18n.js';
 import { playerColor } from '../net/room.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -14,6 +15,7 @@ export class Board {
   constructor(container, svgText, layout, M, handlers = {}) {
     this.c = container; this.L = layout; this.M = M; this.on = handlers;
     container.innerHTML = svgText;
+    trDom(container);
     const svg = (this.svg = container.querySelector('svg'));
     svg.removeAttribute('width'); svg.removeAttribute('height');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -141,7 +143,7 @@ export class Board {
     const m = t.closest?.('[data-tip]');
     const text = m ? m.dataset.tip : r ? this.on.routeTip?.(r.dataset.r) : c ? this.on.cityTip?.(c.dataset.c) : null;
     if (!text) return this.hideTip();
-    this.tip.innerHTML = text;
+    this.tip.innerHTML = trHtml(text);
     this.tip.classList.remove('hidden');
     const box = this.c.getBoundingClientRect();
     let x = e.clientX - box.left + 14, y = e.clientY - box.top + 14;
@@ -204,7 +206,7 @@ export class Board {
       const g = el('g', { transform: `translate(${cx - 4.5} ${cy - 4.5})`, class: 'mark', 'data-tip': `<b>Депо</b> · ${pname(s)}<br>${M.cities[city].name}` }, this.gMarks);
       el('rect', { width: 9, height: 9, rx: 1, fill: col(s), stroke: '#fff', 'stroke-width': 0.9 }, g);
       const t = el('text', { x: 4.5, y: 6.8, 'text-anchor': 'middle', 'font-size': 6.4, 'font-weight': 700, fill: '#111', 'font-family': 'PT Sans, Arial' }, g);
-      t.textContent = 'Д';
+      t.textContent = tr('Д');
     }
     for (const [city, s] of Object.entries(v.terminus || {})) {
       if (s == null) continue;
@@ -285,6 +287,7 @@ export class Board {
     return this.fxTimer(g, sec);
   }
   plate(g, x, y, text, color) {
+    text = tr(text);
     const w = Math.max(34, text.length * 6.1 + 12);
     const pg = el('g', { class: 'fx-plate' }, el('g', { transform: `translate(${x} ${y - 4})` }, g));
     el('path', { d: `M-5 9 L0 15 L5 9Z`, fill: color }, pg);

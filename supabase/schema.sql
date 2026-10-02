@@ -23,7 +23,7 @@ create table if not exists public.seats (
   room_id    uuid not null references public.rooms(id) on delete cascade,
   seat       int  not null check (seat between 0 and 4),
   kind       text not null default 'closed' check (kind in ('human', 'bot', 'closed')),
-  bot_level  text check (bot_level in ('easy', 'medium', 'mainline')),
+  bot_level  text check (bot_level in ('easy', 'medium', 'mainline', 'strong', 'expert')),
   uid        uuid,
   name       text check (char_length(name) <= 20),
   color      text,
@@ -101,6 +101,10 @@ language sql stable security definer set search_path = public as $$
 $$;
 
 -- ---------- RLS ----------
+-- уровни ботов: при повторном запуске на существующей базе обновляем ограничение (добавлены «Сильный» и «Эксперт»)
+alter table public.seats drop constraint if exists seats_bot_level_check;
+alter table public.seats add constraint seats_bot_level_check check (bot_level in ('easy', 'medium', 'mainline', 'strong', 'expert'));
+
 alter table public.rooms         enable row level security;
 alter table public.seats         enable row level security;
 alter table public.seat_secrets  enable row level security;

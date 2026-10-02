@@ -267,3 +267,23 @@ test('последний круг: ход можно пропустить; эк�
   const border = M.routeList.find((r) => M.isBorder(r)), ring = M.routeList.find((r) => r.ring);
   assert.ok(M.touchesBelarus(border) && !M.touchesBelarus(ring));
 });
+
+test('путевая карта «против лидера» не бьёт того, кто её вытянул', () => {
+  let st = start(3, { modules: { routeCards: true } });
+  const r = E.M.routeList.find((x) => x.event && !x.ghost && !x.tunnel && x.color !== 'grey' && x.length <= 3);
+  const seat = st.turn;
+  st.score[seat] = 20;                                  // единоличный лидер
+  st.routeCardDeck = st.routeCardDeck.filter((x) => x !== 'e9'); st.routeCardDeck.push('e9');   // «Выгиб рельсов» сверху
+  give(st, seat, { [r.color]: r.length });
+  st = act(st, { type: 'claim', seat, route: r.id, pay: { color: r.color, n: r.length, loco: 0 } });
+  assert.ok(!st.flags[seat].extraCard);
+  assert.deepEqual(st.routeCardsUsed[seat], ['e9']);
+  // а соперника-лидера — бьёт
+  let s2 = start(3, { modules: { routeCards: true } });
+  const me = s2.turn, other = (me + 1) % 3;
+  s2.score[other] = 20;
+  s2.routeCardDeck = s2.routeCardDeck.filter((x) => x !== 'e9'); s2.routeCardDeck.push('e9');
+  give(s2, me, { [r.color]: r.length });
+  s2 = act(s2, { type: 'claim', seat: me, route: r.id, pay: { color: r.color, n: r.length, loco: 0 } });
+  assert.ok(s2.flags[other].extraCard);
+});

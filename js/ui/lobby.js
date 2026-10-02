@@ -1,4 +1,5 @@
 // Лобби сетевой партии и подготовка офлайн-партии с ботами.
+import { tr } from '../i18n.js';
 import { h, clear, toast, copyText } from './dom.js';
 import { settingsForm, DEFAULT_CFG } from './settings.js';
 import { PLAYER_COLORS, PLAYER_COLOR_NAMES, playerColor } from '../net/room.js';
@@ -65,7 +66,7 @@ export function renderLobby(root, app, lobby, session) {
       if (waitingHumans.length) problems.push(`ждём игроков: ${waitingHumans.length} (или закройте место / поставьте бота)`);
       if (form && !form.valid()) problems.push('выберите ровно 3 цели');
       startBtn.disabled = problems.length > 0;
-      startInfo.textContent = problems.length ? 'Чтобы начать: ' + problems.join('; ') : 'Всё готово.';
+      startInfo.textContent = problems.length ? tr('Чтобы начать: ') + problems.map((x) => tr(x)).join('; ') : tr('Всё готово.');
     };
     renderStart();
     clear(root).append(h('div.screen',

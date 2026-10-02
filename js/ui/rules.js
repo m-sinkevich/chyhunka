@@ -1,5 +1,6 @@
 // Полные правила «Чыгунка» (v0.3) с примерами. Разделы имеют якоря,
 // на них ведут кнопки «?» из журнала, окна захвата перегона и итогов.
+import { noTr } from '../i18n.js';
 import { h, modal } from './dom.js';
 import { COLOR_NAMES } from '../engine/data.js';
 
@@ -119,7 +120,7 @@ function content() {
       p(b('Цены открыток'), ' (чем труднее добраться до города, тем дороже):'),
       table(['Очки', 'Города'], Object.entries(M.map.tourist.reduce((a, t) => { (a[t.points] ||= []).push(M.cities[t.city].name); return a; }, {})).sort((x, y) => x[0] - y[0]).map(([pts, names]) => [b(pts), names.join(', ')]))),
     sec('m-routecards', 'Путевые карты',
-      p('Занимая перегон со знаком «?», игрок берёт верхнюю путевую карту. Сыгранная карта уходит под низ колоды. «Лидер» — игрок (или игроки) с наибольшим счётом.'),
+      p('Занимая перегон со знаком «?», игрок берёт верхнюю путевую карту. Сыгранная карта уходит под низ колоды. «Лидер» — игрок (или игроки) с наибольшим счётом. Карта «против лидера» не действует на того, кто её вытянул: если вы лидер и сами открыли такую карту, она сгорает (при равенстве очков бьёт только остальных лидеров).'),
       table(['Карта', 'Тип', 'Действие'], events.map((e) => [e.name, { keep: 'в руку', leader: 'бьёт лидера', all: 'всем', self: 'себе' }[e.kind], e.text]))),
     sec('m-neighbors', 'Соседи',
       p('Зарубежные пункты (ромбы на поле) разделены на пять стран:'),
@@ -161,7 +162,8 @@ function content() {
 /** Открыть правила на разделе anchor. */
 const MODULE_OF = { 'm-depots': 'depots', 'm-tourism': 'tourism', 'm-routecards': 'routeCards', 'm-neighbors': 'neighbors', 'm-terminus': 'terminus' };
 /** Открыть правила на разделе anchor. cfg — настройки текущей партии: выключенные модули помечаются. */
-export function showRules(anchor, cfg = null) {
+export function showRules(anchor, cfg = null) { return noTr(() => showRulesRu(anchor, cfg)); }
+function showRulesRu(anchor, cfg) {
   if (!M) return;
   const off = (id) => cfg && ((MODULE_OF[id] && !cfg.modules?.[MODULE_OF[id]]) || (id === 'duel' && !cfg.duelOn) || (id === 'chain' && cfg.chain === false) || (id === 'goals' && cfg.goals === 'off'));
   const body = h('div.rules-body', content());

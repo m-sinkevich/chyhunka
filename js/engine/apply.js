@@ -386,17 +386,23 @@ function drawRouteCard(ctx, seat) {
     ctx.log(`Ваша путевая карта: «${e.name}» — ${e.text}`, seat, { kind: 'routeCard', id, seat });
     return;
   }
+  usedCard(st, seat, id);
   ctx.log(`${ctx.name(seat)} открывает путевую карту «${e.name}»: ${e.text}`, 'all', { kind: 'routeCard', id, seat });
-  const lead = leaders(st);
+  // карты «против лидера» не действуют на того, кто их вытянул: лидер не наказывает сам себя
+  const lead = leaders(st).filter((q) => e.kind !== 'leader' || q !== seat);
+  if (e.kind === 'leader' && !lead.length) ctx.log(`${ctx.name(seat)} сам лидер — карта не действует`, 'all', { kind: 'routeCard', seat, void: true });
   if (id === 'e7') for (const q of lead) queueDiscard(ctx, q, Math.min(2, handSize(st.hands[q])), '«Листья на путях»');
   if (id === 'e8') for (const q of lead) st.flags[q].blindOnly = st.turnNo;
   if (id === 'e9') for (const q of lead) st.flags[q].extraCard = true;
   if (id === 'e10') for (const q of lead) if (q !== seat) moveRandomCard(ctx, q, seat);
   if (id === 'e11') for (let q = 0; q < st.n; q++) { const k = handSize(st.hands[q]); if (k >= 12) queueDiscard(ctx, q, k - 10, '«Ревизия»'); }
   if (id === 'e12') for (let q = 0; q < st.n; q++) if (st.score[q] > st.score[seat]) moveRandomCard(ctx, q, seat);
-  if (id === 'e8' || id === 'e9') ctx.log(`Действует на: ${lead.map(ctx.name).join(', ')}`);
+  if ((id === 'e8' || id === 'e9') && lead.length) ctx.log(`Действует на: ${lead.map(ctx.name).join(', ')}`);
   st.routeCardDeck.unshift(id); // сыгранная карта — под низ колоды
 }
+
+/** Сыгранные путевые карты игрока (видны всем): и карты «в руку» после применения, и сработавшие сразу. */
+function usedCard(st, seat, id) { (st.routeCardsUsed ||= st.players.map(() => []))[seat].push(id); }
 
 function queueDiscard(ctx, seat, count, reason) {
   if (count <= 0) return;
@@ -420,6 +426,7 @@ function takeRouteCard(ctx, seat, id) {
   const i = st.routeCards[seat].indexOf(id);
   if (i < 0) fail('У вас нет такой путевой карты');
   st.routeCards[seat].splice(i, 1);
+  usedCard(st, seat, id);
   st.routeCardDeck.unshift(id);
 }
 

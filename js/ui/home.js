@@ -1,5 +1,7 @@
 // Главная: имя, создание комнаты, вход по коду, игра с ботами, возврат в партию.
 import { h, clear, toast, confirmBox, modal } from './dom.js';
+import { APP_VERSION } from '../version.js';
+import { langSelect } from './lang.js';
 import { supabaseConfigured, backend } from '../net/client.js';
 import { listSessions, dropSession, loadOffline, clearOffline, getPref, setPref } from '../net/sessions.js';
 
@@ -47,6 +49,7 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
       ] });
   };
   clear(root).append(h('div.screen',
+    h('div.langbar', langSelect()),
     h('div.hero', h('h1', 'Чыгунка'), h('p', 'Железнодорожная игра по карте Беларуси — по сети с друзьями и с ботами')),
     !hasSb ? h('div.notice', 'Сервер Supabase ещё не подключён (файл config.js). Доступны игра с ботами и ', h('b', 'демо-сеть'), ': откройте страницу в нескольких вкладках этого браузера — и каждая вкладка станет отдельным игроком.') : null,
     h('div.cards',
@@ -73,7 +76,6 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
         h('h3', 'С другого устройства'),
         h('p.small.muted', 'Код возврата выдаётся при входе в комнату (например «2-ABCD2345»: номер места и код).'),
         h('div.row', retRoom, retCode, retBtn))),
-    h('p.small.muted.homefoot', { style: { textAlign: 'center', marginTop: '28px' } }, 'Правила: версия 0.3 · карта: 69 городов, 123 перегона · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./rules.js').then((r) => { r.initRules(app.E.M); r.showRules(); }); } }, 'полные правила'), ' · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./dialogs.js').then((d) => d.helpDialog()); } }, 'памятка'))));
-  root.append(h('div.love', 'Сделано с любовью для Коти ', h('span.heart', '♥')));
+    h('p.small.muted.homefoot', { style: { textAlign: 'center', marginTop: '28px' } }, `Версия ${APP_VERSION} · карта: 69 городов, 123 перегона · `, h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./rules.js').then((r) => { r.initRules(app.E.M); r.showRules(); }); } }, 'полные правила'), ' · ', h('a', { href: '#/', onclick: (e) => { e.preventDefault(); import('./dialogs.js').then((d) => d.helpDialog()); } }, 'памятка'))));
   if (joinCode) name.value ? join.focus() : name.focus();
 }

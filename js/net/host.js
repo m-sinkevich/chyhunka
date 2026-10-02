@@ -68,6 +68,7 @@ export class HostGame {
     });
     this.presence = this.api.channel('room:' + this.room.code, { seat: this.mySeatDb, host: true });
     this.presence.onPresence((list) => { this.online = new Set(list.map((m) => this.engineSeat(m.seat)).filter((s) => s >= 0)); this.emit('presence'); });
+    this.presence.onBroadcast('kk', (m) => { this.kk = m; this.emit('kk'); });
     this.presence.onBroadcast('chat', (m) => { this.events.push({ text: `${m.name}: «${m.text}»`, kind: 'chat', seat: m.seat }); this.emit('chat'); });
     await this.pullPending();
     this.runner.scheduleBots();
@@ -160,6 +161,7 @@ export class HostGame {
     await this.api.rpc('set_seat_bot', { p_room: this.room.id, p_seat: this.map[seat], p_level: null, p_name: null });
     await this.reloadSeats();
   }
+  sendKk(m) { this.presence?.send('kk', m); }
   say(text) { this.presence?.send('chat', { seat: this.seat, name: this.seatsInfo()[this.seat]?.name, text }); }
   /** Удалить партию на сервере: предупредить гостей и стереть комнату. */
   async deleteRoom() {

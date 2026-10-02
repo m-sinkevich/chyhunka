@@ -1,4 +1,5 @@
 // Диалоги действий: выбор маршрутов, оплата перегона, погранконтроль, сброс, станция, смена состава и т. д.
+import { tr, noTr } from '../i18n.js';
 import { h, modal, plural } from './dom.js';
 import { cardEl, chip, payChips, routeFeatures, ticketEl, postcardEl, pdot } from './cards.js';
 import { CARD_TYPES, COLORS, COLOR_NAMES } from '../engine/data.js';
@@ -27,8 +28,8 @@ export function ticketsDialog(G, { title, offer, min, maxLong = 9, postOffer = [
     const longs = [...keep].filter((id) => ['long', 'transit'].includes(M.tickets[id].set)).length;
     const okT = keep.size >= min && longs <= maxLong;
     const okP = keepP.size >= postMin;
-    info.textContent = `Оставьте не меньше ${min} ${plural(min, 'маршрута', 'маршрутов', 'маршрутов')}` + (maxLong < 9 && offer.some((id) => ['long', 'transit'].includes(M.tickets[id].set)) ? `, длинный — не больше ${maxLong}` : '') +
-      '. Невыполненный маршрут в конце вычитается. Наведите на маршрут — города подсветятся на поле.';
+    info.textContent = tr(`Оставьте не меньше ${min} ${plural(min, 'маршрута', 'маршрутов', 'маршрутов')}` + (maxLong < 9 && offer.some((id) => ['long', 'transit'].includes(M.tickets[id].set)) ? `, длинный — не больше ${maxLong}` : '') +
+      '. Невыполненный маршрут в конце вычитается. Наведите на маршрут — города подсветятся на поле.');
     if (dlg) dlg.buttons[0].disabled = !(okT && okP);
   };
   render();
@@ -73,7 +74,7 @@ export function claimDialog(G, rid) {
         bonus > 0 ? h('span.badge.gold', { title: 'Перегон продолжает вашу цепочку прошлого хода тем же цветом' }, `сквозной экспресс +${bonus}`) : null, bonus > 0 ? ruleLink('chain') : null);
     })));
     const extra = v.flags[me]?.extraCard ? '«Выгиб рельсов»: перегон стоит на 1 карту больше. ' : '';
-    note.textContent = extra + (r.tunnel && !r.ghost && !use.e5 ? `После оплаты откроются ${v.score[me] === Math.max(...v.score) && v.score.filter((x) => x === v.score[me]).length === 1 && v.cfg.leader4 ? 4 : 3} карты колоды: за каждую карту вашего цвета или Локомотив — доплата.` : '');
+    note.textContent = tr(extra + (r.tunnel && !r.ghost && !use.e5 ? `После оплаты откроются ${v.score[me] === Math.max(...v.score) && v.score.filter((x) => x === v.score[me]).length === 1 && v.cfg.leader4 ? 4 : 3} карты колоды: за каждую карту вашего цвета или Локомотив — доплата.` : ''));
     if (dlg) dlg.buttons[1].disabled = Boolean(block) || !options.length;
     dlg && (dlg.opts = options);
   };
@@ -215,7 +216,8 @@ export function stationDialog(G, city, cost) {
   });
 }
 
-export function helpDialog() {
+export function helpDialog() { noTr(helpDialogRu); }   // памятка пока только на русском
+function helpDialogRu() {
   const li = (t) => h('li', t);
   modal({
     title: 'Памятка', wide: true,

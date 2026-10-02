@@ -4,6 +4,7 @@ import { Board } from './board.js';
 import { cardEl, backEl, ticketEl, postcardEl, pdot, routeTipHtml, cityTipHtml } from './cards.js';
 import { ticketsDialog, claimDialog, tunnelDialog, discardDialog, swapDialog, fromDiscardDialog, vitrinaDialog, stationDialog, helpDialog, phrasesDialog } from './dialogs.js';
 import { showResults } from './results.js';
+import { tr } from '../i18n.js';
 import { cityDialog } from './cityinfo.js';
 import { legalFromView, stateFromView } from '../engine/viewstate.js';
 import { bestStationUse } from '../engine/scoring.js';
@@ -13,7 +14,7 @@ import { BOTS } from '../bots/index.js';
 import { getPref, setPref, dropSession, clearOffline } from '../net/sessions.js';
 import { icon } from './icons.js';
 import { prefs, settingsDialog } from './prefs.js';
-import { fly, bump } from './anim.js';
+import { fly, bump, splash } from './anim.js';
 import { showRules, ruleLink, initRules } from './rules.js';
 import { playerColor } from '../net/room.js';
 
@@ -79,6 +80,7 @@ export class GameScreen {
     if (!v) return;
     if (what === 'error' && this.ctrl.lastError) toast(this.ctrl.lastError, 'err');
     if (what === 'rematch' && this.ctrl.rematch) { this.app.followRematch(this, this.ctrl.rematch); return; }
+    if (what === 'kk') return this.kkShow(this.ctrl.kk);
     if (what === 'chat') { const e = this.ctrl.events[this.ctrl.events.length - 1]; if (e?.seat != null) { this.bubbles[e.seat] = { text: e.text.split('«')[1]?.replace('»', '') || '', t: Date.now() }; } }
     if (what === 'status') {
       if (this.ctrl.status === 'conflict') toast('Партия открыта в другой вкладке как хозяин. Эта вкладка остановлена.', 'err', 9000);
@@ -106,7 +108,7 @@ export class GameScreen {
   paintSound() {
     this.soundBtn.replaceChildren(icon(this.sound ? 'bell' : 'bellOff'));
     this.soundBtn.classList.toggle('off', !this.sound);
-    this.soundBtn.title = this.sound ? 'Звук «ваш ход» включён — нажмите, чтобы выключить' : 'Звук выключен — нажмите, чтобы включить';
+    this.soundBtn.title = tr(this.sound ? 'Звук «ваш ход» включён — нажмите, чтобы выключить' : 'Звук выключен — нажмите, чтобы включить');
   }
   notifyTurn() {
     if (this.sound && navigator.userActivation?.hasBeenActive !== false) {
@@ -127,7 +129,7 @@ export class GameScreen {
     const has = (t) => this.legal.some((a) => a.type === t);
     // статус
     const st = this.statusText();
-    this.status.textContent = st.text;
+    this.status.textContent = tr(st.text);
     this.status.className = 'status' + (st.mine ? ' mine' : '');
     document.title = (st.mine ? '● ' : '') + 'Чыгунка';
     // поле
@@ -210,7 +212,7 @@ export class GameScreen {
         ? h('button.link.small', { onclick: async () => { if (await confirmBox('Вернуть место', `Отдать место «${si.name}» человеку? Игрок вернётся по своему коду возврата.`)) this.ctrl.giveBack(s); } }, 'вернуть человеку')
         : !online ? h('button.link.small', { onclick: () => this.replaceDialog(s) }, 'заменить ботом') : null) : null;
       return h('div.pl' + (waiting.has(s) && v.phase !== 'over' ? '.turn' : ''), { 'data-seat': s, style: { '--pc': playerColor(p.color) } },
-        h('div.nm', h('span.on' + (online ? '.yes' : ''), { title: online ? 'в сети' : 'не в сети' }), pdot(p.color), si.name || p.name,
+        h('div.nm', h('span.on' + (online ? '.yes' : ''), { title: online ? 'в сети' : 'не в сети' }), pdot(p.color), /^\s*змеючка\s*$/i.test(si.name || p.name) ? h('span.kkname', { onclick: () => this.kkSend() }, si.name || p.name) : (si.name || p.name),
           bot ? botBadge(si.level) : null,
           lead.includes(s) ? h('span.crown', { title: v.phase === 'over' ? 'Победитель' : (lead.length > 1 ? 'Делит лидерство по очкам на треке' : 'Лидер по очкам на треке') + ' (маршруты, цели и бонусы считаются в конце)' }, '♛') : null,
           s === v.me ? h('span.badge.gold', 'вы') : null,
@@ -282,10 +284,21 @@ export class GameScreen {
     const market = () => this.right.querySelector('.market');
     const deckEl = () => this.right.querySelector('.card.back');
     const sec = prefs.flashSec; const mode = prefs.flashMode;
-    let d = 0;
+    let d = 0, rcDelay = 0;
     for (const e of fresh) {
       const s = e.seat;
       const mine = s === me;
+      // путевая карта: крупная карточка по центру поля, затем улетает к игроку
+      if (e.kind === 'routeCard' && s != null && !e.void && (e.id || !mine)) {
+        const ev = e.id ? M.events[e.id] : null;
+        const KIND = { keep: 'остаётся в руке — сыграйте, когда нужно', leader: 'бьёт лидера', all: 'действует на всех', self: 'срабатывает сразу' };
+        const card = h('div.rc-splash' + (ev ? '.k-' + ev.kind : '.k-hidden'), { style: { '--pc': col(s) } },
+          h('div.rc-top', icon('question', null, 22), ' Путевая карта'),
+          h('div.rc-who', mine ? 'Вы получили' : name(s)),
+          ev ? [h('div.rc-name', ev.name), h('div.rc-text', ev.text), h('div.rc-kind', KIND[ev.kind])] : [h('div.rc-name', '?'), h('div.rc-text', 'Карта остаётся у игрока в руке')]);
+        splash(card, this.boardBox, mine ? this.bottom.querySelector('.rcards') || this.bottom : panel(s), { delay: rcDelay, hold: ev ? 2800 : 1400 });
+        rcDelay += ev ? 3400 : 2000;
+      }
       if (e.kind === 'draw') {
         if (e.source === 'up' && e.card) {
           const slot = market()?.children[e.index ?? 0];
@@ -383,7 +396,14 @@ export class GameScreen {
       B.append(h('div', h('h4', 'Открытки'), h('div.pcards', pcs.map((id) => { const el = postcardEl(M, id, { done: this.touches(M.postcards[id].city), onenter: () => this.highlight([M.postcards[id].city], true), onleave: () => this.highlight([]) }); el.addEventListener('dblclick', () => cityDialog(this, M.postcards[id].city)); return el; }))));
     }
     const rc = v.routeCards[me] || [];
-    if (v.cfg.modules.routeCards) B.append(h('div', h('h4', 'Путевые карты'), h('div.tlist', rc.length ? rc.map((id) => h('div.ticket', { title: M.events[id].text }, '❓ ', M.events[id].name)) : h('span.muted.small', 'нет'))));
+    if (v.cfg.modules.routeCards) {
+      const used = (v.routeCardsUsed || [])[me] || [];
+      const KIND = { keep: 'в руку', leader: 'бьёт лидера', all: 'всем', self: 'себе' };
+      B.append(h('div.rcards', h('h4', 'Путевые карты'), h('div.tlist',
+        rc.map((id) => h('div.ticket.rcard', { title: `${M.events[id].text}. Карта у вас в руке — сыграйте, когда нужно` }, icon('question', null, 14), ' ', M.events[id].name)),
+        used.map((id) => h('div.ticket.rcard.used', { title: `Сыграна (${KIND[M.events[id].kind]}): ${M.events[id].text}` }, icon('question', null, 14), ' ', M.events[id].name, h('span.pts', '✓'))),
+        !rc.length && !used.length ? h('span.muted.small', 'нет') : null)));
+    }
     const flags = v.flags[me] || {};
     const f = [];
     if (flags.blindOnly != null) f.push('«Скот на путях»: в следующий ход карты только из колоды');
@@ -445,6 +465,37 @@ export class GameScreen {
     claimDialog(this, rid);
   }
   select(rid) { this.selRoute = rid; this.render(); }
+  // ---------- пасхалка «Змеючка»: случайное фото из img/kk у всех игроков в комнате ----------
+  async kkList() {
+    if (this._kk) return this._kk;
+    let list = await fetch('img/kk/list.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (!Array.isArray(list) || !list.length) {   // списка нет — пробуем 1.jpg, 2.jpg, … подряд
+      list = [];
+      const ok = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = src; });
+      for (let n = 1; n <= 60; n++) {
+        const f = (await Promise.all(['jpg', 'png', 'jpeg', 'webp'].map(async (x) => ((await ok(`img/kk/${n}.${x}`)) ? `${n}.${x}` : null)))).find(Boolean);
+        if (!f) break;
+        list.push(f);
+      }
+    }
+    return (this._kk = list);
+  }
+  async kkSend() {
+    const list = await this.kkList();
+    if (!list.length) return toast('В папке img/kk пока нет картинок');
+    const file = list[Math.floor(Math.random() * list.length)];
+    const id = Math.random().toString(36).slice(2);
+    this.kkShow({ file, id });
+    this.ctrl.sendKk?.({ file, id });
+  }
+  kkShow(m) {
+    if (!m || m.id === this._kkLast || !/^[\w\-. ()]+\.(jpe?g|png|webp|gif)$/i.test(m.file || '')) return;
+    this._kkLast = m.id;
+    document.querySelector('.kk-over')?.remove();
+    const over = h('div.kk-over', { onclick: () => over.remove() }, h('img', { src: 'img/kk/' + encodeURIComponent(m.file), alt: '', onerror: () => over.remove() }));
+    document.body.append(over);
+    setTimeout(() => over.remove(), 8000);
+  }
   clickCity(cid) {
     const v = this.view;
     // двойной клик (или двойное касание) по городу — окно «О городе»
@@ -471,7 +522,7 @@ export class GameScreen {
   setMode(m) {
     this.mode = m;
     const text = { station: 'Щёлкните город для станции', depot: 'Щёлкните город без депо', setupDepot: 'Поставьте пятое депо: щёлкните город без депо' }[m];
-    this.banner.replaceChildren(text || '', m && m !== 'setupDepot' ? h('button', { onclick: () => this.setMode(null) }, 'Отмена') : '');
+    this.banner.replaceChildren(tr(text || ''), m && m !== 'setupDepot' ? h('button', { onclick: () => this.setMode(null) }, 'Отмена') : '');
     this.banner.classList.toggle('hidden', !m);
     this.render();
   }
@@ -515,7 +566,7 @@ export class GameScreen {
     const el = Math.floor((Date.now() - this.waitSince) / 1000);
     if (!lim) { this.timerEl.textContent = ''; return; }
     const left = lim - el;
-    this.timerEl.textContent = left > 0 ? `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : '⏱ время вышло';
+    this.timerEl.textContent = left > 0 ? `⏱ ${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}` : tr('⏱ время вышло');
     if (left <= 0 && this.ctrl.mode === 'host' && !this.forceShown) {
       const seat = v.pending ? v.pending.seat : v.phase === 'play' ? v.turn : null;
       const info = this.ctrl.seatsInfo()[seat];

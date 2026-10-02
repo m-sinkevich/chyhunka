@@ -38,7 +38,7 @@ export function view(M, st, seat) {
     postcards: st.postcards.map((t, s) => (mine(s) ? t : null)), postcardCounts: counts(st.postcards),
     goals: { open: st.goals.ids.slice(0, st.goals.open), total: st.goals.ids.length, race: st.goals.race },
     routeCards: st.routeCards.map((t, s) => (mine(s) ? t : null)), routeCardCounts: counts(st.routeCards),
-    routeCardDeckCount: st.routeCardDeck.length,
+    routeCardDeckCount: st.routeCardDeck.length, routeCardsUsed: st.routeCardsUsed || st.players.map(() => []),
     flags: st.flags,
     warehouseCounts: counts(st.warehouses), depotsHome: st.depotsHome, depots: st.depots,
     neighbors: st.neighbors, terminus: st.terminus, chain: st.chain,

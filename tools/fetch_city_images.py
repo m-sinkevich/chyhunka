@@ -31,6 +31,7 @@ OUT = os.path.join(ROOT, 'img', 'cities')
 UA = 'ChyhunkaBoardGame/1.1 (non-commercial hobby board game; city info cards) Python-urllib'
 PHOTO_W, ARMS_W = 500, 250      # стандартные ширины миниатюр Викисклада
 PAUSE = 1.5                     # секунд между скачиваниями файлов
+SEARCH_PAUSE = 8                # секунд перед каждым поисковым запросом
 API = 'https://ru.wikipedia.org/w/api.php'   # отдаёт и свои файлы, и файлы Викисклада
 WD = 'https://www.wikidata.org/w/api.php'
 
@@ -46,8 +47,8 @@ def get(url, binary=False, tries=6):
             if e.code not in (429, 500, 502, 503, 504) or i == tries - 1:
                 raise
             ra = e.headers.get('Retry-After', '')
-            wait = min(120, max(int(ra) if ra.isdigit() else 0, 5 * 2 ** i))
-            print(f'  сервер просит подождать ({e.code}) — пауза {wait} с…', flush=True)
+            wait = min(120, max(int(ra) if ra.isdigit() else 0, 5 * 2 ** i)) + 2
+            print(f'  сервер просит подождать ({e.code}) — пауза {wait} с, это нормально, скрипт продолжит сам…', flush=True)
             time.sleep(wait)
         except Exception:
             if i == tries - 1:
@@ -167,6 +168,7 @@ def geo_title(name, lat, lon):
 def arms_article(name):
     """Статья «Герб …» об этом городе -> файл её главной картинки."""
     stem = norm(name)[:max(4, len(name) - 2)]
+    time.sleep(SEARCH_PAUSE)   # поиск Википедия ограничивает строже всего — не чаще раза в несколько секунд
     q = query(API, action='query', list='search', srsearch=f'intitle:Герб {name}', srlimit='5').get('query', {})
     for hit in q.get('search', []):
         t = hit['title']
@@ -288,12 +290,12 @@ def main():
         try:
             if need_a(cid):
                 f, note = wd.get('P94'), ''
-                if not f:
-                    f, art = arms_article(name)
-                    if f: log('герб из статьи', cid, art, f)
                 if not f and qid:
                     f = arms_in_article(title[cid], name)
                     if f: log('герб из картинок статьи', cid, f)
+                if not f:
+                    f, art = arms_article(name)
+                    if f: log('герб из статьи', cid, art, f)
                 if not f:                         # герб района / вышестоящей единицы
                     seen, level = set(), wd.get('P131', [])
                     for _ in range(2):

@@ -1,6 +1,9 @@
 // Мелкие помощники для DOM: создание элементов, всплывающие сообщения, модальные окна.
 
-/** h('div.cls#id', {attr, onclick}, ...children) */
+import { tr } from '../i18n.js';
+const TR_ATTR = new Set(['title', 'placeholder', 'aria-label', 'alt']);
+
+/** h('div.cls#id', {attr, onclick}, ...children). Строки и подсказки переводятся на язык интерфейса. */
 export function h(sel, attrs, ...kids) {
   if (attrs == null || typeof attrs !== 'object' || attrs instanceof Node || Array.isArray(attrs)) { kids.unshift(attrs); attrs = {}; }
   const m = sel.match(/^([a-z0-9]+)?((?:[.#][\w-]+)*)$/i);
@@ -15,7 +18,7 @@ export function h(sel, attrs, ...kids) {
     else if (k === 'class') el.className += ' ' + v;
     else if (k === 'html') el.innerHTML = v;
     else if (k in el && typeof v !== 'string') el[k] = v;
-    else el.setAttribute(k, v === true ? '' : v);
+    else el.setAttribute(k, v === true ? '' : TR_ATTR.has(k) ? tr(v) : v);
   }
   append(el, kids);
   return el;
@@ -23,7 +26,7 @@ export function h(sel, attrs, ...kids) {
 function append(el, kids) {
   for (const k of kids.flat(Infinity)) {
     if (k == null || k === false) continue;
-    el.append(k instanceof Node ? k : document.createTextNode(String(k)));
+    el.append(k instanceof Node ? k : document.createTextNode(typeof k === 'string' ? tr(k) : String(k)));
   }
 }
 export const clear = (el) => { while (el.firstChild) el.firstChild.remove(); return el; };
@@ -81,7 +84,7 @@ export function plural(n, a, b, c) { const m = n % 10, t = n % 100; return m ===
 /** Перетаскивание окна за заголовок (мышь и палец). */
 export function draggable(box, handle) {
   handle.style.cursor = 'move';
-  handle.title = handle.title || 'Перетащите окно, чтобы открыть поле';
+  handle.title = handle.title || tr('Перетащите окно, чтобы открыть поле');
   let st = null;
   handle.addEventListener('pointerdown', (e) => {
     if (e.target.closest('button')) return;

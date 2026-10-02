@@ -1,22 +1,23 @@
-   # Раз в 3 дня обращается к Supabase, чтобы бесплатный проект не уходил в паузу.
-   name: Supabase keep-alive
-   on:
-     schedule:
-       - cron: '17 6 */3 * *'
-     workflow_dispatch:
-   jobs:
-     ping:
-       runs-on: ubuntu-latest
-       steps:
-         - name: Ping Supabase
-           env:
-             URL: ${{ secrets.SUPABASE_URL }}
-             KEY: ${{ secrets.SUPABASE_ANON_KEY }}
-           run: |
-             URL=$(printf '%s' "$URL" | tr -d '[:space:]'); KEY=$(printf '%s' "$KEY" | tr -d '[:space:]')
-             if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "Секреты SUPABASE_URL / SUPABASE_ANON_KEY не заданы"; exit 1; fi
-             URL="${URL%%/rest/v1*}"; URL="${URL%/}"
-             echo "Адрес: $URL"
-             code=$(curl -sS -o body.txt -w '%{http_code}' -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}')
-             echo "Ответ сервера: HTTP $code"; cat body.txt; echo
-             [ "$code" -lt 300 ]
+# Раз в 3 дня обращается к Supabase, чтобы бесплатный проект не уходил в паузу после недели простоя.
+# Нужны секреты репозитория: SUPABASE_URL и SUPABASE_ANON_KEY (Settings → Secrets and variables → Actions).
+name: Supabase keep-alive
+on:
+  schedule:
+    - cron: '17 6 */3 * *'
+  workflow_dispatch:
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase
+        env:
+          URL: ${{ secrets.SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          URL=$(printf '%s' "$URL" | tr -d '[:space:]'); KEY=$(printf '%s' "$KEY" | tr -d '[:space:]')
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then echo "Секреты SUPABASE_URL / SUPABASE_ANON_KEY не заданы"; exit 1; fi
+          URL="${URL%%/rest/v1*}"; URL="${URL%/}"
+          echo "Адрес: $URL"
+          code=$(curl -sS -o body.txt -w '%{http_code}' -X POST "$URL/rest/v1/rpc/ping" -H "apikey: $KEY" -H "Content-Type: application/json" -d '{}')
+          echo "Ответ сервера: HTTP $code"; cat body.txt; echo
+          [ "$code" -lt 300 ]

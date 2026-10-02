@@ -38,6 +38,7 @@ export class GuestGame {
     });
     this.presence.onBroadcast('deleted', () => this.markDeleted());
     this.presence.onBroadcast('rematch', (m) => { this.rematch = m; this.emit('rematch'); });
+    this.presence.onBroadcast('kk', (m) => { this.kk = m; this.emit('kk'); });
     this.presence.onBroadcast('chat', (m) => { this.events.push({ text: `${m.name}: «${m.text}»`, kind: 'chat', seat: m.seat }); this.emit('chat'); });
     this.emit('view');
   }
@@ -102,6 +103,7 @@ export class GuestGame {
       this.waiting.set(row.id, { resolve, timer });
     });
   }
+  sendKk(m) { this.presence?.send('kk', m); }
   say(text) { this.presence?.send('chat', { seat: this.seat, name: this.seatsInfo()[this.seat]?.name, text }); }
   close() { this.unwatch?.(); this.presence?.close(); this.listeners.clear(); }
 }
