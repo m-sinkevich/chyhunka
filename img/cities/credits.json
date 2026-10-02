@@ -1,0 +1,802 @@
+{
+ "minsk": {
+  "arms": {
+   "author": "Unknown authorUnknown author",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Minsk.svg"
+  },
+  "photo": {
+   "author": "Homoatrox",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Church_of_Saints_Simon_and_Helena_(Minsk).jpg"
+  }
+ },
+ "brest": {
+  "arms": {
+   "author": "Gringer (talk)",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Brest,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Alexxx1979",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Brest_Brest_Fortress_Kholm_Gate_9209_2150.jpg"
+  }
+ },
+ "mogilev": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Mahilo%C5%AD.svg"
+  },
+  "photo": {
+   "author": "ru:user:Kabaner",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:City_Hall,_Mahilo%C5%AD.jpg"
+  }
+ },
+ "gomel": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Homiel,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Alex Zelenko",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Belarus-Homel-Palace_of_Pashkevichs-6.jpg"
+  }
+ },
+ "grodno": {
+  "arms": {
+   "author": "Cassubia1238",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Hrodna.svg"
+  },
+  "photo": {
+   "author": "Mike1979 Russia",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Hrodna_Old_Castle_2023-06-25_5510.jpg"
+  }
+ },
+ "vitebsk": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Viciebsk,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Katsyaryna Sidarenka",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A4%D0%BE%D1%82%D0%BE_%D0%BF%D1%83%D1%82%D0%B5%D1%88%D0%B5%D1%81%D1%82%D0%B2%D0%B8%D1%8F_%D0%BF%D0%BE_%D0%91%D0%B5%D0%BB%D0%B0%D1%80%D1%83%D1%81%D0%B8_505.jpg"
+  }
+ },
+ "baranovichi": {
+  "arms": {
+   "author": "Болеслав Тумащик",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_Baranavi%C4%8Dy.svg"
+  },
+  "photo": {
+   "author": "Belarus2578",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Baranavi%C4%8Dy_Montage_(2017).jpg"
+  }
+ },
+ "orsha": {
+  "arms": {
+   "author": "Anton F. Bryl.",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Vorsza,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Антон Алегавіч Макоўскі",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%BE%D0%BC%D0%BF%D0%BB%D0%B5%D0%BA%D1%81_%D0%B1%D1%8B%D0%BB%D0%BE%D0%B3%D0%B0_%D0%B5%D0%B7%D1%83%D1%96%D1%86%D0%BA%D0%B0%D0%B3%D0%B0_%D0%BA%D0%B0%D0%BB%D0%B5%D0%B3%D1%96%D1%8E%D0%BC%D1%83._%D0%B3._%D0%92%D0%BE%D1%80%D1%88%D0%B0_2.jpg"
+  }
+ },
+ "polotsk": {
+  "arms": {
+   "author": "Azgar",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Po%C5%82ack,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Vasilii Martynov",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Modern_photos_of_Cathedral_of_Saint_Sophia_in_Polotsk.jpg"
+  }
+ },
+ "molodechno": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Ma%C5%82ade%C4%8Dna,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Evgeny 8",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%B8%D0%B4_%D0%BD%D0%B0_%D0%B2%D1%8A%D0%B5%D0%B7%D0%B4%D0%B5_%D0%B2_%D0%9C%D0%BE%D0%BB%D0%BE%D0%B4%D0%B5%D1%87%D0%BD%D0%BE.jpg"
+  }
+ },
+ "lida": {
+  "arms": {
+   "author": "Cassubia1238",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Lidy,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Валацуга (https://fgb.by/viewtopic.php?p=60985#60985)",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9B%D1%96%D0%B4%D0%B0._%D0%9B%D1%96%D0%B4%D1%81%D0%BA%D1%96_%D0%B7%D0%B0%D0%BC%D0%B0%D0%BA.jpg"
+  }
+ },
+ "luninets": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_%C5%81uniniec,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Tanya Dedyukhina",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9B%D1%83%D0%BD%D0%B8%D0%BD%D0%B5%D1%86_-_panoramio_(8).jpg"
+  }
+ },
+ "kalinkovichi": {
+  "arms": {
+   "author": "Leonid 2 Векторизация: Andrew Pertsev",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Kalinkavi%C4%8Dy,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Борис Мавлютов",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%B0%D0%BB%D0%B8%D0%BD%D0%BA%D0%BE%D0%B2%D0%B8%D1%87%D0%B8._%D0%A6%D0%B5%D1%80%D0%BA%D0%BE%D0%B2%D1%8C_%D0%9A%D0%B0%D0%B7%D0%B0%D0%BD%D1%81%D0%BA%D0%BE%D0%B9_%D0%98%D0%BA%D0%BE%D0%BD%D1%8B_%D0%91%D0%BE%D0%B6%D1%8C%D0%B5%D0%B9_%D0%9C%D0%B0%D1%82%D0%B5%D1%80%D0%B8..JPG"
+  }
+ },
+ "zhlobin": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_%C5%BD%C5%82obin,_Belarus.png"
+  },
+  "photo": {
+   "author": "Andrey Kukharenko from Gomel, Belarus",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:DJI_0949_(51210974031).jpg"
+  }
+ },
+ "osipovichi": {
+  "arms": {
+   "author": "Виктор Александрович Ляхар",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Asipovi%C4%8Dy.svg"
+  },
+  "photo": {
+   "author": "Paju",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Asipovit%C5%A1y_admin_building_1.jpg"
+  }
+ },
+ "krichev": {
+  "arms": {
+   "author": "Крычаўскі раённы выканаўчы камітэт Vector: Plaga med",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Kry%C4%8Da%C5%AD.svg"
+  },
+  "photo": {
+   "author": "Andrei Kuzmin",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D1%80%D1%8B%D1%87%D0%B0%D1%9E%D1%81%D0%BA%D1%96_%D0%BF%D0%B0%D0%BB%D0%B0%D1%86_XVIII_%D1%81%D1%82._%D0%A4%D0%B0%D1%81%D0%B0%D0%B4_(%D0%B7%D0%B4%D1%8B%D0%BC%D0%B0%D0%BA_2012_%D0%B3%D0%BE%D0%B4).jpg"
+  }
+ },
+ "zhabinka": {
+  "arms": {
+   "author": "НеизвестенUnknown author",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_%C5%BDabinka.png"
+  },
+  "photo": {
+   "author": "Стэльмах Аляксандр Мікалаевіч (http://fgb.by/viewtopic.php?p=48200#48200)",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%96%D0%B0%D0%B1%D1%96%D0%BD%D0%BA%D0%B0._%D0%92%D0%B0%D0%BA%D0%B7%D0%B0%D0%BB.jpg"
+  }
+ },
+ "borisov": {
+  "photo": {
+   "author": "Lusssiya",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%91%D0%BE%D1%80%D0%B8%D1%81%D0%BE%D0%B2_%D0%92%D0%BE%D1%81%D0%BA%D1%80%D0%B5%D1%81%D0%B5%D0%BD%D1%81%D0%BA%D0%B8%D0%B9_%D1%81%D0%BE%D0%B1%D0%BE%D1%80_05.jpg"
+  }
+ },
+ "slutsk": {
+  "arms": {
+   "author": "Republic of Belarus",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Slutsk,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Mikola Volkau",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Slucak05715.JPG"
+  }
+ },
+ "soligorsk": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Salihorsk,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Belarus2578",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Salihorsk_Montage_(2017).jpg"
+  }
+ },
+ "pinsk": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Pinsk,_Belarus.svg"
+  },
+  "photo": {
+   "author": "YYaroshko",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Pinsk_Jesuit_collegium.jpg"
+  }
+ },
+ "kobrin": {
+  "arms": {
+   "author": "Рассадин, Сергей Евгеньевич / Виктор Александрович Ляхар",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Kobryn.png"
+  },
+  "photo": {
+   "author": "Azgar",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Muzeum_Suworowa_w_Kobryniu.JPG"
+  }
+ },
+ "bobruisk": {
+  "arms": {
+   "author": "Skip405",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Babruisk,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Iskan156",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:06-%D0%B1-5-6-048a.jpg"
+  }
+ },
+ "rechitsa": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Re%C4%8Dyca,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Culmensis",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Rzeczyca_(BY)_plac.JPG"
+  }
+ },
+ "vasilevichi": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Vasilevi%C4%8Dy,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Kiryienka",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Vasilevichi_2.jpg"
+  }
+ },
+ "khoiniki": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Chojniki,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Khliabets",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A5%D0%BE%D0%B9%D0%BD%D1%96%D0%BA%D1%96_Chojniki_(2022)_02.jpg"
+  }
+ },
+ "glubokoe": {
+  "photo": {
+   "author": "ServusDei at Traditio.ru",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Carmelite_Catholic_Church_in_H%C5%82ybokaje.jpg"
+  },
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_H%C5%82ybokaje,_Belarus.svg"
+  }
+ },
+ "postavy": {
+  "arms": {
+   "author": "Leonid 2 Векторизация: Andrew Pertsev",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Pastavy,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Andrei Kuzmin",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9F%D0%B0%D1%81%D1%82%D0%B0%D0%B2%D1%8B._%D0%9F%D0%B0%D0%BB%D0%B0%D1%86_%D0%A2%D1%8B%D0%B7%D0%B5%D0%BD%D0%B3%D0%B0%D1%9E%D0%B7%D0%B0._%D0%93%D0%B0%D0%BB%D0%BE%D1%9E%D0%BD%D1%8B_%D1%9E%D0%B2%D0%B0%D1%85%D0%BE%D0%B4.JPG"
+  }
+ },
+ "lyntupy": {
+  "arms": {
+   "author": "Łyntupy town council",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_%C5%81yntupy.png"
+  },
+  "photo": {
+   "author": "Khliabets",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Lyntupy_%D0%9B%D1%8B%D0%BD%D1%82%D1%83%D0%BF%D1%8B_(2020)_01.jpg"
+  }
+ },
+ "drya": {
+  "arms": {
+   "author": "НеизвестенUnknown author",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Druja.png"
+  },
+  "photo": {
+   "author": "Иван Бай",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%BE%D1%81%D1%82%D1%91%D0%BB_%D0%B8_%D0%BC%D0%BE%D0%BD%D0%B0%D1%81%D1%82%D1%8B%D1%80%D1%8C_-_panoramio.jpg"
+  }
+ },
+ "lepel": {
+  "arms": {
+   "author": "Виктор Александрович Ляхар",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Lepiel,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Gedymin",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Lepiel._%D0%9B%D0%B5%D0%BF%D0%B5%D0%BB%D1%8C_(13.08.2008).jpg"
+  }
+ },
+ "novoelnya": {
+  "photo": {
+   "author": "Gedymin",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Navajelnia._%D0%9D%D0%B0%D0%B2%D0%B0%D0%B5%D0%BB%D1%8C%D0%BD%D1%8F_(6.08.2010).jpg"
+  },
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Dziat%C5%82ava,_Belarus.svg",
+   "note": "Дятловский район"
+  }
+ },
+ "novogrudok": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Navahrudak,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Igor Mostitsky / Игорь Мостицкий",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Novogrudok_ruin.jpg"
+  }
+ },
+ "ivatsevichi": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Ivacevi%C4%8Dy,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Nv.nat",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%94%D0%B2%D0%BE%D1%80%D0%B5%D1%86_%D0%9F%D1%83%D1%81%D0%BB%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D1%85_2_2020.jpg"
+  }
+ },
+ "ivanovo": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Jana%C5%AD.svg"
+  },
+  "photo": {
+   "author": "GSerhiy",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Panorama_Ivanava.JPG"
+  }
+ },
+ "mosty": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:BIA_Mosty_COA.svg"
+  },
+  "photo": {
+   "author": "Большаков Сергей",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Street_in_Masty.JPG"
+  }
+ },
+ "tomashovka": {
+  "photo": {
+   "author": "KuznetsoVadim",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A2%D0%BE%D0%BC%D0%B0%D1%88%D0%BE%D0%B2%D0%BA%D0%B0._%D0%93%D0%B0%D0%B3%D0%B0%D1%80%D0%B8%D0%BD%D0%B0.jpg"
+  },
+  "arms": {
+   "author": "Spider",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Brest_District.svg",
+   "note": "Брестский район"
+  }
+ },
+ "naroch": {
+  "photo": {
+   "author": "Zedlik",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Nara%C4%8D_-_6.jpg"
+  },
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Miadzie%C5%82,_Belarus.svg",
+   "note": "Мядельский район"
+  }
+ },
+ "braslav": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Bras%C5%82a%C5%AD,_Belarus.svg"
+  },
+  "photo": {
+   "author": "NASA",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:27.00212E_55.69292N_Braslaw_Lakes.png"
+  }
+ },
+ "miory": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Miory,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Andrey Kukharenko from Gomel, Belarus",
+   "license": "CC BY 2.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Aerial_view_of_the_Church_of_the_Assumption_of_the_Blessed_Virgin_Mary._Miory,_Belarus._DJI_2850-HDR_(51353913179).jpg"
+  }
+ },
+ "novopolotsk": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Navapo%C5%82ack,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Belarus2578",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Navapolack_Montage_(2017).jpg"
+  }
+ },
+ "vileyka": {
+  "arms": {
+   "author": "НеизвестенUnknown author",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Viliejka.svg"
+  },
+  "photo": {
+   "author": "Olga Maximova 1975",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%B0%D1%81%D1%8C%D1%86%D1%91%D0%BB_%D0%A3%D0%B7%D1%8C%D0%B2%D1%96%D0%B6%D0%B0%D0%BD%D1%8C%D0%BD%D1%8F_%D0%A1%D1%8C%D0%B2%D1%8F%D1%82%D0%BE%D0%B3%D0%B0_%D0%9A%D1%80%D1%8B%D0%B6%D0%B0..jpg"
+  }
+ },
+ "gorki": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Horki,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Tumash",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Belarusian_agriculture_academy.jpg"
+  }
+ },
+ "shklov": {
+  "arms": {
+   "author": "Шклоўскі раённы выканаўчы камітэт",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_%C5%A0klo%C5%AD.png"
+  },
+  "photo": {
+   "author": "Uran92",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%C5%A0k%C5%82o%C5%AD-ratu%C5%A1a_01.jpg"
+  }
+ },
+ "bykhov": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Bycha%C5%AD,_Belarus.svg"
+  },
+  "photo": {
+   "author": "foyury",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%91%D1%8B%D1%85%D0%BE%D0%B2%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%B0%D0%BC%D0%BE%D0%BA_2025.jpg"
+  }
+ },
+ "rogachev": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Raha%C4%8Do%C5%AD,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Андрэй Дзмiтрыеў (http://fgb.by/viewtopic.php?p=60515#60515)",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A0%D0%B0%D0%B3%D0%B0%D1%87%D0%BE%D1%9E%D1%81%D0%BA%D1%96%D1%8F_%D0%BA%D1%80%D0%B0%D1%8F%D0%B2%D1%96%D0%B4%D1%8B_02.jpg"
+  }
+ },
+ "mozyr": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Mazyr,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Alex Zozulya",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9C%D0%BE%D0%B7%D1%8B%D1%80%D1%81%D0%BA%D0%B8%D0%B9_%D0%B7%D0%B0%D0%BC%D0%BE%D0%BA.jpg"
+  }
+ },
+ "bereza": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Biaroza,_Belarus.svg"
+  },
+  "photo": {
+   "author": "Стэльмах Аляксандр Мікалаевіч (https://fgb.by/viewtopic.php?p=48200#48200)",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%91%D1%8F%D1%80%D0%BE%D0%B7%D0%B0._%D0%A6%D0%B0%D1%80%D0%BA%D0%B2%D0%B0.jpg"
+  }
+ },
+ "kostyukovichi": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Kasciukovi%C4%8Dy,_Belarus.png"
+  },
+  "photo": {
+   "author": "givi (http://fgb.by/viewtopic.php?p=78897#78897)",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D0%B0%D1%81%D1%86%D1%8E%D0%BA%D0%BE%D0%B2%D1%96%D1%87%D1%8B._%D0%9A%D1%80%D1%8B%D0%B6%D0%B0%D1%9E%D0%B7%D0%B2%D1%96%D0%B6%D0%B0%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D1%86%D0%B0%D1%80%D0%BA%D0%B2%D0%B0.jpg"
+  }
+ },
+ "vilnius": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Grand_Coat_of_arms_of_Vilnius.svg"
+  },
+  "photo": {
+   "author": "BigHead",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Gedimino_pilis_by_Augustas_Didzgalvis.jpg"
+  }
+ },
+ "daugavpils": {
+  "arms": {
+   "author": "File:Coat of arms of Daugavpils.png: Daugavpils pilsētas dome derivative work: McSush",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Daugavpils.svg"
+  },
+  "photo": {
+   "author": "Peteraleks",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Daugavpils_fortress_05.jpg"
+  }
+ },
+ "idritsa": {
+  "photo": {
+   "author": "Rymchonak",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:Idrytsa-pasiolak.jpg"
+  },
+  "arms": {
+   "author": "Лобачев Владимир",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Sebezh_1781.svg"
+  }
+ },
+ "nevel": {
+  "arms": {
+   "author": "НеизвестенUnknown . Author of vectorization can be found at Vector-images.com.",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Nevel_(Pskov_oblast).png"
+  },
+  "photo": {
+   "author": "Cmapuk_noxa6bl4",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9D%D0%B5%D0%B2%D0%B5%D0%BB%D1%8C_%D0%B2%D0%B8%D0%B4.jpg"
+  }
+ },
+ "smolensk": {
+  "arms": {
+   "author": "НеизвестенUnknown author",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Smolensk_(Smolensk_oblast)_(2001).png"
+  },
+  "photo": {
+   "author": "TatianaNP",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%9A%D1%80%D0%B5%D0%BF%D0%BE%D1%81%D1%82%D0%BD%D0%B0%D1%8F_%D1%81%D1%82%D0%B5%D0%BD%D0%B0_1596-1602%D0%B3.%D0%B3._%D1%81%D0%BC%D0%BE%D0%BB%D0%B5%D0%BD%D1%81%D0%BA%D0%BE%D0%B3%D0%BE_%D0%BA%D1%80%D0%B5%D0%BC%D0%BB%D1%8F.jpg"
+  }
+ },
+ "roslavl": {
+  "arms": {
+   "author": "Ольга Лагутчикова",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Roslavl.svg"
+  },
+  "photo": {
+   "author": "Анастасия Юрьевна Львова",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Roslavl_monastery.jpg"
+  }
+ },
+ "unecha": {
+  "arms": {
+   "author": "Andreeewy",
+   "license": "CC0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%93%D0%B5%D1%80%D0%B1_%D0%B3%D0%BE%D1%80%D0%BE%D0%B4%D0%B0_%D0%A3%D0%BD%D0%B5%D1%87%D0%B0.png"
+  },
+  "photo": {
+   "author": "oleg-BY",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:2%D0%A2%D0%AD10%D0%A3-0446,_%D0%A0%D0%BE%D1%81%D1%81%D0%B8%D1%8F,_%D0%91%D1%80%D1%8F%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,_%D0%B1%D0%B0%D0%B7%D0%B0_%D0%B7%D0%B0%D0%BF%D0%B0%D1%81%D0%B0_%D0%A3%D0%BD%D0%B5%D1%87%D0%B0_(Trainpix_188966).jpg"
+  }
+ },
+ "chernigov": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Chernihiv.svg"
+  },
+  "photo": {
+   "author": "Kovalvl",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Spas_sobor.jpg"
+  }
+ },
+ "ovruch": {
+  "arms": {
+   "author": "Гречило, Андрей Богданович",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Ovruch_gerb.png"
+  },
+  "photo": {
+   "author": "Валерій Ящишин",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A3%D0%BA%D1%80%D0%B0%D1%97%D0%BD%D0%B0_%D0%96%D0%B8%D1%82%D0%BE%D0%BC%D0%B8%D1%80%D1%81%D1%8C%D0%BA%D0%B0_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,_%D0%BC%D1%96%D1%81%D1%82%D0%BE_%D0%9E%D0%B2%D1%80%D1%83%D1%87_(1)_hf.jpg"
+  }
+ },
+ "sarny": {
+  "arms": {
+   "author": "Sasha Kanskyi",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_arms_of_Sarny.svg"
+  },
+  "photo": {
+   "author": "Tanya Dedyukhina",
+   "license": "CC BY 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A1%D1%82._%D0%A1%D0%B0%D1%80%D0%BD%D0%B8_-_panoramio.jpg"
+  }
+ },
+ "kovel": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Kovel.svg"
+  },
+  "photo": {
+   "author": "Mirilenkos",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Voskresenska_tserkva_u_Koveli.JPG"
+  }
+ },
+ "bakhmach": {
+  "arms": {
+   "author": "Geka b",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Bahmach_gerb.svg"
+  },
+  "photo": {
+   "author": "Mitte27",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%92%D0%BE%D0%BA%D0%B7%D0%B0%D0%BB_%D0%91%D0%B0%D1%85%D0%BC%D0%B0%D1%87%D0%B0,_2020_%D0%B3%D0%BE%D0%B4,_06.jpg"
+  }
+ },
+ "chelm": {
+  "arms": {
+   "author": "",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:POL_Che%C5%82m_COA_1.svg"
+  },
+  "photo": {
+   "author": "",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:G%C3%B3rka_katedralna.jpg"
+  }
+ },
+ "warsaw": {
+  "arms": {
+   "author": "Original COA: Uknown, (svg copy) Poznaniak",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:POL_Warszawa_COA.svg"
+  },
+  "photo": {
+   "author": "Merangs",
+   "license": "CC BY 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:WarsawVarso2026.jpg"
+  }
+ },
+ "bialystok": {
+  "arms": {
+   "author": "Ejkum",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:POL_Bia%C5%82ystok_COA.svg"
+  },
+  "photo": {
+   "author": "SilverTree",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Bia%C5%82ystok.jpg"
+  }
+ },
+ "krulevshchizna": {
+  "photo": {
+   "author": "mishaKa",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:DDB1_Krulevstchizna.jpg"
+  }
+ },
+ "svetlogorsk": {
+  "photo": {
+   "author": "Zelyoniy.anton",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A1%D0%B2%D0%B5%D1%82%D0%BB%D0%B0%D0%B3%D0%BE%D1%80%D1%81%D0%BA%D0%B0%D1%8F_%D0%A6%D0%AD%D0%A6_(08.2020).jpg"
+  }
+ },
+ "urechye": {
+  "arms": {
+   "author": "Leonid 2",
+   "license": "Public domain",
+   "source": "https://commons.wikimedia.org/wiki/File:Coat_of_Arms_of_Luba%C5%84,_Belarus.svg",
+   "note": "Любанский район"
+  },
+  "photo": {
+   "author": "Денис Блищ",
+   "license": "CC BY-SA 4.0",
+   "source": "https://commons.wikimedia.org/wiki/File:%D0%A3%D1%80%D0%B5%D1%87%D1%8C%D0%B5,_%D0%9B%D1%8E%D0%B1%D0%B0%D0%BD%D1%81%D0%BA%D0%B8%D0%B9_%D1%80%D0%B0%D0%B9%D0%BE%D0%BD,_%D0%9C%D0%B8%D0%BD%D1%81%D0%BA%D0%B0%D1%8F_%D0%BE%D0%B1%D0%BB%D0%B0%D1%81%D1%82%D1%8C,_%D0%91%D0%B5%D0%BB%D0%B0%D1%80%D1%83%D1%81%D1%8C_01.jpg"
+  }
+ },
+ "rabkor": {
+  "photo": {
+   "author": "Zelyoniy.anton",
+   "license": "CC BY-SA 3.0",
+   "source": "https://commons.wikimedia.org/wiki/File:Zaazier%C5%A1%C4%8Dyna_(01).jpg"
+  }
+ }
+}
