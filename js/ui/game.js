@@ -4,6 +4,7 @@ import { Board } from './board.js';
 import { cardEl, backEl, ticketEl, postcardEl, pdot, routeTipHtml, cityTipHtml } from './cards.js';
 import { ticketsDialog, claimDialog, tunnelDialog, discardDialog, swapDialog, fromDiscardDialog, vitrinaDialog, stationDialog, helpDialog, phrasesDialog } from './dialogs.js';
 import { showResults } from './results.js';
+import { langSelect } from './lang.js';
 import { tr } from '../i18n.js';
 import { cityDialog } from './cityinfo.js';
 import { legalFromView, stateFromView } from '../engine/viewstate.js';
@@ -28,6 +29,7 @@ export class GameScreen {
     this.whTarget = null; this.duelPicks = new Set(); this.sound = getPref('sound', '1') === '1';
     this.waitSince = Date.now(); this.lastWaitKey = ''; this.bubbles = {};
     this.seenEv = ctrl.events.length;
+    this.pend = { seat: {}, hand: {} };
     initRules(this.M);
     this.build();
     this.off = ctrl.on((what) => this.onChange(what));
@@ -46,6 +48,7 @@ export class GameScreen {
       this.status, this.timerEl,
       this.ctrl.say && this.ctrl.mode !== 'local' ? h('button.small.ib', { onclick: () => phrasesDialog(this), title: 'Короткие фразы' }, icon('chat')) : null,
       (this.soundBtn = h('button.small.ib', { onclick: () => this.toggleSound() })),
+      langSelect(),
       h('button.small.ib', { onclick: () => settingsDialog(), title: 'Настройки: анимации, подсветка ходов, звук' }, icon('gear')),
       h('button.small.ib', { onclick: () => showRules(null, this.view?.cfg), title: 'Полные правила с примерами' }, icon('book'), ' Правила'),
       (this.resBtn = h('button.small.primary', { style: { display: 'none' }, onclick: () => showResults(this), title: 'Итоговая таблица: очки по статьям, маршруты, цели' }, icon('trophy', null, 15), ' Итоги')),
@@ -80,7 +83,6 @@ export class GameScreen {
     if (!v) return;
     if (what === 'error' && this.ctrl.lastError) toast(this.ctrl.lastError, 'err');
     if (what === 'rematch' && this.ctrl.rematch) { this.app.followRematch(this, this.ctrl.rematch); return; }
-    if (what === 'kk') return this.kkShow(this.ctrl.kk);
     if (what === 'chat') { const e = this.ctrl.events[this.ctrl.events.length - 1]; if (e?.seat != null) { this.bubbles[e.seat] = { text: e.text.split('«')[1]?.replace('»', '') || '', t: Date.now() }; } }
     if (what === 'status') {
       if (this.ctrl.status === 'conflict') toast('Партия открыта в другой вкладке как хозяин. Эта вкладка остановлена.', 'err', 9000);
@@ -198,7 +200,7 @@ export class GameScreen {
       const ch = v.chain[s];
       const stats = [
         stat('wagon', v.trains[s], 'Вагонов осталось. Когда у кого-то останется 2 или меньше — последний круг'),
-        stat('cards', v.handCounts[s], 'Карт составов в руке'),
+        stat('cards', Math.max(0, v.handCounts[s] - (this.pend.seat[s] || 0)), 'Карт составов в руке'),
         stat('ticket', v.ticketCounts[s], 'Маршрутов (какие — видно только владельцу)'),
         v.cfg.stations > 0 ? stat('station', v.stationsLeft[s], 'Станций осталось; неиспользованная в конце даёт +4') : null,
         (() => { const tk = Object.entries(v.terminus || {}).filter(([, x]) => x === s).map(([c]) => M.cities[c].name); return tk.length ? h('span.st', { title: `Жетоны конечных станций (по 3 очка в конце): ${tk.join(', ')}` }, h('span.tokdot', { style: { background: playerColor(p.color) } }), ' ', tk.length) : null; })(),
@@ -212,7 +214,7 @@ export class GameScreen {
         ? h('button.link.small', { onclick: async () => { if (await confirmBox('Вернуть место', `Отдать место «${si.name}» человеку? Игрок вернётся по своему коду возврата.`)) this.ctrl.giveBack(s); } }, 'вернуть человеку')
         : !online ? h('button.link.small', { onclick: () => this.replaceDialog(s) }, 'заменить ботом') : null) : null;
       return h('div.pl' + (waiting.has(s) && v.phase !== 'over' ? '.turn' : ''), { 'data-seat': s, style: { '--pc': playerColor(p.color) } },
-        h('div.nm', h('span.on' + (online ? '.yes' : ''), { title: online ? 'в сети' : 'не в сети' }), pdot(p.color), /^\s*змеючка\s*$/i.test(si.name || p.name) ? h('span.kkname', { onclick: () => this.kkSend() }, si.name || p.name) : (si.name || p.name),
+        h('div.nm', h('span.on' + (online ? '.yes' : ''), { title: online ? 'в сети' : 'не в сети' }), pdot(p.color), si.name || p.name,
           bot ? botBadge(si.level) : null,
           lead.includes(s) ? h('span.crown', { title: v.phase === 'over' ? 'Победитель' : (lead.length > 1 ? 'Делит лидерство по очкам на треке' : 'Лидер по очкам на треке') + ' (маршруты, цели и бонусы считаются в конце)' }, '♛') : null,
           s === v.me ? h('span.badge.gold', 'вы') : null,
@@ -284,7 +286,28 @@ export class GameScreen {
     const market = () => this.right.querySelector('.market');
     const deckEl = () => this.right.querySelector('.card.back');
     const sec = prefs.flashSec; const mode = prefs.flashMode;
-    let d = 0, rcDelay = 0;
+    let d = 0, rcDelay = 0, held = false;
+    // карта ещё летит — счётчики (у игрока и в своей руке) показывают прежнее число и растут, когда карта долетела
+    const hold = (s, c) => {
+      if (!prefs.animMs || s == null) return () => {};
+      this.pend.seat[s] = (this.pend.seat[s] || 0) + 1;
+      if (s === me && c) this.pend.hand[c] = (this.pend.hand[c] || 0) + 1;
+      held = true;
+      let done = false;
+      const release = () => {
+        if (done) return; done = true;
+        this.pend.seat[s] = Math.max(0, (this.pend.seat[s] || 0) - 1);
+        if (s === me && c) this.pend.hand[c] = Math.max(0, (this.pend.hand[c] || 0) - 1);
+        if (this.view) { this.renderLeft(); this.renderBottom(); }
+      };
+      setTimeout(release, 5000);
+      return release;
+    };
+    // важные сообщения — крупно по центру поля
+    const announce = (title, text, cls = '') => {
+      splash(h('div.big-msg' + cls, h('div.bm-title', title), text ? h('div.bm-text', text) : null), this.boardBox, null, { delay: rcDelay, hold: 3200 });
+      rcDelay += 3900;
+    };
     for (const e of fresh) {
       const s = e.seat;
       const mine = s === me;
@@ -303,15 +326,18 @@ export class GameScreen {
         if (e.source === 'up' && e.card) {
           const slot = market()?.children[e.index ?? 0];
           const target = mine ? handZone() : panel(s);
-          fly(cardEl(M, e.card), slot, target, { delay: d }).then(() => bump(target));
+          const rel = hold(s, e.card);
+          fly(cardEl(M, e.card), slot, target, { delay: d }).then(() => { rel(); bump(mine ? handZone() : panel(s)); });
           d += 120;
         } else if (e.source === 'up' && e.cards) {
-          e.cards.forEach((c, i) => fly(cardEl(M, c), market()?.children[i], mine ? handZone() : panel(s), { delay: d + i * 120 }));
+          e.cards.forEach((c, i) => { const rel = hold(s, c); fly(cardEl(M, c), market()?.children[i], mine ? handZone() : panel(s), { delay: d + i * 120 }).then(rel); });
         } else if (e.source === 'deck' && e.own && mine) {
-          fly(cardEl(M, e.card), deckEl(), handZone(), { delay: d, hold: Math.round(prefs.animMs * 0.8) }).then(() => bump(handZone()));
+          const rel = hold(s, e.card);
+          fly(cardEl(M, e.card), deckEl(), handZone(), { delay: d, hold: Math.round(prefs.animMs * 0.8) }).then(() => { rel(); bump(handZone()); });
           d += 120;
         } else if (e.source === 'deck' && !mine && !e.own) {
-          fly(backEl(''), deckEl(), panel(s), { delay: d }).then(() => bump(panel(s)));
+          const rel = hold(s, null);
+          fly(backEl(''), deckEl(), panel(s), { delay: d }).then(() => { rel(); bump(panel(s)); });
           d += 120;
         }
       } else if (e.kind === 'claim' && e.route) {
@@ -335,10 +361,13 @@ export class GameScreen {
         fly(h('span.flyico', icon('ticket', null, 28)), src, mine ? this.bottom.querySelector('.tlist') || this.bottom : panel(s), { delay: d });
       } else if (e.kind === 'turn' && s != null) {
         setTimeout(() => bump(panel(s)), d + 200);
-      } else if (e.kind === 'goal' || e.kind === 'lastRound' || e.kind === 'routeCard' && e.id && e.vis === 'all' && !mine) {
-        toast(e.text, 'info', 5200);
+      } else if (e.kind === 'lastRound') {
+        announce('Последний круг!', e.text, '.warn');
+      } else if (e.kind === 'goal') {
+        announce(e.seat != null ? 'Цель выполнена!' : 'Открыта третья цель', e.text);
       }
     }
+    if (held) { this.renderLeft(); this.renderBottom(); }
   }
 
   renderRight() {
@@ -383,7 +412,7 @@ export class GameScreen {
     const v = this.view; const M = this.M; const me = v.me;
     const B = clear(this.bottom);
     if (me < 0 || !v.hand) return;
-    B.append(h('div', h('h4', 'Ваши карты'), h('div.hand', CARD_TYPES.filter((c) => v.hand[c] > 0).map((c) => cardEl(M, c, { n: v.hand[c], title: `${c === 'loco' ? 'Локомотив — заменяет любой цвет' : COLOR_NAMES[c] + ' — для перегонов этого цвета и серых'}: ${v.hand[c]} шт.` })), !CARD_TYPES.some((c) => v.hand[c] > 0) ? h('span.muted.small', 'пусто') : null)));
+    B.append(h('div', h('h4', 'Ваши карты'), h('div.hand', CARD_TYPES.filter((c) => v.hand[c] - (this.pend.hand[c] || 0) > 0).map((c) => cardEl(M, c, { n: v.hand[c] - (this.pend.hand[c] || 0), title: `${c === 'loco' ? 'Локомотив — заменяет любой цвет' : COLOR_NAMES[c] + ' — для перегонов этого цвета и серых'}: ${v.hand[c]} шт.` })), !CARD_TYPES.some((c) => v.hand[c] > 0) ? h('span.muted.small', 'пусто') : null)));
     const done = this.doneTickets();
     const helped = this.stationHelped();
     const tix = v.tickets[me] || [];
@@ -393,7 +422,16 @@ export class GameScreen {
     }))));
     if (v.cfg.modules.tourism) {
       const pcs = v.postcards[me] || [];
-      B.append(h('div', h('h4', 'Открытки'), h('div.pcards', pcs.map((id) => { const el = postcardEl(M, id, { done: this.touches(M.postcards[id].city), onenter: () => this.highlight([M.postcards[id].city], true), onleave: () => this.highlight([]) }); el.addEventListener('dblclick', () => cityDialog(this, M.postcards[id].city)); return el; }))));
+      const mk = (id, done) => { const el = postcardEl(M, id, { done, onenter: () => this.highlight([M.postcards[id].city], true), onleave: () => this.highlight([]) }); el.addEventListener('dblclick', () => cityDialog(this, M.postcards[id].city)); return el; };
+      const closed = pcs.filter((id) => this.touches(M.postcards[id].city)), open = pcs.filter((id) => !closed.includes(id));
+      // мало места — выполненные открытки складываются в пачку (щелчок раскрывает)
+      const pile = closed.length > 1 && pcs.length > 4 && !this.pcOpen;
+      const pts = (ids) => ids.reduce((a, id) => a + M.postcards[id].points, 0);
+      B.append(h('div.pczone', h('h4', `Открытки (${closed.length}/${pcs.length})`),
+        h('div.pcards', open.map((id) => mk(id, false)), pile ? null : closed.map((id) => mk(id, true))),
+        pile ? h('div.pcstack', { title: `Выполненные открытки: ${closed.length} шт., +${pts(closed)} очк. Щёлкните, чтобы развернуть`, onclick: () => { this.pcOpen = true; this.renderBottom(); } },
+          closed.slice(0, 5).map((id) => mk(id, true)), h('span.pccount', `✓ ${closed.length} · +${pts(closed)}`)) : null,
+        this.pcOpen && closed.length > 1 && pcs.length > 4 ? h('button.link.small', { onclick: () => { this.pcOpen = false; this.renderBottom(); } }, 'свернуть выполненные') : null));
     }
     const rc = v.routeCards[me] || [];
     if (v.cfg.modules.routeCards) {
@@ -465,37 +503,6 @@ export class GameScreen {
     claimDialog(this, rid);
   }
   select(rid) { this.selRoute = rid; this.render(); }
-  // ---------- пасхалка «Змеючка»: случайное фото из img/kk у всех игроков в комнате ----------
-  async kkList() {
-    if (this._kk) return this._kk;
-    let list = await fetch('img/kk/list.json').then((r) => (r.ok ? r.json() : null)).catch(() => null);
-    if (!Array.isArray(list) || !list.length) {   // списка нет — пробуем 1.jpg, 2.jpg, … подряд
-      list = [];
-      const ok = (src) => new Promise((res) => { const im = new Image(); im.onload = () => res(true); im.onerror = () => res(false); im.src = src; });
-      for (let n = 1; n <= 60; n++) {
-        const f = (await Promise.all(['jpg', 'png', 'jpeg', 'webp'].map(async (x) => ((await ok(`img/kk/${n}.${x}`)) ? `${n}.${x}` : null)))).find(Boolean);
-        if (!f) break;
-        list.push(f);
-      }
-    }
-    return (this._kk = list);
-  }
-  async kkSend() {
-    const list = await this.kkList();
-    if (!list.length) return toast('В папке img/kk пока нет картинок');
-    const file = list[Math.floor(Math.random() * list.length)];
-    const id = Math.random().toString(36).slice(2);
-    this.kkShow({ file, id });
-    this.ctrl.sendKk?.({ file, id });
-  }
-  kkShow(m) {
-    if (!m || m.id === this._kkLast || !/^[\w\-. ()]+\.(jpe?g|png|webp|gif)$/i.test(m.file || '')) return;
-    this._kkLast = m.id;
-    document.querySelector('.kk-over')?.remove();
-    const over = h('div.kk-over', { onclick: () => over.remove() }, h('img', { src: 'img/kk/' + encodeURIComponent(m.file), alt: '', onerror: () => over.remove() }));
-    document.body.append(over);
-    setTimeout(() => over.remove(), 8000);
-  }
   clickCity(cid) {
     const v = this.view;
     // двойной клик (или двойное касание) по городу — окно «О городе»

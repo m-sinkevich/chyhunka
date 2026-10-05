@@ -367,8 +367,20 @@ label.row .pcard .stamp { min-width: 26px; height: 30px; font-size: 17px; }
 /* язык */
 .langbar { display: flex; justify-content: flex-end; margin-bottom: 6px; }
 .langsel { width: auto; min-width: 0; padding: 4px 8px; font-size: 14px; }
-/* пасхалка */
-.kkname { cursor: pointer; }
-.kk-over { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: rgba(20, 14, 8, .78); cursor: pointer; animation: kkin .35s ease-out; }
-.kk-over img { max-width: 92vw; max-height: 92vh; border: 10px solid #fffdf6; border-radius: 6px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: rotate(-1.5deg); }
-@keyframes kkin { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: none; } }
+/* зона открыток: две колонки, выполненные — пачкой */
+.pczone { min-width: 214px; }
+.pczone .pcards { display: grid; grid-template-columns: repeat(2, 98px); gap: 6px; max-width: none; }
+.pcstack { position: relative; display: flex; align-items: center; margin-top: 8px; padding-left: 4px; height: 52px; cursor: pointer; }
+.pcstack .pcard { width: 66px; height: 46px; margin-left: -44px; transform: rotate(-4deg); pointer-events: none; }
+.pcstack .pcard:first-child { margin-left: 0; }
+.pcstack .pcard:nth-child(even) { transform: rotate(3deg); }
+.pcstack .pcard .pname, .pcstack .pcard .stamp { display: none; }
+.pcstack .pccount { margin-left: 10px; padding: 2px 9px; border-radius: 10px; background: #E6F2E3; border: 1px solid #9CC596; font-size: 12px; font-weight: 700; white-space: nowrap; }
+@media (max-width: 900px) { .pczone .pcards { grid-template-columns: repeat(2, 86px); } .pczone .pcard { width: 86px; height: 60px; } }
+/* важные сообщения по центру поля */
+.big-msg { min-width: 340px; max-width: min(620px, 80vw); padding: 22px 30px 24px; border-radius: 14px; text-align: center; background: #2B2B2B; color: #fff; border: 3px solid var(--gold); box-shadow: 0 16px 50px rgba(0,0,0,.55); }
+.big-msg .bm-title { font: 700 40px/1.1 var(--head); letter-spacing: .01em; color: var(--gold); }
+.big-msg .bm-text { margin-top: 10px; font-size: 19px; line-height: 1.35; }
+.big-msg.warn { border-color: var(--acc); } .big-msg.warn .bm-title { color: #FF8A80; }
+@media (max-width: 700px) { .big-msg { min-width: 0; padding: 16px 18px; } .big-msg .bm-title { font-size: 28px; } .big-msg .bm-text { font-size: 16px; } }
+.topbar .langsel, header .langsel { font-size: 13px; padding: 3px 6px; }

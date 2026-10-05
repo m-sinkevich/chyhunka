@@ -279,6 +279,9 @@ create or replace function public.update_my_seat(p_room uuid, p_name text, p_col
 language plpgsql volatile security definer set search_path = public as $$
 begin
   if (select status from public.rooms where id = p_room) <> 'lobby' then raise exception 'Партия уже началась'; end if;
+  if p_color is not null and exists (select 1 from public.seats where room_id = p_room and kind <> 'closed' and color = p_color and uid is distinct from auth.uid()) then
+    raise exception 'Этот цвет уже занят другим игроком';
+  end if;
   update public.seats set name = coalesce(left(nullif(trim(p_name), ''), 20), name), color = coalesce(p_color, color)
    where room_id = p_room and uid = auth.uid();
 end $$;

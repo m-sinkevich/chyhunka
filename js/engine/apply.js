@@ -199,10 +199,12 @@ const TURN = {
     if (total < 1 || total > 5) fail('Сбросьте от 1 до 5 карт');
     for (const [c, k] of Object.entries(cards)) if (!(c in st.hands[seat]) || st.hands[seat][c] < (k | 0) || k < 0) fail('У вас нет таких карт');
     for (const [c, k] of Object.entries(cards)) { st.hands[seat][c] -= k; for (let i = 0; i < k; i++) st.discard.push(c); }
-    let got = 0;
-    for (let i = 0; i < total; i++) { const c = drawCard(st); if (c) { st.hands[seat][c]++; got++; } }
+    let got = 0; const came = {};
+    for (let i = 0; i < total; i++) { const c = drawCard(st); if (c) { st.hands[seat][c]++; got++; came[c] = (came[c] || 0) + 1; } }
     refillFaceUp(st);
     ctx.log(`${ctx.name(seat)} меняет состав: сбросил ${cardsWord(total)}, взял ${got}`, 'all', { kind: 'swap', count: total });
+    const list = (o) => Object.entries(o).filter(([, k]) => k > 0).map(([c, k]) => `${cardName(c)} × ${k}`).join(', ') || '—';
+    ctx.log(`Смена состава — сброшены: ${list(cards)}; пришли: ${list(came)}`, seat, { kind: 'swap', own: true, out: cards, came });
     finishAction(ctx);
   },
 

@@ -121,6 +121,7 @@ export function openDemo({ storage = null, session = globalThis.sessionStorage, 
       const r = db.rooms.find((x) => x.id === p_room);
       if (!r || r.status !== 'lobby') fail('Партия уже началась');
       const s = db.seats.find((y) => y.room_id === p_room && y.uid === myUid);
+      if (p_color && db.seats.some((y) => y.room_id === p_room && y.kind !== 'closed' && y.color === p_color && y.uid !== myUid)) fail('Этот цвет уже занят другим игроком');
       if (s) { if (p_name?.trim()) s.name = p_name.trim().slice(0, 20); if (p_color) s.color = p_color; }
       return { touched: [['seats', { room_id: p_room }]] };
     },

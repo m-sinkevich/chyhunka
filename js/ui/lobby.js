@@ -7,8 +7,9 @@ import { BOTS } from '../bots/index.js';
 import { getPref } from '../net/sessions.js';
 
 const COLOR_KEYS = Object.keys(PLAYER_COLORS);
-const colorSelect = (value, disabled, onchange) => h('select', { disabled, onchange: (e) => onchange(e.target.value), style: { minWidth: '110px' } },
-  COLOR_KEYS.map((c) => h('option', { value: c, selected: c === value }, PLAYER_COLOR_NAMES[c])));
+// taken — цвета других игроков: выбрать их нельзя (в списке они серые)
+const colorSelect = (value, disabled, onchange, taken = []) => h('select', { disabled, onchange: (e) => onchange(e.target.value), style: { minWidth: '110px' } },
+  COLOR_KEYS.map((c) => h('option', { value: c, selected: c === value, disabled: c !== value && taken.includes(c), title: c !== value && taken.includes(c) ? 'Этот цвет уже занят другим игроком' : null }, PLAYER_COLOR_NAMES[c])));
 const swatch = (c) => h('span.dot', { style: { background: c ? playerColor(c) : '#ccc', width: '16px', height: '16px' } });
 
 /** Лобби: хозяин настраивает места и модули, гости видят настройки и ждут старта. */
@@ -49,7 +50,7 @@ export function renderLobby(root, app, lobby, session) {
       const kindSel = isHost && s.seat !== 0 ? h('select', { onchange: (e) => setSeat(s, { kind: e.target.value }) },
         h('option', { value: 'human', selected: s.kind === 'human' }, 'Человек'), h('option', { value: 'bot', selected: s.kind === 'bot' }, 'Бот'), h('option', { value: 'closed', selected: s.kind === 'closed' }, 'Закрыто')) : null;
       const lvlSel = isHost && s.kind === 'bot' ? h('select', { onchange: (e) => setSeat(s, { bot_level: e.target.value }) }, Object.entries(BOTS).map(([k, b]) => h('option', { value: k, selected: s.bot_level === k }, b.name))) : null;
-      const col = s.kind === 'closed' ? null : (isHost || mine) ? colorSelect(s.color, false, (c) => (mine && !isHost ? lobby.setMe(null, c) : setSeat(s, { color: c }))) : swatch(s.color);
+      const col = s.kind === 'closed' ? null : (isHost || mine) ? colorSelect(s.color, false, (c) => (mine && !isHost ? lobby.setMe(null, c) : setSeat(s, { color: c })), lobby.seats.filter((x) => x.seat !== s.seat && x.kind !== 'closed').map((x) => x.color)) : swatch(s.color);
       return h('tr', h('td', s.seat + 1), h('td', s.kind !== 'closed' ? swatch(s.color) : null), h('td', who, s.seat === 0 ? h('span.badge', 'хозяин') : null, mine ? h('span.badge.gold', 'вы') : null), h('td', kindSel, ' ', lvlSel), h('td', col));
     });
     if (isHost && (!form || formPlayers !== active.length)) {
@@ -65,6 +66,7 @@ export function renderLobby(root, app, lobby, session) {
       if (active.length < 2) problems.push('нужно хотя бы 2 игрока');
       if (waitingHumans.length) problems.push(`ждём игроков: ${waitingHumans.length} (или закройте место / поставьте бота)`);
       if (form && !form.valid()) problems.push('выберите ровно 3 цели');
+      if (new Set(active.map((x) => x.color)).size < active.length) problems.push('у двух игроков одинаковый цвет');
       startBtn.disabled = problems.length > 0;
       startInfo.textContent = problems.length ? tr('Чтобы начать: ') + problems.map((x) => tr(x)).join('; ') : tr('Всё готово.');
     };
@@ -115,7 +117,7 @@ export function renderOffline(root, app) {
             h('tr', h('td', '1'), h('td', swatch(me.color)), h('td', h('input', { value: me.name, maxlength: 20, onchange: (e) => { me.name = e.target.value.trim() || 'Игрок'; } }), h('span.badge.gold', 'вы')), h('td'), h('td', colorSelect(me.color, false, (c) => { const o = bots.find((b) => b.color === c); if (o) o.color = me.color; me.color = c; render(); }))),
             bots.map((b, i) => h('tr', h('td', i + 2), h('td', swatch(b.color)), h('td', '🤖 Бот'),
               h('td', h('select', { onchange: (e) => { b.level = e.target.value; } }, Object.entries(BOTS).map(([k, x]) => h('option', { value: k, selected: b.level === k }, x.name)))),
-              h('td', colorSelect(b.color, false, (c) => { const o = [me, ...bots].find((x) => x !== b && x.color === c); if (o) o.color = b.color; b.color = c; render(); }), ' ',
+              h('td', colorSelect(b.color, false, (c) => { b.color = c; render(); }, [me, ...bots].filter((x) => x !== b).map((x) => x.color)), ' ',
                 h('button.small', { disabled: bots.length <= 1, onclick: () => { bots.splice(i, 1); render(); }, title: 'Убрать бота' }, '×'))))),
           h('div.row', h('button.small', { disabled: bots.length >= 4, onclick: () => { bots.push({ level: 'medium', color: nextColor() }); render(); } }, '+ бот')),
           h('p.small.muted', 'Лёгкий — делает ошибки; Средний — строит кратчайшие пути к маршрутам; Магистральщик — собирает магистрали сквозным экспрессом; Сильный — планирует общую сеть, копит нужные карты, гонится за модулями и бонусами; Эксперт — то же, плюс сравнивает несколько планов, подбирает лучшие наборы маршрутов и перекрывает соперникам ключевые перегоны.')),

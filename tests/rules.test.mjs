@@ -287,3 +287,15 @@ test('путевая карта «против лидера» не бьёт то
   s2 = act(s2, { type: 'claim', seat: me, route: r.id, pay: { color: r.color, n: r.length, loco: 0 } });
   assert.ok(s2.flags[other].extraCard);
 });
+
+test('смена состава: какие карты ушли и пришли — видит только сам игрок', () => {
+  let st = start(3);
+  const seat = st.turn;
+  give(st, seat, { red: 2 });
+  const r = E.apply(st, { type: 'swap', seat, cards: { red: 2 } });
+  const own = r.events.filter((e) => e.kind === 'swap' && e.own);
+  assert.equal(own.length, 1);
+  assert.equal(own[0].vis, seat);
+  assert.match(own[0].text, /сброшены: красный × 2; пришли: /);
+  assert.ok(r.events.some((e) => e.kind === 'swap' && e.vis === 'all' && !e.own));
+});

@@ -10,8 +10,7 @@ const KEY = 'chyhunka.lang';
 const store = typeof localStorage !== 'undefined' ? localStorage : null;
 function detect() {
   try { const s = store?.getItem(KEY); if (s && LANGS[s]) return s; } catch { /* приватный режим */ }
-  const n = (typeof navigator !== 'undefined' && navigator.language || 'ru').toLowerCase();
-  return n.startsWith('be') ? 'be' : n.startsWith('ru') || n.startsWith('uk') || n.startsWith('kk') ? 'ru' : n.startsWith('en') ? 'en' : 'ru';
+  return 'ru';   // по умолчанию — русский; другой язык игрок выбирает сам
 }
 let lang = detect();
 export const getLang = () => lang;
