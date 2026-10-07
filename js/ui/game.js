@@ -102,6 +102,7 @@ export class GameScreen {
     this.render();
     this.playEvents();
     this.autoDialogs();
+    if (v.cfg.love) this.board.dedication('Сделано с любовью для Коти ♥');
     if (this.resBtn) this.resBtn.style.display = v.phase === 'over' ? '' : 'none';
     if (v.phase === 'over' && !this.shownResults) { this.shownResults = true; setTimeout(() => showResults(this), 600); }
   }

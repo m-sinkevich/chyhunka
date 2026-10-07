@@ -6,14 +6,15 @@ export function listSessions() {
   return safe(() => JSON.parse(localStorage.getItem(KEY) || '[]'), []);
 }
 export function saveSession(s) {
+  const old = listSessions().find((x) => x.backend === s.backend && x.room_id === s.room_id);
   const all = listSessions().filter((x) => !(x.backend === s.backend && x.room_id === s.room_id));
-  all.unshift({ ...s, updated: Date.now() });
+  all.unshift({ created: old?.created, players: old?.players, ...s, updated: Date.now() });
   safe(() => localStorage.setItem(KEY, JSON.stringify(all.slice(0, 20))));
 }
 export function patchSession(backend, room_id, patch) {
   const all = listSessions();
   const s = all.find((x) => x.backend === backend && x.room_id === room_id);
-  if (s) { Object.assign(s, patch, { updated: Date.now() }); safe(() => localStorage.setItem(KEY, JSON.stringify(all))); }
+  if (s) { Object.assign(s, patch); safe(() => localStorage.setItem(KEY, JSON.stringify(all))); }
 }
 export function dropSession(backend, room_id) {
   safe(() => localStorage.setItem(KEY, JSON.stringify(listSessions().filter((x) => !(x.backend === backend && x.room_id === room_id)))));

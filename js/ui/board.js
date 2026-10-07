@@ -286,6 +286,13 @@ export class Board {
     if (label && mode !== 'pulse') this.plate(g, p[0], p[1] - p[2] - 16, label, color);
     return this.fxTimer(g, sec);
   }
+  /** Посвящение в углу поля (видно всем игрокам партии). */
+  dedication(text) {
+    if (this.dedEl) return;
+    const g = this.dedEl = el('g', { 'pointer-events': 'none', class: 'dedication' }, this.root);
+    const t = el('text', { x: 905, y: 80, 'text-anchor': 'middle', 'font-family': 'Old Standard TT, serif', 'font-style': 'italic', 'font-weight': 700, 'font-size': 14, fill: '#8E2A35', stroke: '#F6F1E4', 'stroke-width': 2.2, 'stroke-linejoin': 'round', 'paint-order': 'stroke' }, g);
+    t.textContent = text;
+  }
   plate(g, x, y, text, color) {
     text = tr(text);
     const w = Math.max(34, text.length * 6.1 + 12);

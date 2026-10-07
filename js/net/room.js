@@ -12,7 +12,7 @@ export const PLAYER_COLOR_KEYS = Object.keys(PLAYER_COLORS);
 
 export async function createRoom(api, name, config) {
   const r = await api.rpc('create_room', { p_name: name, p_config: config, p_rules: RULES_VERSION });
-  saveSession({ backend: api.kind, room_id: r.room_id, code: r.code, seat: r.seat, return_code: r.return_code, name, host: true });
+  saveSession({ backend: api.kind, room_id: r.room_id, code: r.code, seat: r.seat, return_code: r.return_code, name, host: true, created: Date.now() });
   return r;
 }
 export async function joinRoom(api, code, name) {
