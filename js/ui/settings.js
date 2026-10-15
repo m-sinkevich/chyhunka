@@ -82,7 +82,7 @@ const SET_SHORT = { base: 'классика, для первых партий', 
 const SET_INFO = {
   base: { decks: ['base'], longs: ['long'], start: '3 обычных + 1 длинный, оставить не меньше 2 (длинный — не больше 1)', about: 'Классика для первых партий: короткие и средние маршруты между городами, у каждого один длинный маршрут через всю страну.' },
   extended: { decks: ['base', 'extended'], longs: ['long'], start: '3 обычных + 1 длинный, оставить не меньше 2', about: 'Базовый набор плюс маршруты к малым городам, озёрам и границе. Карта используется шире, маршрутов в колоде больше — можно чаще добирать.' },
-  bigcities: { decks: ['bigcities'], longs: [], start: '4 маршрута между крупными городами, оставить не меньше 2; длинных нет', about: 'Только крупные узлы: дорогие маршруты, острая борьба за центр и магистрали. При 4–5 игроках добавляются маршруты расширенного набора, иначе на всех не хватит.' },
+  bigcities: { decks: [], longs: ['bigcities'], start: '4 длинных маршрута между крупными городами, оставить не меньше 2; обычных нет', about: 'Только крупные узлы: дорогие маршруты, острая борьба за центр и магистрали. При 4–5 игроках добавляются маршруты расширенного набора, иначе на всех не хватит.' },
   mega: { decks: ['base', 'extended', 'bigcities'], longs: ['long', 'transit'], start: '3 обычных + 2 длинных или транзитных', about: 'Всё сразу: все маршруты и транзитные через всю страну. Самая длинная и рискованная партия.' },
 };
 export function setsDialog(M, current) {
@@ -97,11 +97,11 @@ export function setsDialog(M, current) {
     body: h('div',
       h('table.rtable.setstable', h('tr', head.map((x) => h('th', x))),
         row('Суть', (x) => x.about),
-        row('Обычные маршруты', (x) => { const s = stat(x.decks); return `${s.n} шт., ${s.min}–${s.max} очк. (в среднем ${s.avg})`; }),
-        row('Длинные', (x) => { const s = stat(x.longs); return s ? `${s.n} шт., ${s.min}–${s.max} очк.` : 'нет'; }),
+        row('Обычные маршруты', (x) => { const s = stat(x.decks); return s ? `${s.n} шт., ${s.min}–${s.max} очк. (в среднем ${s.avg})` : 'нет'; }),
+        row('Длинные', (x, k) => { const s = stat(x.longs); return s ? `${s.n} шт., ${s.min}–${s.max} очк.` + (k === 'bigcities' ? ` (в среднем ${s.avg})` : '') : 'нет'; }),
         row('На старте', (x) => x.start)),
       Object.entries(SET_INFO).map(([k, x]) => h('details.setlist', { open: k === current }, h('summary', `${TICKET_SETS[k]}: все маршруты`),
-        h('div.tks', list(x.decks)), x.longs.length ? [h('div.small.muted', 'Длинные и транзитные:'), h('div.tks', list(x.longs))] : null))),
+        x.decks.length ? h('div.tks', list(x.decks)) : null, x.longs.length ? [h('div.small.muted', x.decks.length ? 'Длинные и транзитные:' : 'Длинные:'), h('div.tks', list(x.longs))] : null))),
     buttons: [{ text: 'Закрыть', primary: true, onClick: (c) => c() }],
   });
 }

@@ -394,7 +394,8 @@ label.row .pcard .stamp { min-width: 26px; height: 30px; font-size: 17px; }
 .homecol { display: flex; flex-direction: column; gap: 14px; }
 .homegrid .panel { padding: 14px 16px; } .homegrid .panel h2 { margin: 0 0 10px; }
 .frow { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
-.frow .field { margin: 0; } .frow .grow { flex: 1 1 150px; }
+.frow .field { margin: 0; } .frow .grow { flex: 1 1 150px; min-width: 0; }
+.frow .grow select { width: 100%; min-width: 0; max-width: 100%; text-overflow: ellipsis; }
 .frow.split { margin-top: 12px; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .frow.split > div:first-child { flex: 1 1 200px; } .frow.split p { margin: 6px 0 0; }
 .joinbox { display: flex; flex-direction: column; gap: 4px; padding-left: 14px; border-left: 1px dashed var(--line); }

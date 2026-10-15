@@ -196,7 +196,7 @@ export class Board {
     for (const [city, seats] of Object.entries(v.stationsAt || {})) {
       seats.forEach((s) => {
         const [cx, cy] = this.spot(city, 10, 13);
-        const g = el('g', { transform: `translate(${cx - 4.5} ${cy - 6})`, class: 'mark', 'data-tip': `<b>Станция</b> · ${pname(s)}<br>${M.cities[city].name}. В конце партии позволяет использовать один чужой перегон из этого города. Неиспользованная станция — +4 очка.` }, this.gMarks);
+        const g = el('g', { transform: `translate(${cx - 4.5} ${cy - 6})`, class: 'mark', 'data-tip': `<b>Станция</b> · ${pname(s)}<br>${M.cities[city].name}. В конце партии позволяет использовать один чужой перегон из этого города. Неиспользованная станция — +3 очка.` }, this.gMarks);
         el('path', { d: 'M0 5.5 L4.5 1 L9 5.5 V12 H0Z', fill: col(s), stroke: '#fff', 'stroke-width': 1 }, g);
         el('path', { d: 'M0 5.5 L4.5 1 L9 5.5 V12 H0Z', fill: 'none', stroke: '#2b2b2b', 'stroke-width': 0.45 }, g);
       });
