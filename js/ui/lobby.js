@@ -29,7 +29,7 @@ export function renderLobby(root, app, lobby, session) {
       if (other) list.push(seatPayload(other, { color: s.color || freeColor(other.seat) }));
     }
     if (patch.kind && patch.kind !== 'closed' && !s.color) list[0].color = freeColor(s.seat);
-    try { await lobby.save(null, list); } catch (e) { toast(e.message, 'err'); }
+    try { await lobby.save(null, list); } catch (e) { toast('Не удалось изменить место: ' + e.message, 'err', 9000); render(); }
   };
   const freeColor = (except) => COLOR_KEYS.find((c) => !lobby.seats.some((x) => x.seat !== except && x.kind !== 'closed' && x.color === c)) || 'violet';
 

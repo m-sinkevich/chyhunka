@@ -45,7 +45,8 @@ export class Lobby {
     this.presence = this.api.channel('room:' + this.room.code, { seat: this.mySeat, host: this.isHost });
     this.presence.onPresence((list) => { this.online = new Set(list.map((m) => m.seat)); this.emit('presence'); });
   }
-  async save(config, seats) { await this.api.rpc('update_lobby', { p_room: this.roomId, p_config: config, p_seats: seats }); }
+  // после сохранения перечитываем места сами — не полагаемся только на realtime-уведомление
+  async save(config, seats) { await this.api.rpc('update_lobby', { p_room: this.roomId, p_config: config, p_seats: seats }); if (seats) await this.load(); }
   async setMe(name, color) { await this.api.rpc('update_my_seat', { p_room: this.roomId, p_name: name, p_color: color }); }
   close() { this.unwatch?.(); this.presence?.close(); this.listeners.clear(); }
 }

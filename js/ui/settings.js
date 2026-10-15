@@ -19,8 +19,9 @@ export function settingsForm(M, cfgIn, { editable = true, players = 2, onChange,
       h('div.presets', Object.entries(PRESETS).filter(([k]) => k !== 'duel' || players === 2).map(([k, p]) => h('button.small' + (presetOn(k) ? '.on' : ''), { disabled: dis, onclick: () => set({ ...JSON.parse(JSON.stringify(p.cfg)), duel: k === 'duel' ? 'auto' : cfg.duel }) }, p.name))),
       h('div.frow',
         h('label.field.grow', h('span', 'Набор маршрутов'), h('select', { disabled: dis, onchange: (e) => set({ tickets: e.target.value }) },
-          Object.entries(TICKET_SETS).map(([k, t]) => h('option', { value: k, selected: cfg.tickets === k }, t)))),
+          Object.entries(TICKET_SETS).map(([k, t]) => h('option', { value: k, selected: cfg.tickets === k }, `${t} — ${SET_SHORT[k]}`)))),
         h('button.small', { type: 'button', onclick: () => setsDialog(M, cfg.tickets), title: 'Чем отличаются наборы маршрутов' }, 'Сравнить наборы')),
+      h('div.small.muted.setabout', SET_INFO[cfg.tickets]?.about || ''),
       h('div.opts', h('span.small.muted', 'Модули'), Object.entries(MODULES).map(([k, m]) => h('label.opt',
         h('input', { type: 'checkbox', disabled: dis, checked: Boolean(cfg.modules[k]), onchange: (e) => {
           const modules = { ...cfg.modules, [k]: e.target.checked };
@@ -42,7 +43,9 @@ export function settingsForm(M, cfgIn, { editable = true, players = 2, onChange,
         } }), h('span', `${g.name} · ${g.points}`, h('small', g.rule + (off ? (g.id === 'g_ring' ? ' (в дуэли окружная закрыта)' : ' (нужен модуль «Туризм»)') : ''))));
       }), Array.isArray(cfg.goals) && cfg.goals.length !== 3 ? h('div.small', { style: { color: 'var(--acc)' } }, `Выбрано ${cfg.goals.length} из 3`) : null) : null,
       h('div.row',
-        h('label.field', h('span', 'Вагонов у игрока'), h('select', { disabled: dis || cfg.quick, onchange: (e) => set({ trains: Number(e.target.value) }) }, [35, 40, 45].map((n) => h('option', { value: n, selected: cfg.trains === n }, n)))),
+        (() => { const duelNow = players === 2 && cfg.duel !== 'off'; const shown = cfg.quick ? 30 : duelNow ? Math.min(cfg.trains, 40) : cfg.trains;
+          return h('label.field', { title: duelNow ? 'В дуэли — не больше 40 вагонов' : cfg.quick ? 'В быстрой партии — 30 вагонов' : null }, h('span', 'Вагонов у игрока'), h('select', { disabled: dis || cfg.quick, onchange: (e) => set({ trains: Number(e.target.value) }) },
+            [30, 35, 40, 45].filter((n) => (n === 30 ? cfg.quick : !duelNow || n <= 40)).map((n) => h('option', { value: n, selected: shown === n }, n)))); })(),
         h('label.field', h('span', 'Порядок хода'), h('select', { disabled: dis, onchange: (e) => set({ randomOrder: e.target.value === '1' }) }, h('option', { value: '1', selected: cfg.randomOrder }, 'случайный'), h('option', { value: '0', selected: !cfg.randomOrder }, 'по местам'))),
         online && h('label.field', h('span', 'Таймер хода'), h('select', { disabled: dis, onchange: (e) => set({ turnTimer: Number(e.target.value) }) }, [0, 1, 2, 3, 5].map((n) => h('option', { value: n, selected: cfg.turnTimer === n }, n ? `${n} мин` : 'выключен'))))),
       h('div.opts',
@@ -75,6 +78,7 @@ export function summary(cfg, n) {
 }
 
 // ---------- сравнение наборов маршрутов ----------
+const SET_SHORT = { base: 'классика, для первых партий', extended: 'больше маршрутов, к малым городам и границе', bigcities: 'только крупные узлы, дорогие маршруты', mega: 'всё сразу, самая длинная партия' };
 const SET_INFO = {
   base: { decks: ['base'], longs: ['long'], start: '3 обычных + 1 длинный, оставить не меньше 2 (длинный — не больше 1)', about: 'Классика для первых партий: короткие и средние маршруты между городами, у каждого один длинный маршрут через всю страну.' },
   extended: { decks: ['base', 'extended'], longs: ['long'], start: '3 обычных + 1 длинный, оставить не меньше 2', about: 'Базовый набор плюс маршруты к малым городам, озёрам и границе. Карта используется шире, маршрутов в колоде больше — можно чаще добирать.' },

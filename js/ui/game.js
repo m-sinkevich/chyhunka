@@ -428,7 +428,7 @@ export class GameScreen {
     B.append(h('div', h('h4', `Маршруты (${done.size}/${tix.length})`), h('div.tlist', tix.map((id) => {
       const t = M.tickets[id];
       const risk = !done.has(id) && v.phase === 'play' ? blocked.get(id) : null;
-      const warn = risk ? h('span.tkwarn', { title: risk.via ? `Путь перекрыт соперниками. Спасти можно станцией: поставьте её в городе ${M.cities[risk.via.city].name} и используйте чужой перегон ${M.cities[risk.via.route.from].name} — ${M.cities[risk.via.route.to].name}` : 'Путь перекрыт: маршрут уже не выполнить — в конце он вычтется' }, risk.via ? ' ⚠🏠' : ' ⚠') : null;
+      const warn = risk ? h('span.tkwarn', { title: risk.via ? `Маршрут заблокирован: без станции его уже не построить. Спасти можно станцией: поставьте её в городе ${M.cities[risk.via.city].name} и используйте чужой перегон ${M.cities[risk.via.route.from].name} — ${M.cities[risk.via.route.to].name}` : 'Маршрут невозможен: его не построить даже со станцией — в конце он вычтется' }, risk.via ? ' ⚠🏠' : ' ⚠') : null;
       const el = ticketEl(M, id, { done: done.has(id), extra: helped.has(id) ? h('span.small', { title: 'Выполнен с помощью станции (чужой перегон отмечен пунктиром на поле)' }, ' 🏠') : warn, onenter: () => this.highlight([t.from, t.to], true), onleave: () => this.highlight([]), onclick: () => this.board.focus([t.from, t.to]) });
       if (risk) el.classList.add('blocked');
       return el;
@@ -437,7 +437,7 @@ export class GameScreen {
     for (const [id, risk] of blocked) {
       if (done.has(id) || (this.warned ||= new Set()).has(id)) continue;
       this.warned.add(id);
-      if (this.warnReady) toast(`⚠ Маршрут ${M.cities[M.tickets[id].from].name} — ${M.cities[M.tickets[id].to].name}: путь перекрыт` + (risk.via ? `. Спасти можно станцией в городе ${M.cities[risk.via.city].name}` : ''), 'err', 7000);
+      if (this.warnReady) toast(`⚠ Маршрут ${M.cities[M.tickets[id].from].name} — ${M.cities[M.tickets[id].to].name} ` + (risk.via ? `заблокирован. Спасти можно станцией в городе ${M.cities[risk.via.city].name}` : 'невозможен'), 'err', 7000);
     }
     this.warnReady = true;
     if (v.cfg.modules.tourism) {

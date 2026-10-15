@@ -44,7 +44,7 @@ export function view(M, st, seat) {
     neighbors: st.neighbors, terminus: st.terminus, chain: st.chain,
     pending, setup, ts: st.ts, endAfterTurnNo: st.endAfterTurnNo,
     result: st.result, seed: over ? st.seed : null,
-    stats: st.stats, scoreHist: st.scoreHist || [],
+    stats: st.stats, scoreHist: st.scoreHist || [], claimLog: st.claimLog || [], goalLog: st.goalLog || [],
   };
 }
 

@@ -442,3 +442,13 @@ body.home .homefoot { position: fixed; left: 50%; bottom: 10px; transform: trans
 .ticket.blocked { border-color: #E08A8A; background: #FDEDEC; }
 .tkwarn { color: #B3262E; font-weight: 700; cursor: help; }
 .chartbox { margin: 12px 0 6px; } .scorechart { width: 100%; height: auto; background: #fffdf6; border: 1px solid var(--line); border-radius: 8px; }
+.cmark { cursor: help; } .blockedlist { margin-top: 6px; } .blockedlist summary { cursor: pointer; font-weight: 700; font-size: 13px; }
+.setabout { margin: -4px 0 8px; }
+.chartlegend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; font-size: 12px; color: var(--muted, #6b5d4a); }
+.chartlegend span { display: inline-flex; align-items: center; gap: 5px; }
+.lg { display: inline-block; width: 11px; height: 11px; }
+.lg.done { border-radius: 50%; border: 2.4px solid #555; background: #fff; width: 7px; height: 7px; }
+.lg.cut { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 11px solid #F2A93B; }
+.lg.blocked { border-radius: 50%; background: #B3262E; }
+.lg.imp { background: #222; }
+.lg.goal { background: #E8B400; clip-path: polygon(50% 0, 62% 35%, 100% 38%, 70% 60%, 80% 100%, 50% 78%, 20% 100%, 30% 60%, 0 38%, 38% 35%); width: 13px; height: 13px; }

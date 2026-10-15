@@ -313,6 +313,7 @@ function finalizeClaim(ctx, seat, r, pay, extra, use, raid) {
   for (const k of ['e1', 'e2', 'e5', 'e6']) if (use[k]) takeRouteCard(ctx, seat, k);
   if (st.flags[seat].extraCard) delete st.flags[seat].extraCard;
   st.claims[r.id] = seat;
+  (st.claimLog ||= []).push([(st.scoreHist || []).length, seat, r.id]);   // для итогового графика: когда кто что занял
   st.trains[seat] -= r.length;
   st.stats[seat].claims++;
 
@@ -511,6 +512,7 @@ function endTurn(ctx) {
         const net = ['g_globe', 'g_tourist'].includes(gid) ? bestStationUse(M, st, s).net : undefined;   // маршруты и открытки — с учётом станций
         if (goalMetric(M, st, s, gid, net) >= RACE_THRESHOLDS[gid]) {
           st.goals.race[gid] = s;
+          (st.goalLog ||= []).push([(st.scoreHist || []).length, s, gid]);   // для итогового графика
           ctx.log(`${ctx.name(s)} первым выполняет цель «${M.goals[gid].name}» (+${M.goals[gid].points})`, 'all', { kind: 'goal', goal: gid, seat: s });
           break;
         }
