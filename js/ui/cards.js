@@ -53,7 +53,7 @@ export function routeTipHtml(M, v, rid) {
   const pts = M.scoreFor(r.length) + (r.electrified && !r.ghost ? 1 : 0);
   let s = `<b>${M.routeName(r)}</b><br>${routeFeatures(M, r, v).join('<br>')}<br>Очки: ${pts}`;
   if (owner != null) s += `<br><i>Занят: ${escapeHtml(v.players[owner].name)}</i>`;
-  if (v.removed?.[rid]) s += '<br><i>Убран (строгий исторический режим)</i>';
+  if (v.removed?.[rid]) s += v.removed[rid] === 'duel' ? '<br><i>Закрыт: в дуэли окружная не используется</i>' : '<br><i>Убран (строгий исторический режим)</i>';
   if (owner == null && (v.n <= 3 || v.cfg.duelOn) && M.siblings[rid].some((x) => v.claims[x] != null)) s += '<br><i>Второй ряд закрыт — занять можно только с путевой картой «Ремонтная бригада»</i>';
   return s;
 }

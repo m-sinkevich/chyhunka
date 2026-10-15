@@ -9,10 +9,12 @@ import { tr } from '../i18n.js';
 import { cityDialog } from './cityinfo.js';
 import { legalFromView, stateFromView } from '../engine/viewstate.js';
 import { bestStationUse } from '../engine/scoring.js';
-import { components } from '../engine/rules.js';
+import { components, routeBlock } from '../engine/rules.js';
+import { smartMove } from '../bots/smart.js';
+import { makeRng } from '../engine/rng.js';
 import { CARD_TYPES, COLOR_NAMES } from '../engine/data.js';
 import { BOTS } from '../bots/index.js';
-import { getPref, setPref, dropSession, clearOffline } from '../net/sessions.js';
+import { getPref, setPref, dropSession, clearOffline, patchSession } from '../net/sessions.js';
 import { icon } from './icons.js';
 import { prefs, settingsDialog } from './prefs.js';
 import { fly, bump, splash } from './anim.js';
@@ -104,6 +106,10 @@ export class GameScreen {
     this.autoDialogs();
     if (v.cfg.love) this.board.dedication('Сделано с любовью для Коти ♥');
     if (this.resBtn) this.resBtn.style.display = v.phase === 'over' ? '' : 'none';
+    if (v.phase === 'over' && v.result && this.ctrl.room && !this.savedResult) {
+      this.savedResult = true;
+      patchSession(this.ctrl.backendKind || this.ctrl.api?.kind, this.ctrl.room.id, { result: resultSummary(v) });
+    }
     if (v.phase === 'over' && !this.shownResults) { this.shownResults = true; setTimeout(() => showResults(this), 600); }
   }
 
@@ -203,7 +209,7 @@ export class GameScreen {
         stat('wagon', v.trains[s], 'Вагонов осталось. Когда у кого-то останется 2 или меньше — последний круг'),
         stat('cards', Math.max(0, v.handCounts[s] - (this.pend.seat[s] || 0)), 'Карт составов в руке'),
         stat('ticket', v.ticketCounts[s], 'Маршрутов (какие — видно только владельцу)'),
-        v.cfg.stations > 0 ? stat('station', v.stationsLeft[s], 'Станций осталось; неиспользованная в конце даёт +4') : null,
+        v.cfg.stations > 0 ? stat('station', v.stationsLeft[s], 'Станций осталось; неиспользованная в конце даёт +3') : null,
         (() => { const tk = Object.entries(v.terminus || {}).filter(([, x]) => x === s).map(([c]) => M.cities[c].name); return tk.length ? h('span.st', { title: `Жетоны конечных станций (по 3 очка в конце): ${tk.join(', ')}` }, h('span.tokdot', { style: { background: playerColor(p.color) } }), ' ', tk.length) : null; })(),
         v.cfg.modules.tourism ? stat('postcard', v.postcardCounts[s], 'Туристических открыток') : null,
         v.cfg.modules.routeCards && v.routeCardCounts[s] ? stat('question', v.routeCardCounts[s], 'Путевых карт на руке') : null,
@@ -395,7 +401,8 @@ export class GameScreen {
     }
     const has = (t) => this.legal.find((a) => a.type === t);
     const st = has('station');
-    R.append(h('h4', 'Действия'), h('div.acts',
+    const hintsOn = getPref('hints', '1') === '1';
+    R.append(h('h4', 'Действия', hintsOn && this.legal.length && v.phase === 'play' && !v.pending ? h('button.small.hintbtn', { onclick: () => this.hint(), title: 'Что сделал бы на вашем месте бот «Сильный» (выключается в настройках)' }, '💡 Подсказка') : null), h('div.acts',
       h('button', { disabled: !has('tickets'), onclick: () => this.act({ type: 'tickets' }), title: 'Взять 3 маршрута, оставить хотя бы 1 (весь ход)' }, icon('ticket'), ' Взять маршруты'),
       v.cfg.stations > 0 ? h('button', { disabled: !st, onclick: () => this.setMode('station'), title: st ? `Станция стоит ${st.cost} карт(ы) одного цвета; в конце позволяет использовать один чужой перегон из города` : 'Станций не осталось' }, icon('station'), ` Станция${st ? ` (${st.cost})` : ''}`) : null,
       h('button', { disabled: !has('swap'), onclick: () => swapDialog(this), title: 'Сбросить 1–5 карт и взять столько же из колоды (весь ход)' }, icon('swap'), ' Сменить состав'),
@@ -413,14 +420,26 @@ export class GameScreen {
     const v = this.view; const M = this.M; const me = v.me;
     const B = clear(this.bottom);
     if (me < 0 || !v.hand) return;
-    B.append(h('div', h('h4', 'Ваши карты'), h('div.hand', CARD_TYPES.filter((c) => v.hand[c] - (this.pend.hand[c] || 0) > 0).map((c) => cardEl(M, c, { n: v.hand[c] - (this.pend.hand[c] || 0), title: `${c === 'loco' ? 'Локомотив — заменяет любой цвет' : COLOR_NAMES[c] + ' — для перегонов этого цвета и серых'}: ${v.hand[c]} шт.` })), !CARD_TYPES.some((c) => v.hand[c] > 0) ? h('span.muted.small', 'пусто') : null)));
+    B.append(h('div.handbox', h('h4', 'Ваши карты'), h('div.hand', CARD_TYPES.filter((c) => v.hand[c] - (this.pend.hand[c] || 0) > 0).map((c) => cardEl(M, c, { n: v.hand[c] - (this.pend.hand[c] || 0), title: `${c === 'loco' ? 'Локомотив — заменяет любой цвет' : COLOR_NAMES[c] + ' — для перегонов этого цвета и серых'}: ${v.hand[c]} шт.` })), !CARD_TYPES.some((c) => v.hand[c] > 0) ? h('span.muted.small', 'пусто') : null)));
     const done = this.doneTickets();
     const helped = this.stationHelped();
     const tix = v.tickets[me] || [];
+    const blocked = v.phase === 'play' ? this.blockedTickets(done) : new Map();
     B.append(h('div', h('h4', `Маршруты (${done.size}/${tix.length})`), h('div.tlist', tix.map((id) => {
       const t = M.tickets[id];
-      return ticketEl(M, id, { done: done.has(id), extra: helped.has(id) ? h('span.small', { title: 'Выполнен с помощью станции (чужой перегон отмечен пунктиром на поле)' }, ' 🏠') : null, onenter: () => this.highlight([t.from, t.to], true), onleave: () => this.highlight([]), onclick: () => this.board.focus([t.from, t.to]) });
+      const risk = !done.has(id) && v.phase === 'play' ? blocked.get(id) : null;
+      const warn = risk ? h('span.tkwarn', { title: risk.via ? `Путь перекрыт соперниками. Спасти можно станцией: поставьте её в городе ${M.cities[risk.via.city].name} и используйте чужой перегон ${M.cities[risk.via.route.from].name} — ${M.cities[risk.via.route.to].name}` : 'Путь перекрыт: маршрут уже не выполнить — в конце он вычтется' }, risk.via ? ' ⚠🏠' : ' ⚠') : null;
+      const el = ticketEl(M, id, { done: done.has(id), extra: helped.has(id) ? h('span.small', { title: 'Выполнен с помощью станции (чужой перегон отмечен пунктиром на поле)' }, ' 🏠') : warn, onenter: () => this.highlight([t.from, t.to], true), onleave: () => this.highlight([]), onclick: () => this.board.focus([t.from, t.to]) });
+      if (risk) el.classList.add('blocked');
+      return el;
     }))));
+    // маршрут только что стал невыполнимым — предупредить один раз
+    for (const [id, risk] of blocked) {
+      if (done.has(id) || (this.warned ||= new Set()).has(id)) continue;
+      this.warned.add(id);
+      if (this.warnReady) toast(`⚠ Маршрут ${M.cities[M.tickets[id].from].name} — ${M.cities[M.tickets[id].to].name}: путь перекрыт` + (risk.via ? `. Спасти можно станцией в городе ${M.cities[risk.via.city].name}` : ''), 'err', 7000);
+    }
+    this.warnReady = true;
     if (v.cfg.modules.tourism) {
       const pcs = v.postcards[me] || [];
       const mk = (id, done) => { const el = postcardEl(M, id, { done, onenter: () => this.highlight([M.postcards[id].city], true), onleave: () => this.highlight([]) }); el.addEventListener('dblclick', () => cityDialog(this, M.postcards[id].city)); return el; };
@@ -435,7 +454,7 @@ export class GameScreen {
         this.pcOpen && closed.length > 1 && pcs.length > 4 ? h('button.link.small', { onclick: () => { this.pcOpen = false; this.renderBottom(); } }, 'свернуть выполненные') : null));
     }
     const rc = v.routeCards[me] || [];
-    if (v.cfg.modules.routeCards) {
+    if (v.cfg.modules.routeCards && (rc.length || ((v.routeCardsUsed || [])[me] || []).length)) {   // нет путевых карт — блок не показываем
       const used = (v.routeCardsUsed || [])[me] || [];
       const KIND = { keep: 'в руку', leader: 'бьёт лидера', all: 'всем', self: 'себе' };
       B.append(h('div.rcards', h('h4', 'Путевые карты'), h('div.tlist',
@@ -466,6 +485,60 @@ export class GameScreen {
       this.myNet = plan.net; this.stationPick = plan;
       if (v.phase !== 'over') plan.routes.forEach((rid) => { if (rid) this.stationRoutes.push({ route: rid, seat: v.me }); });
     } catch (err) { console.warn(err); this.myNet = own; }
+  }
+  /** Маршруты, до которых уже не дотянуться: путь перекрыт чужими перегонами. via — чем спасти станцией (если станции остались). */
+  blockedTickets(done) {
+    const v = this.view; const M = this.M; const me = v.me;
+    const st = stateFromView(v);
+    const free = (r) => v.claims[r.id] === me || (v.claims[r.id] == null && !v.removed?.[r.id] && !routeBlock(M, st, me, r));
+    const out = new Map();
+    const reach = (a, b, jump) => {   // jump — разрешить один чужой перегон (станция)
+      const seen = new Map([[a + '|0', null]]); const q = [[a, 0]];
+      while (q.length) {
+        const [u, j] = q.shift();
+        if (u === b) { let k = u + '|' + j, via = null; while (seen.get(k)) { const p = seen.get(k); if (p.via) via = p.via; k = p.k; } return { via }; }
+        for (const r of M.adj[u]) {
+          const o = M.other(r, u);
+          if (free(r)) { const k = o + '|' + j; if (!seen.has(k)) { seen.set(k, { k: u + '|' + j }); q.push([o, j]); } }
+          else if (jump && j === 0 && v.claims[r.id] != null && v.claims[r.id] !== me) { const k = o + '|1'; if (!seen.has(k)) { seen.set(k, { k: u + '|0', via: { route: r, city: u } }); q.push([o, 1]); } }
+        }
+      }
+      return null;
+    };
+    for (const id of v.tickets[me] || []) {
+      if (done.has(id)) continue;
+      const t = M.tickets[id];
+      if (reach(t.from, t.to, false)) continue;
+      const res = v.stationsLeft[me] > 0 ? reach(t.from, t.to, true) : null;
+      out.set(id, { via: res?.via || null });
+    }
+    return out;
+  }
+  /** Подсказка: что сделал бы «Сильный» бот на вашем месте. */
+  hint() {
+    const v = this.view; const M = this.M;
+    const legal = this.legal;
+    if (!legal.length || v.pending || v.phase !== 'play') return toast('Подсказка доступна в свой ход');
+    let a = null;
+    try { a = smartMove('strong')(this.app.E, v, legal, makeRng(Date.now() & 0xffff)); } catch (e) { console.warn(e); }
+    if (!a) return toast('Не получилось подобрать ход');
+    const col = (c) => (c === 'loco' ? 'Локомотив' : COLOR_NAMES[c]);
+    let text = '';
+    if (a.type === 'claim') {
+      const r = M.routes[a.route];
+      text = `Займите перегон ${M.cities[r.from].name} — ${M.cities[r.to].name} (${r.length} ваг.)`;
+      this.board.focus([r.from, r.to]);
+      this.board.flashRoute(r.id, '#FFC400', '💡', 6, 'label');
+    } else if (a.type === 'draw' && a.source === 'up') {
+      text = `Возьмите открытую карту: ${col(v.faceUp[a.index])}`;
+      const el = this.right.querySelector('.market')?.children[a.index];
+      el?.classList.add('hinted'); setTimeout(() => el?.classList.remove('hinted'), 4000);
+    } else if (a.type === 'draw') text = 'Возьмите карту из колоды вслепую';
+    else if (a.type === 'tickets' || a.type === 'ticketRow') text = 'Возьмите новые маршруты: вагонов и времени хватает';
+    else if (a.type === 'station') { text = `Поставьте станцию в городе ${M.cities[a.city].name} — она спасёт маршрут`; this.board.focus([a.city]); }
+    else if (a.type === 'swap') text = 'Смените состав: в руке нет нужных цветов';
+    else text = 'Можно пропустить ход';
+    toast('💡 ' + text, 'info', 6000);
   }
   doneTickets() {
     const v = this.view; const M = this.M;
@@ -620,4 +693,10 @@ export class GameScreen {
   }
   exit() { this.close(); this.app.go('#/'); }
   close() { clearInterval(this.timer); this.off?.(); this.ctrl.close(); }
+}
+
+/** Итог партии для списка «Вернуться в партию» и рейтинга: имена, очки, победитель. */
+export function resultSummary(v) {
+  const r = v.result;
+  return { winner: r.rows[r.order[0]].name, rows: r.order.map((i) => ({ name: r.rows[i].name, total: r.rows[i].total })) };
 }

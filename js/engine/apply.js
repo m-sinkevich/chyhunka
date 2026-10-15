@@ -8,7 +8,7 @@ import {
   checkStationPay, stationCost, ownRoutes, components, goalMetric, canDrawDeck,
   neighborCountries, neighborPoints,
 } from './rules.js';
-import { finalScore } from './scoring.js';
+import { finalScore, bestStationUse } from './scoring.js';
 
 const clone = (x) => (typeof structuredClone === 'function' ? structuredClone(x) : JSON.parse(JSON.stringify(x)));
 const cardName = (c) => (c === 'loco' ? 'Локомотив' : COLOR_NAMES[c]);
@@ -397,8 +397,10 @@ function drawRouteCard(ctx, seat) {
   if (id === 'e8') for (const q of lead) st.flags[q].blindOnly = st.turnNo;
   if (id === 'e9') for (const q of lead) st.flags[q].extraCard = true;
   if (id === 'e10') for (const q of lead) if (q !== seat) moveRandomCard(ctx, q, seat);
-  if (id === 'e11') for (let q = 0; q < st.n; q++) { const k = handSize(st.hands[q]); if (k >= 12) queueDiscard(ctx, q, k - 10, '«Ревизия»'); }
-  if (id === 'e12') for (let q = 0; q < st.n; q++) if (st.score[q] > st.score[seat]) moveRandomCard(ctx, q, seat);
+  // «Ревизия»: у кого 12 и больше карт — сбрасывает четверть руки, но не больше 10 (st.cfg.rcOld — прежнее правило, для сравнения)
+  if (id === 'e11') for (let q = 0; q < st.n; q++) { const k = handSize(st.hands[q]); if (k >= 12) queueDiscard(ctx, q, st.cfg.rcOld ? k - 10 : Math.min(10, Math.floor(k / 4)), '«Ревизия»'); }
+  // «Попутный ветер»: по 2 карты вслепую у каждого, у кого очков больше
+  if (id === 'e12') for (let q = 0; q < st.n; q++) if (st.score[q] > st.score[seat]) for (let i = 0; i < (st.cfg.rcOld ? 1 : 2); i++) moveRandomCard(ctx, q, seat);
   if ((id === 'e8' || id === 'e9') && lead.length) ctx.log(`Действует на: ${lead.map(ctx.name).join(', ')}`);
   st.routeCardDeck.unshift(id); // сыгранная карта — под низ колоды
 }
@@ -506,7 +508,8 @@ function endTurn(ctx) {
       if (st.goals.race[gid] != null) continue;
       const order = [seat, ...st.players.map((_, i) => i).filter((i) => i !== seat)];
       for (const s of order) {
-        if (goalMetric(M, st, s, gid) >= RACE_THRESHOLDS[gid]) {
+        const net = ['g_globe', 'g_tourist'].includes(gid) ? bestStationUse(M, st, s).net : undefined;   // маршруты и открытки — с учётом станций
+        if (goalMetric(M, st, s, gid, net) >= RACE_THRESHOLDS[gid]) {
           st.goals.race[gid] = s;
           ctx.log(`${ctx.name(s)} первым выполняет цель «${M.goals[gid].name}» (+${M.goals[gid].points})`, 'all', { kind: 'goal', goal: gid, seat: s });
           break;
@@ -514,6 +517,8 @@ function endTurn(ctx) {
       }
     }
   }
+  // история очков на треке — для графика в итогах (одна запись после каждого хода)
+  (st.scoreHist ||= []).push(st.score.slice());
   // последний круг
   if (st.endAfterTurnNo == null && st.trains[seat] <= 2) {
     st.endAfterTurnNo = st.turnNo + st.n;

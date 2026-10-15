@@ -18,7 +18,7 @@ export function blindOnly(st, seat) {
 
 /** Можно ли игроку занять перегон (без учёта карт и вагонов). Возвращает текст причины или null. */
 export function routeBlock(M, st, seat, r, use = {}) {
-  if (st.removed[r.id]) return 'Перегон убран в строгом историческом режиме';
+  if (st.removed[r.id]) return st.removed[r.id] === 'duel' ? 'В дуэли окружная закрыта' : 'Перегон убран в строгом историческом режиме';
   if (st.claims[r.id] != null) return 'Перегон уже занят';
   for (const s of M.siblings[r.id]) {
     const owner = st.claims[s];

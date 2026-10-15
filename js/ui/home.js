@@ -54,9 +54,10 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
   };
   const dateOf = (t) => (t ? new Date(t).toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null);
   const metaEls = new Map();
-  const metaText = (s) => [s.created ? `создана ${dateOf(s.created)}` : null, s.players ? `игроков: ${s.players}` : null, s.gone ? 'на сервере уже нет' : null].filter(Boolean).join(' · ') || '…';
+  const metaText = (s) => [s.created ? `создана ${dateOf(s.created)}` : null, s.players ? `игроков: ${s.players}` : null, s.result ? `🏆 ${s.result.winner} (${s.result.rows[0]?.total ?? ''})` : null, s.gone ? 'на сервере уже нет' : null].filter(Boolean).join(' · ') || '…';
   const sessionRow = (s) => {
     const meta = h('span.smeta', metaText(s)); metaEls.set(s.backend + s.room_id, meta);
+    if (s.result) queueMicrotask(() => meta.closest('li')?.classList.add('over'));
     const mineToDelete = s.host && sameName(s.name, name.value);
     return h('li',
       h('span.code', s.code),
@@ -83,7 +84,8 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
             saved?.state && saved.state.phase !== 'over' ? h('button', { onclick: () => app.go('#/offline/game') }, `Продолжить (ход ${saved.state.turnNo})`) : null,
             saved?.state ? h('button.link', { onclick: async () => { if (await confirmBox('Удалить сохранение', 'Удалить сохранённую партию с ботами?')) { clearOffline(); renderHome(root, app); } } }, 'удалить') : null))),
       h('div.panel.sesspanel',
-        h('h2', 'Вернуться в партию', sessions.length ? h('span.badge', { style: { marginLeft: '8px' } }, sessions.length) : null),
+        h('div.sesshead', h('h2', 'Вернуться в партию', sessions.length ? h('span.badge', { style: { marginLeft: '8px' } }, sessions.length) : null),
+          sessions.length ? h('button.small', { onclick: () => ratingDialog(), title: 'Рейтинг игроков по законченным партиям из этого списка' }, '🏆 Рейтинг') : null),
         sessions.length ? h('ul.sessions', sessions.map(sessionRow)) : h('p.small.muted', 'В этом браузере сохранённых партий нет.'),
         h('details.otherdev', h('summary', 'С другого устройства'),
           h('p.small.muted', 'Код возврата выдаётся при входе в комнату (например «2-ABCD2345»: номер места и код).'),
@@ -98,9 +100,15 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
         const api = await backend(s.backend);
         const [room] = await api.select('rooms', { id: s.room_id });
         const patch = room ? { created: Date.parse(room.created_at) || s.created, players: (await api.select('seats', { room_id: s.room_id })).filter((x) => x.kind !== 'closed').length, gone: false } : { gone: true };
+        if (room && !s.result) {   // партия закончена — запомнить победителя и очки (для списка и рейтинга)
+          const [ps] = await api.select('public_state', { room_id: s.room_id }).catch(() => []);
+          const r = ps?.state?.result;
+          if (ps?.state?.phase === 'over' && r) patch.result = { winner: r.rows[r.order[0]].name, rows: r.order.map((i) => ({ name: r.rows[i].name, total: r.rows[i].total })) };
+        }
         patchSession(s.backend, s.room_id, patch);
         const el = metaEls.get(s.backend + s.room_id);
         if (el) el.textContent = tr(metaText({ ...s, ...patch }));
+        if (patch.result) el?.closest('li')?.classList.add('over');
       } catch { /* нет сети — остаётся то, что сохранено в браузере */ }
     }
   })();
@@ -133,4 +141,29 @@ function showLove() {
     h('figure.love-card', h('img', { src: 'img/love.jpg', alt: '' }), h('figcaption', 'С любовью для Коти ', h('span.heart', '♥'))), hearts));
   document.body.append(over);
   setTimeout(() => over.remove(), 10000);
+}
+
+// ---------- рейтинг по законченным партиям из списка этого браузера ----------
+function ratingDialog() {
+  const games = listSessions().filter((s) => s.result?.rows?.length);
+  const by = new Map();
+  for (const g of games) g.result.rows.forEach((r, place) => {
+    const key = (r.name || '').trim().toLowerCase();
+    if (!key) return;
+    const x = by.get(key) || { name: r.name, games: 0, wins: 0, sum: 0, best: 0, places: 0 };
+    x.games++; x.sum += r.total; x.best = Math.max(x.best, r.total); x.places += place + 1;
+    if (place === 0) x.wins++;
+    by.set(key, x);
+  });
+  const rows = [...by.values()].sort((a, b) => b.wins - a.wins || b.wins / b.games - a.wins / a.games || b.sum / b.games - a.sum / a.games);
+  modal({
+    title: 'Рейтинг игроков', wide: true,
+    body: h('div',
+      h('p.small.muted', `По законченным партиям из списка «Вернуться в партию» в этом браузере: ${games.length}. Боты считаются как игроки.`),
+      rows.length ? h('table.rtable.rating', h('tr', ['#', 'Игрок', 'Победы', 'Партий', '% побед', 'Средние очки', 'Лучший счёт', 'Среднее место'].map((x) => h('th', x))),
+        rows.map((x, i) => h('tr' + (i === 0 ? '.top' : ''), h('td', i + 1), h('td', i === 0 ? '🏆 ' : '', x.name), h('td', x.wins), h('td', x.games), h('td', `${Math.round((100 * x.wins) / x.games)}%`),
+          h('td', Math.round(x.sum / x.games)), h('td', x.best), h('td', (x.places / x.games).toFixed(1)))))
+        : h('p', 'Законченных партий пока нет. Сыграйте партию до конца — она появится в рейтинге.')),
+    buttons: [{ text: 'Закрыть', primary: true, onClick: (c) => c() }],
+  });
 }

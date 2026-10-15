@@ -165,8 +165,10 @@ function cardPicker(M, source, { total, max, exact, types = CARD_TYPES, onChange
 export function discardDialog(G) {
   const { M } = G; const p = G.view.pending;
   let dlg;
-  const cp = cardPicker(M, G.view.hand, { max: p.count, exact: p.count, onChange: (s) => { if (dlg) dlg.buttons[0].disabled = s !== p.count; } });
-  dlg = modal({ dock: true, title: `Сбросьте ${p.count} ${plural(p.count, 'карту', 'карты', 'карт')}`, closable: false, body: [h('p', `Путевая карта ${p.reason}.`), cp.el], buttons: [{ text: 'Сбросить', primary: true, disabled: true, onClick: (c) => { c(); G.act({ type: 'discard', cards: nz(cp.pick) }); } }] });
+  const counter = h('div.discount');
+  const showCount = (s) => counter.replaceChildren(h('b', `Выбрано ${s} из ${p.count}`), s < p.count ? ` · осталось ${p.count - s}` : ' ✓');
+  const cp = cardPicker(M, G.view.hand, { max: p.count, exact: p.count, onChange: (s) => { showCount(s); if (dlg) dlg.buttons[0].disabled = s !== p.count; } });
+  dlg = modal({ dock: true, title: `Сбросьте ${p.count} ${plural(p.count, 'карту', 'карты', 'карт')}`, closable: false, body: [h('p', `Путевая карта ${p.reason}.`), counter, cp.el], buttons: [{ text: 'Сбросить', primary: true, disabled: true, onClick: (c) => { c(); G.act({ type: 'discard', cards: nz(cp.pick) }); } }] });
   return dlg;
 }
 
@@ -211,7 +213,7 @@ export function stationDialog(G, city, cost) {
   render();
   modal({ dock: true,
     title: `Станция: ${M.cities[city].name}`,
-    body: [h('p.small', `Станция № ${G.view.cfg.stations - G.view.stationsLeft[G.view.me] + 1} стоит ${cost} ${plural(cost, 'карту', 'карты', 'карт')} одного цвета. В конце партии она позволит использовать для ваших маршрутов один чужой перегон из этого города. Неиспользованная станция — +4 очка.`), box],
+    body: [h('p.small', `Станция № ${G.view.cfg.stations - G.view.stationsLeft[G.view.me] + 1} стоит ${cost} ${plural(cost, 'карту', 'карты', 'карт')} одного цвета. В конце партии она позволит использовать для ваших маршрутов один чужой перегон из этого города. Неиспользованная станция в конце даёт +3 очка.`), box],
     buttons: [{ text: 'Отмена', onClick: (c) => c() }, { text: 'Поставить', primary: true, disabled: !opts.length, onClick: (c) => { c(); G.act({ type: 'station', city, pay: opts[chosen] }); } }],
   });
 }
@@ -229,8 +231,8 @@ function helpDialogRu() {
       h('p', h('b', 'Погранпереход: '), 'после оплаты открываются 3 карты колоды (4, если вы единоличный лидер); за каждую карту вашего цвета или Локомотив — доплата. Можно отказаться.'),
       h('p', h('b', 'Призрачная ветка: '), 'длина + 1 обязательный Локомотив, без погранконтроля и электрификации. ', h('b', 'Горный перегон: '), 'нужен хотя бы 1 Локомотив.'),
       h('p', h('b', 'Двойные перегоны: '), 'при 2–3 игроках второй ряд закрывается; при 4–5 оба открыты, но не для одного игрока. В Минске до 3 станций разных игроков (в дуэли — 1).'),
-      h('p', h('b', 'Конец: '), 'когда у кого-то осталось 2 вагона или меньше, каждый делает ещё один ход. Затем: маршруты ±, цели, неиспользованные станции +4, модули.'),
-      h('p', h('b', 'Цели: '), 'в партии 3 цели, 2 открыты сразу, третья — когда у кого-то останется 15 вагонов. В дуэли цели — гонка: кто первый выполнил, тот и получил.'),
+      h('p', h('b', 'Конец: '), 'когда у кого-то осталось 2 вагона или меньше, каждый делает ещё один ход. Затем: маршруты ±, цели, неиспользованные станции +3, модули.'),
+      h('p', h('b', 'Цели: '), 'в партии 3 цели, 2 открыты сразу, третья — когда у кого-то останется 15 вагонов. В дуэли цели — гонка: кто первый выполнил, тот и получил. Дуэль: 40 вагонов, окружная закрыта, оба получают по 5 карт.'),
     ],
     buttons: [{ text: 'Полные правила', onClick: (c) => { c(); import('./rules.js').then((r) => r.showRules()); } }, { text: 'Понятно', primary: true, onClick: (c) => c() }],
   });

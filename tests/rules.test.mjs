@@ -299,3 +299,33 @@ test('смена состава: какие карты ушли и пришли 
   assert.match(own[0].text, /сброшены: красный × 2; пришли: /);
   assert.ok(r.events.some((e) => e.kind === 'swap' && e.vis === 'all' && !e.own));
 });
+
+test('путевые карты: «Ревизия» — четверть руки (не больше 10), «Попутный ветер» — по 2 карты', () => {
+  let st = start(3, { modules: { routeCards: true } });
+  const r = E.M.routeList.find((x) => x.event && !x.ghost && !x.tunnel && x.color !== 'grey' && x.length <= 3);
+  const seat = st.turn, other = (seat + 1) % 3;
+  st.routeCardDeck = st.routeCardDeck.filter((x) => x !== 'e11'); st.routeCardDeck.push('e11');
+  give(st, other, { red: 5, blue: 5, green: 4 });          // в руке у соперника 14+ карт
+  const k = Object.values(st.hands[other]).reduce((a, b) => a + b, 0);
+  give(st, seat, { [r.color]: r.length });
+  st = act(st, { type: 'claim', seat, route: r.id, pay: { color: r.color, n: r.length, loco: 0 } });
+  const p = st.pend.find((x) => x.seat === other && x.kind === 'discard');
+  assert.equal(p.count, Math.min(10, Math.floor(k / 4)));
+  let s2 = start(3, { modules: { routeCards: true } });
+  const me = s2.turn, o1 = (me + 1) % 3;
+  s2.score[o1] = 30; give(s2, o1, { black: 4 });
+  s2.routeCardDeck = s2.routeCardDeck.filter((x) => x !== 'e12'); s2.routeCardDeck.push('e12');
+  give(s2, me, { [r.color]: r.length });
+  const before = Object.values(s2.hands[me]).reduce((a, b) => a + b, 0) - r.length;
+  s2 = act(s2, { type: 'claim', seat: me, route: r.id, pay: { color: r.color, n: r.length, loco: 0 } });
+  assert.equal(Object.values(s2.hands[me]).reduce((a, b) => a + b, 0), before + 2);
+});
+
+test('честная раздача: стартовые суммы очков в пределах ±10%', () => {
+  for (let g = 0; g < 30; g++) {
+    const st = E.init({ tickets: 'base' }, [0, 1, 2, 3].map((i) => ({ name: 'p' + i, color: 'red' })), 300 + g);
+    const s = Object.values(st.setup.tickets).map((o) => o.offer.reduce((a, id) => a + E.M.tickets[id].points, 0));
+    const avg = s.reduce((a, b) => a + b, 0) / s.length;
+    assert.ok(s.every((x) => Math.abs(x - avg) <= avg * 0.1), JSON.stringify(s));
+  }
+});

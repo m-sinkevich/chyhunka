@@ -14,12 +14,12 @@ export const NEIGHBOR_SCALE = [0, 0, 12, 20, 30, 42]; // «Соседи»: оч�
 export const NEIGHBOR_MIN_INNER = 2;            // на пути между странами — не меньше 2 перегонов внутри Беларуси
 export const TERMINUS_POINTS = 3;
 export const DEPOT_BONUS = 10;
-export const STATION_BONUS = 4;
+export const STATION_BONUS = 3;   // неиспользованная станция в конце
 
 /** Пороги целей в режиме «гонка» (дуэль). */
 export const RACE_THRESHOLDS = {
-  g_express: 15, g_ring: 10, g_globe: 4, g_tourist: 3, g_local: 15,
-  g_capital: 3, g_border: 3, g_polesie: 8, g_vilnius: 2,
+  g_express: 18, g_ring: 7, g_globe: 4, g_tourist: 3, g_local: 22,   // подобраны по партиям ботов: цель берут примерно в 50–70% дуэлей
+  g_capital: 2, g_border: 3, g_polesie: 7, g_vilnius: 2,
 };
 
 export function prepare(map) {

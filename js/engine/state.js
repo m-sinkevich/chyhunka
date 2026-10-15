@@ -42,6 +42,7 @@ export function normalizeConfig(cfg = {}, n) {
   c.duelOn = n === 2 && c.duel !== 'off';
   if (c.quick) { c.trains = Math.min(c.trains, 30); c.stations = Math.min(c.stations, 2); }
   c.trains = Math.max(10, Math.min(60, Number(c.trains) || 45));
+  if (c.duelOn) c.trains = Math.min(c.trains, 40);   // дуэль: по 40 вагонов — игроки чаще сталкиваются в центре
   c.stations = Math.max(0, Math.min(3, Number(c.stations)));
   if (Array.isArray(c.goals)) {
     if (c.goals.length !== 3) throw new Error('Нужно выбрать ровно 3 цели');
@@ -91,12 +92,13 @@ export function initState(M, cfgIn, players, seed) {
     removed: {}, // перегоны, убранные с поля (строгий исторический режим)
     setup: { tickets: {}, postcards: {}, depotOrder: [] },
   };
-  if (cfg.strictHistorical) for (const r of M.routeList) if (r.ghostType === 'fantasy') st.removed[r.id] = true;
+  if (cfg.strictHistorical) for (const r of M.routeList) if (r.ghostType === 'fantasy') st.removed[r.id] = 'strict';
+  if (cfg.duelOn) for (const r of M.routeList) if (r.ring) st.removed[r.id] = 'duel';   // дуэль: окружная закрыта
 
-  // карты составов: первый игрок 4, остальные 5 (компенсация первого хода)
+  // карты составов: первый игрок 4, остальные 5 (компенсация первого хода); в дуэли — у обоих по 5
   st.deck = newDeck(st);
   for (let p = 0; p < n; p++) {
-    const k = p === 0 ? 4 : 5;
+    const k = p === 0 && !cfg.duelOn ? 4 : 5;
     for (let i = 0; i < k; i++) st.hands[p][st.deck.pop()]++;
   }
   refillFaceUp(st);
@@ -107,16 +109,31 @@ export function initState(M, cfgIn, players, seed) {
   let startLong = 1, startMain = 3, keepMin = 2, maxLong = 1;
   if (cfg.tickets === 'base') { st.ticketDeck = bySet(['base']); st.longDeck = bySet(['long']); }
   if (cfg.tickets === 'extended') { st.ticketDeck = bySet(['base', 'extended']); st.longDeck = bySet(['long']); }
-  if (cfg.tickets === 'bigcities') { st.ticketDeck = bySet(['bigcities']); st.longDeck = []; startLong = 0; startMain = 4; }
+  // «Большие города»: 15 маршрутов; при 4–5 игроках их не хватает на стартовую раздачу — добавляются маршруты расширенной Беларуси
+  if (cfg.tickets === 'bigcities') { st.ticketDeck = bySet(n >= 4 ? ['bigcities', 'extended'] : ['bigcities']); st.longDeck = []; startLong = 0; startMain = 4; }
   if (cfg.tickets === 'mega') { st.ticketDeck = bySet(['base', 'extended', 'bigcities']); st.longDeck = bySet(['long', 'transit']); startLong = 2; }
   if (cfg.quick) { startLong = 0; startMain = 3; }
+  if (cfg.duelOn && cfg.tickets !== 'mega') { startLong = 0; startMain = 4; }   // дуэль: на старте без длинных маршрутов
   shuffle(st, st.ticketDeck); shuffle(st, st.longDeck);
-  for (let p = 0; p < n; p++) {
+  // честная раздача: стартовые предложения подбираются так, чтобы сумма очков у всех была примерно равной (±10% от средней)
+  const deal = () => Array.from({ length: n }, () => {
     const offer = [];
     for (let i = 0; i < startLong && st.longDeck.length; i++) offer.push(st.longDeck.pop());
     for (let i = 0; i < startMain && st.ticketDeck.length; i++) offer.push(st.ticketDeck.pop());
-    st.setup.tickets[p] = { offer, min: Math.min(keepMin, offer.length), maxLong };
+    return offer;
+  });
+  const sum = (o) => o.reduce((a, id) => a + M.tickets[id].points, 0);
+  let offers = deal();
+  if (cfg.fairDeal !== false && n > 1) {
+    for (let tries = 0; tries < 400; tries++) {
+      const sums = offers.map(sum), avg = sums.reduce((a, b) => a + b, 0) / n;
+      if (sums.every((x) => Math.abs(x - avg) <= avg * 0.1)) break;
+      for (const o of offers.slice().reverse()) for (const id of o.slice().reverse()) (['long', 'transit'].includes(M.tickets[id].set) ? st.longDeck : st.ticketDeck).push(id);
+      shuffle(st, st.ticketDeck); shuffle(st, st.longDeck);
+      offers = deal();
+    }
   }
+  offers.forEach((offer, p) => { st.setup.tickets[p] = { offer, min: Math.min(keepMin, offer.length), maxLong }; });
   if (cfg.duelOn) for (let i = 0; i < 4 && st.ticketDeck.length; i++) st.ticketRow.push(st.ticketDeck.pop());
 
   // туризм
@@ -126,8 +143,8 @@ export function initState(M, cfgIn, players, seed) {
   }
   // цели: 3 случайные (или выбранные хозяином), 2 открыты сразу
   if (cfg.goals !== 'off') {
-    const pool = M.map.goals.filter((g) => !g.requires || cfg.modules[g.requires]).map((g) => g.id);
-    st.goals.ids = Array.isArray(cfg.goals) ? [...cfg.goals] : shuffle(st, pool).slice(0, 3);
+    const pool = M.map.goals.filter((g) => (!g.requires || cfg.modules[g.requires]) && !(cfg.duelOn && g.id === 'g_ring')).map((g) => g.id);
+    st.goals.ids = Array.isArray(cfg.goals) ? [...cfg.goals].map((g) => (cfg.duelOn && g === 'g_ring' ? pool.find((x) => !cfg.goals.includes(x)) : g)) : shuffle(st, pool).slice(0, 3);
     st.goals.open = 2;
   }
   if (cfg.modules.routeCards) st.routeCardDeck = shuffle(st, M.map.events.map((e) => e.id));

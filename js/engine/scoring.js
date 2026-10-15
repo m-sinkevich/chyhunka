@@ -1,5 +1,5 @@
 // Подсчёт очков в конце партии.
-import { STATION_BONUS, DEPOT_BONUS, TERMINUS_POINTS } from './data.js';
+import { STATION_BONUS, DEPOT_BONUS, TERMINUS_POINTS, RACE_THRESHOLDS } from './data.js';
 import { ownRoutes, components, goalMetric } from './rules.js';
 
 /** Лучший выбор чужих перегонов для станций игрока (перебор, станций не больше 3). */
@@ -51,7 +51,10 @@ export function postcardPart(M, st, seat, net) {
 /** Кто получает цель: в режиме гонки — первый выполнивший, иначе максимум метрики (>0), ничья — все. */
 export function goalHolders(M, st, gid, nets) {
   if (st.cfg.duelOn && st.goals.race[gid] != null) return [st.goals.race[gid]];
-  if (st.cfg.duelOn) return [];
+  if (st.cfg.duelOn) {   // гонку никто не выиграл по ходу — в конце считается с учётом станций
+    const ok = st.players.map((_, s) => goalMetric(M, st, s, gid, nets ? nets[s] : null) >= (RACE_THRESHOLDS[gid] ?? Infinity));
+    return ok.map((x, i) => (x ? i : -1)).filter((i) => i >= 0);
+  }
   const vals = st.players.map((_, s) => goalMetric(M, st, s, gid, nets ? nets[s] : null));
   const m = Math.max(...vals);
   return m > 0 ? vals.map((v, i) => (v === m ? i : -1)).filter((i) => i >= 0) : [];

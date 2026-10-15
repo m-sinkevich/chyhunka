@@ -295,7 +295,7 @@
    "lon": 24.36,
    "type": "city",
    "note": "",
-   "x": 188.0,
+   "x": 188,
    "y": 716.1,
    "label": "b"
   },
@@ -347,7 +347,7 @@
    "id": "khoiniki",
    "name": "Хойники",
    "lat": 51.89,
-   "lon": 30.0,
+   "lon": 30,
    "type": "city",
    "note": "",
    "x": 737.6,
@@ -384,7 +384,7 @@
    "lon": 26.31,
    "type": "city",
    "note": "",
-   "x": 378.0,
+   "x": 378,
    "y": 247.5,
    "label": "l",
    "terminus": true
@@ -408,7 +408,7 @@
    "lon": 28.69,
    "type": "city",
    "note": "",
-   "x": 610.0,
+   "x": 610,
    "y": 275.5,
    "label": "l",
    "terminus": true
@@ -454,7 +454,7 @@
    "lon": 25.53,
    "type": "city",
    "note": "ст. Янов-Полесский",
-   "x": 302.0,
+   "x": 302,
    "y": 727.6,
    "label": "b"
   },
@@ -476,8 +476,8 @@
    "lon": 27.9,
    "type": "city",
    "note": "",
-   "x": 533.0,
-   "y": 594.0,
+   "x": 533,
+   "y": 594,
    "label": "b"
   },
   {
@@ -499,7 +499,7 @@
    "lon": 23.6,
    "type": "city",
    "note": "ст. Влодава",
-   "x": 114.0,
+   "x": 114,
    "y": 823.3,
    "label": "r",
    "terminus": true
@@ -590,7 +590,7 @@
    "lon": 30.25,
    "type": "city",
    "note": "",
-   "x": 762.0,
+   "x": 762,
    "y": 499.9,
    "label": "r"
   },
@@ -635,7 +635,7 @@
    "type": "city",
    "note": "ст. Коммунары",
    "x": 937.4,
-   "y": 528.0,
+   "y": 528,
    "label": "r"
   },
   {
@@ -694,7 +694,7 @@
    "type": "ext",
    "note": "Россия",
    "x": 937.4,
-   "y": 292.0,
+   "y": 292,
    "country": "Россия",
    "label": "b"
   },
@@ -706,7 +706,7 @@
    "type": "ext",
    "note": "Россия",
    "x": 1016.3,
-   "y": 429.0,
+   "y": 429,
    "country": "Россия",
    "label": "b"
   },
@@ -778,7 +778,7 @@
    "type": "ext",
    "note": "Украина",
    "x": 927.7,
-   "y": 858.0,
+   "y": 858,
    "country": "Украина",
    "label": "b"
   },
@@ -2957,7 +2957,7 @@
     "lat": 55.95,
     "lon": 31.7,
     "x": 903.3,
-    "y": 99.0
+    "y": 99
    }
   },
   {
@@ -3017,7 +3017,7 @@
    "event": false,
    "ring": true,
    "bend": {
-    "lat": 52.0,
+    "lat": 52,
     "lon": 32.75,
     "x": 1005.6,
     "y": 750.7
@@ -3064,7 +3064,7 @@
     "lat": 50.75,
     "lon": 30.05,
     "x": 742.5,
-    "y": 957.0
+    "y": 957
    }
   },
   {
@@ -3184,7 +3184,7 @@
     "lat": 54.75,
     "lon": 23.45,
     "x": 99.3,
-    "y": 297.0
+    "y": 297
    }
   }
  ],
@@ -3193,7 +3193,7 @@
    "id": "t001",
    "from": "minsk",
    "to": "brest",
-   "points": 11,
+   "points": 13,
    "set": "base",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -3202,7 +3202,7 @@
    "id": "t002",
    "from": "minsk",
    "to": "grodno",
-   "points": 11,
+   "points": 13,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 11
@@ -3211,7 +3211,7 @@
    "id": "t003",
    "from": "minsk",
    "to": "vitebsk",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3220,7 +3220,7 @@
    "id": "t004",
    "from": "minsk",
    "to": "gomel",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3229,7 +3229,7 @@
    "id": "t005",
    "from": "minsk",
    "to": "mogilev",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3238,7 +3238,7 @@
    "id": "t006",
    "from": "minsk",
    "to": "polotsk",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3247,7 +3247,7 @@
    "id": "t007",
    "from": "minsk",
    "to": "luninets",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3256,7 +3256,7 @@
    "id": "t008",
    "from": "minsk",
    "to": "slutsk",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3265,7 +3265,7 @@
    "id": "t009",
    "from": "brest",
    "to": "pinsk",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3274,7 +3274,7 @@
    "id": "t010",
    "from": "brest",
    "to": "grodno",
-   "points": 8,
+   "points": 18,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3283,7 +3283,7 @@
    "id": "t011",
    "from": "brest",
    "to": "lida",
-   "points": 11,
+   "points": 13,
    "set": "base",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -3292,7 +3292,7 @@
    "id": "t012",
    "from": "grodno",
    "to": "baranovichi",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3301,7 +3301,7 @@
    "id": "t013",
    "from": "grodno",
    "to": "molodechno",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 9
@@ -3310,7 +3310,7 @@
    "id": "t014",
    "from": "lida",
    "to": "polotsk",
-   "points": 11,
+   "points": 13,
    "set": "base",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -3319,7 +3319,7 @@
    "id": "t015",
    "from": "volkovysk",
    "to": "lida",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3328,7 +3328,7 @@
    "id": "t016",
    "from": "molodechno",
    "to": "vitebsk",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3337,7 +3337,7 @@
    "id": "t017",
    "from": "krulevshchizna",
    "to": "vitebsk",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3346,7 +3346,7 @@
    "id": "t018",
    "from": "postavy",
    "to": "polotsk",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3355,7 +3355,7 @@
    "id": "t019",
    "from": "glubokoe",
    "to": "minsk",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3364,7 +3364,7 @@
    "id": "t020",
    "from": "orsha",
    "to": "zhlobin",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3373,7 +3373,7 @@
    "id": "t021",
    "from": "orsha",
    "to": "bobruisk",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3382,7 +3382,7 @@
    "id": "t022",
    "from": "mogilev",
    "to": "gomel",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3391,7 +3391,7 @@
    "id": "t023",
    "from": "krichev",
    "to": "gomel",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3400,7 +3400,7 @@
    "id": "t024",
    "from": "vitebsk",
    "to": "mogilev",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3409,7 +3409,7 @@
    "id": "t025",
    "from": "borisov",
    "to": "mogilev",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3418,7 +3418,7 @@
    "id": "t026",
    "from": "lepel",
    "to": "minsk",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 13
@@ -3427,7 +3427,7 @@
    "id": "t027",
    "from": "bobruisk",
    "to": "kalinkovichi",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3436,7 +3436,7 @@
    "id": "t028",
    "from": "slutsk",
    "to": "bobruisk",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3445,7 +3445,7 @@
    "id": "t029",
    "from": "soligorsk",
    "to": "molodechno",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3454,7 +3454,7 @@
    "id": "t030",
    "from": "pinsk",
    "to": "kalinkovichi",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3463,7 +3463,7 @@
    "id": "t031",
    "from": "luninets",
    "to": "gomel",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3472,7 +3472,7 @@
    "id": "t032",
    "from": "baranovichi",
    "to": "bobruisk",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3481,7 +3481,7 @@
    "id": "t033",
    "from": "kobrin",
    "to": "baranovichi",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3490,7 +3490,7 @@
    "id": "t034",
    "from": "rechitsa",
    "to": "zhlobin",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3499,7 +3499,7 @@
    "id": "t035",
    "from": "khoiniki",
    "to": "gomel",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3508,7 +3508,7 @@
    "id": "t036",
    "from": "svetlogorsk",
    "to": "osipovichi",
-   "points": 4,
+   "points": 5,
    "set": "base",
    "shortest": 4,
    "shortestNoGhost": 4
@@ -3517,7 +3517,7 @@
    "id": "t037",
    "from": "novogrudok",
    "to": "minsk",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": null
@@ -3526,7 +3526,7 @@
    "id": "t038",
    "from": "naroch",
    "to": "molodechno",
-   "points": 11,
+   "points": 13,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": null
@@ -3535,7 +3535,7 @@
    "id": "t039",
    "from": "rabkor",
    "to": "slutsk",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 4,
    "shortestNoGhost": 7
@@ -3544,7 +3544,7 @@
    "id": "t040",
    "from": "tomashovka",
    "to": "pinsk",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3553,7 +3553,7 @@
    "id": "t041",
    "from": "drya",
    "to": "polotsk",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 8,
    "shortestNoGhost": 9
@@ -3562,7 +3562,7 @@
    "id": "t042",
    "from": "lyntupy",
    "to": "minsk",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": 10
@@ -3571,7 +3571,7 @@
    "id": "t043",
    "from": "vileyka",
    "to": "orsha",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3580,7 +3580,7 @@
    "id": "t044",
    "from": "bykhov",
    "to": "gomel",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3589,7 +3589,7 @@
    "id": "t045",
    "from": "novopolotsk",
    "to": "minsk",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3598,7 +3598,7 @@
    "id": "t046",
    "from": "mozyr",
    "to": "gomel",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3607,7 +3607,7 @@
    "id": "t047",
    "from": "vilnius",
    "to": "minsk",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3616,7 +3616,7 @@
    "id": "t048",
    "from": "smolensk",
    "to": "mogilev",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3625,7 +3625,7 @@
    "id": "t049",
    "from": "daugavpils",
    "to": "polotsk",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3634,7 +3634,7 @@
    "id": "t050",
    "from": "nevel",
    "to": "orsha",
-   "points": 6,
+   "points": 7,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 6
@@ -3643,7 +3643,7 @@
    "id": "t051",
    "from": "kovel",
    "to": "pinsk",
-   "points": 7,
+   "points": 8,
    "set": "base",
    "shortest": 6,
    "shortestNoGhost": 9
@@ -3652,7 +3652,7 @@
    "id": "t052",
    "from": "sarny",
    "to": "kalinkovichi",
-   "points": 9,
+   "points": 11,
    "set": "base",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3661,7 +3661,7 @@
    "id": "t053",
    "from": "bialystok",
    "to": "baranovichi",
-   "points": 8,
+   "points": 10,
    "set": "base",
    "shortest": 7,
    "shortestNoGhost": 10
@@ -3670,7 +3670,7 @@
    "id": "t054",
    "from": "roslavl",
    "to": "zhlobin",
-   "points": 10,
+   "points": 12,
    "set": "base",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3679,7 +3679,7 @@
    "id": "t055",
    "from": "chernigov",
    "to": "rechitsa",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3688,7 +3688,7 @@
    "id": "t056",
    "from": "warsaw",
    "to": "kobrin",
-   "points": 5,
+   "points": 6,
    "set": "base",
    "shortest": 5,
    "shortestNoGhost": 5
@@ -3697,7 +3697,7 @@
    "id": "t057",
    "from": "brest",
    "to": "vitebsk",
-   "points": 23,
+   "points": 28,
    "set": "long",
    "shortest": 20,
    "shortestNoGhost": 20
@@ -3706,7 +3706,7 @@
    "id": "t058",
    "from": "grodno",
    "to": "gomel",
-   "points": 23,
+   "points": 28,
    "set": "long",
    "shortest": 19,
    "shortestNoGhost": 20
@@ -3715,7 +3715,7 @@
    "id": "t059",
    "from": "polotsk",
    "to": "kalinkovichi",
-   "points": 19,
+   "points": 23,
    "set": "long",
    "shortest": 17,
    "shortestNoGhost": 17
@@ -3724,7 +3724,7 @@
    "id": "t060",
    "from": "brest",
    "to": "krichev",
-   "points": 25,
+   "points": 30,
    "set": "long",
    "shortest": 21,
    "shortestNoGhost": 21
@@ -3733,7 +3733,7 @@
    "id": "t061",
    "from": "grodno",
    "to": "orsha",
-   "points": 19,
+   "points": 23,
    "set": "long",
    "shortest": 16,
    "shortestNoGhost": 17
@@ -3742,7 +3742,7 @@
    "id": "t062",
    "from": "postavy",
    "to": "gomel",
-   "points": 23,
+   "points": 28,
    "set": "long",
    "shortest": 18,
    "shortestNoGhost": 18
@@ -3751,7 +3751,7 @@
    "id": "t063",
    "from": "warsaw",
    "to": "smolensk",
-   "points": 27,
+   "points": 32,
    "set": "long",
    "shortest": 23,
    "shortestNoGhost": 23
@@ -3760,7 +3760,7 @@
    "id": "t064",
    "from": "vilnius",
    "to": "chernigov",
-   "points": 23,
+   "points": 28,
    "set": "long",
    "shortest": 18,
    "shortestNoGhost": 18
@@ -3769,7 +3769,7 @@
    "id": "t065",
    "from": "idritsa",
    "to": "sarny",
-   "points": 29,
+   "points": 35,
    "set": "long",
    "shortest": 24,
    "shortestNoGhost": 24
@@ -3778,7 +3778,7 @@
    "id": "t066",
    "from": "bialystok",
    "to": "roslavl",
-   "points": 29,
+   "points": 35,
    "set": "long",
    "shortest": 23,
    "shortestNoGhost": 24
@@ -3787,7 +3787,7 @@
    "id": "t067",
    "from": "grodno",
    "to": "novogrudok",
-   "points": 9,
+   "points": 11,
    "set": "extended",
    "shortest": 8,
    "shortestNoGhost": null
@@ -3796,7 +3796,7 @@
    "id": "t068",
    "from": "volkovysk",
    "to": "pinsk",
-   "points": 9,
+   "points": 11,
    "set": "extended",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3805,7 +3805,7 @@
    "id": "t069",
    "from": "zhabinka",
    "to": "luninets",
-   "points": 8,
+   "points": 10,
    "set": "extended",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3814,7 +3814,7 @@
    "id": "t070",
    "from": "kobrin",
    "to": "slutsk",
-   "points": 10,
+   "points": 12,
    "set": "extended",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3823,7 +3823,7 @@
    "id": "t071",
    "from": "ivatsevichi",
    "to": "molodechno",
-   "points": 8,
+   "points": 10,
    "set": "extended",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3832,7 +3832,7 @@
    "id": "t072",
    "from": "urechye",
    "to": "mogilev",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3841,7 +3841,7 @@
    "id": "t073",
    "from": "soligorsk",
    "to": "zhlobin",
-   "points": 8,
+   "points": 10,
    "set": "extended",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3850,7 +3850,7 @@
    "id": "t074",
    "from": "rabkor",
    "to": "gomel",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3859,7 +3859,7 @@
    "id": "t075",
    "from": "khoiniki",
    "to": "bobruisk",
-   "points": 8,
+   "points": 10,
    "set": "extended",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -3868,7 +3868,7 @@
    "id": "t076",
    "from": "vasilevichi",
    "to": "orsha",
-   "points": 13,
+   "points": 16,
    "set": "extended",
    "shortest": 12,
    "shortestNoGhost": 12
@@ -3877,7 +3877,7 @@
    "id": "t077",
    "from": "lepel",
    "to": "mogilev",
-   "points": 10,
+   "points": 12,
    "set": "extended",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3886,7 +3886,7 @@
    "id": "t078",
    "from": "glubokoe",
    "to": "vitebsk",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3895,7 +3895,7 @@
    "id": "t079",
    "from": "postavy",
    "to": "lida",
-   "points": 8,
+   "points": 10,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 11
@@ -3904,7 +3904,7 @@
    "id": "t080",
    "from": "naroch",
    "to": "polotsk",
-   "points": 10,
+   "points": 12,
    "set": "extended",
    "shortest": 9,
    "shortestNoGhost": null
@@ -3913,7 +3913,7 @@
    "id": "t081",
    "from": "drya",
    "to": "vitebsk",
-   "points": 13,
+   "points": 16,
    "set": "extended",
    "shortest": 11,
    "shortestNoGhost": 12
@@ -3922,7 +3922,7 @@
    "id": "t082",
    "from": "mosty",
    "to": "borisov",
-   "points": 11,
+   "points": 13,
    "set": "extended",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -3931,7 +3931,7 @@
    "id": "t083",
    "from": "braslav",
    "to": "polotsk",
-   "points": 8,
+   "points": 10,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": null
@@ -3940,7 +3940,7 @@
    "id": "t084",
    "from": "gorki",
    "to": "gomel",
-   "points": 10,
+   "points": 12,
    "set": "extended",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -3949,7 +3949,7 @@
    "id": "t085",
    "from": "rogachev",
    "to": "minsk",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3958,7 +3958,7 @@
    "id": "t086",
    "from": "mozyr",
    "to": "brest",
-   "points": 15,
+   "points": 18,
    "set": "extended",
    "shortest": 14,
    "shortestNoGhost": 14
@@ -3967,7 +3967,7 @@
    "id": "t087",
    "from": "shklov",
    "to": "novopolotsk",
-   "points": 9,
+   "points": 11,
    "set": "extended",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -3976,7 +3976,7 @@
    "id": "t088",
    "from": "bereza",
    "to": "lida",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -3985,7 +3985,7 @@
    "id": "t089",
    "from": "miory",
    "to": "vitebsk",
-   "points": 11,
+   "points": 13,
    "set": "extended",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -3994,7 +3994,7 @@
    "id": "t090",
    "from": "kostyukovichi",
    "to": "bobruisk",
-   "points": 10,
+   "points": 12,
    "set": "extended",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -4003,7 +4003,7 @@
    "id": "t091",
    "from": "tomashovka",
    "to": "baranovichi",
-   "points": 9,
+   "points": 11,
    "set": "extended",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -4012,7 +4012,7 @@
    "id": "t092",
    "from": "krichev",
    "to": "osipovichi",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -4021,7 +4021,7 @@
    "id": "t093",
    "from": "svetlogorsk",
    "to": "luninets",
-   "points": 7,
+   "points": 8,
    "set": "extended",
    "shortest": 7,
    "shortestNoGhost": 7
@@ -4030,7 +4030,7 @@
    "id": "t094",
    "from": "nevel",
    "to": "kovel",
-   "points": 31,
+   "points": 37,
    "set": "transit",
    "shortest": 24,
    "shortestNoGhost": 26
@@ -4039,7 +4039,7 @@
    "id": "t095",
    "from": "daugavpils",
    "to": "ovruch",
-   "points": 29,
+   "points": 35,
    "set": "transit",
    "shortest": 24,
    "shortestNoGhost": 24
@@ -4048,7 +4048,7 @@
    "id": "t096",
    "from": "warsaw",
    "to": "roslavl",
-   "points": 31,
+   "points": 37,
    "set": "transit",
    "shortest": 26,
    "shortestNoGhost": 26
@@ -4057,7 +4057,7 @@
    "id": "t097",
    "from": "daugavpils",
    "to": "chernigov",
-   "points": 27,
+   "points": 32,
    "set": "transit",
    "shortest": 23,
    "shortestNoGhost": 23
@@ -4066,7 +4066,7 @@
    "id": "t098",
    "from": "vilnius",
    "to": "bakhmach",
-   "points": 22,
+   "points": 26,
    "set": "transit",
    "shortest": 19,
    "shortestNoGhost": 19
@@ -4075,7 +4075,7 @@
    "id": "t099",
    "from": "chelm",
    "to": "unecha",
-   "points": 29,
+   "points": 35,
    "set": "transit",
    "shortest": 24,
    "shortestNoGhost": 24
@@ -4084,7 +4084,7 @@
    "id": "t100",
    "from": "brest",
    "to": "mogilev",
-   "points": 21,
+   "points": 25,
    "set": "bigcities",
    "shortest": 18,
    "shortestNoGhost": 18
@@ -4093,7 +4093,7 @@
    "id": "t101",
    "from": "brest",
    "to": "gomel",
-   "points": 22,
+   "points": 26,
    "set": "bigcities",
    "shortest": 19,
    "shortestNoGhost": 19
@@ -4102,7 +4102,7 @@
    "id": "t102",
    "from": "grodno",
    "to": "vitebsk",
-   "points": 21,
+   "points": 25,
    "set": "bigcities",
    "shortest": 17,
    "shortestNoGhost": 19
@@ -4111,7 +4111,7 @@
    "id": "t103",
    "from": "grodno",
    "to": "mogilev",
-   "points": 21,
+   "points": 25,
    "set": "bigcities",
    "shortest": 17,
    "shortestNoGhost": 18
@@ -4120,7 +4120,7 @@
    "id": "t104",
    "from": "vitebsk",
    "to": "gomel",
-   "points": 15,
+   "points": 18,
    "set": "bigcities",
    "shortest": 14,
    "shortestNoGhost": 14
@@ -4129,7 +4129,7 @@
    "id": "t105",
    "from": "minsk",
    "to": "krichev",
-   "points": 10,
+   "points": 12,
    "set": "bigcities",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -4138,7 +4138,7 @@
    "id": "t106",
    "from": "minsk",
    "to": "kalinkovichi",
-   "points": 9,
+   "points": 11,
    "set": "bigcities",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -4147,7 +4147,7 @@
    "id": "t107",
    "from": "minsk",
    "to": "pinsk",
-   "points": 9,
+   "points": 11,
    "set": "bigcities",
    "shortest": 9,
    "shortestNoGhost": 9
@@ -4156,7 +4156,7 @@
    "id": "t108",
    "from": "minsk",
    "to": "volkovysk",
-   "points": 8,
+   "points": 10,
    "set": "bigcities",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -4165,7 +4165,7 @@
    "id": "t109",
    "from": "grodno",
    "to": "luninets",
-   "points": 11,
+   "points": 13,
    "set": "bigcities",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -4174,7 +4174,7 @@
    "id": "t110",
    "from": "brest",
    "to": "slutsk",
-   "points": 10,
+   "points": 12,
    "set": "bigcities",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -4183,7 +4183,7 @@
    "id": "t111",
    "from": "vitebsk",
    "to": "bobruisk",
-   "points": 11,
+   "points": 13,
    "set": "bigcities",
    "shortest": 11,
    "shortestNoGhost": 11
@@ -4192,7 +4192,7 @@
    "id": "t112",
    "from": "mogilev",
    "to": "kalinkovichi",
-   "points": 8,
+   "points": 10,
    "set": "bigcities",
    "shortest": 8,
    "shortestNoGhost": 8
@@ -4201,7 +4201,7 @@
    "id": "t113",
    "from": "gomel",
    "to": "slutsk",
-   "points": 10,
+   "points": 12,
    "set": "bigcities",
    "shortest": 10,
    "shortestNoGhost": 10
@@ -4210,7 +4210,7 @@
    "id": "t114",
    "from": "vitebsk",
    "to": "lida",
-   "points": 15,
+   "points": 18,
    "set": "bigcities",
    "shortest": 14,
    "shortestNoGhost": 14
@@ -4539,24 +4539,24 @@
  "goals": [
   {
    "id": "g_express",
-   "race": "путь из 15 вагонов без окружной",
+   "race": "путь из 18 вагонов без окружной",
    "name": "Беларусский экспресс",
    "points": 10,
    "rule": "Самый длинный непрерывный путь из своих вагонов по перегонам Беларуси, включая приграничные; перегоны между зарубежными пунктами (окружная) не считаются"
   },
   {
    "id": "g_ring",
-   "race": "путь по окружной из 10 вагонов",
+   "race": "путь по окружной из 7 вагонов",
    "name": "Окружная",
    "points": 10,
    "rule": "Самый длинный непрерывный путь только по перегонам окружной"
   },
   {
    "id": "g_globe",
-   "race": "4 выполненных билета",
-   "name": "Глобтроттер",
+   "race": "4 выполненных маршрута (станции считаются)",
+   "name": "Мастер маршрутов",
    "points": 6,
-   "rule": "Больше всех выполненных билетов"
+   "rule": "Больше всех выполненных маршрутов (станции учитываются)"
   },
   {
    "id": "g_tourist",
@@ -4568,14 +4568,14 @@
   },
   {
    "id": "g_local",
-   "race": "сеть касается 15 городов",
+   "race": "сеть касается 22 городов",
    "name": "Краевед",
    "points": 8,
    "rule": "Своя сеть касается наибольшего числа городов"
   },
   {
    "id": "g_capital",
-   "race": "3 своих перегона из Минска",
+   "race": "2 своих перегона из Минска",
    "name": "Все дороги ведут в Минск",
    "points": 6,
    "rule": "Больше всех своих перегонов, выходящих из Минска"
@@ -4589,7 +4589,7 @@
   },
   {
    "id": "g_polesie",
-   "race": "8 вагонов у городов Полесья",
+   "race": "7 вагонов у городов Полесья",
    "name": "Полесье",
    "points": 8,
    "rule": "Больше всех вагонов на перегонах, касающихся Пинска, Лунинца, Калинковичей, Мозыря, Хойников"
@@ -4667,13 +4667,13 @@
    "id": "e11",
    "name": "Ревизия",
    "kind": "all",
-   "text": "Каждый игрок с 12 и более картами в руке сбрасывает до 10 по своему выбору"
+   "text": "Каждый игрок с 12 и более картами в руке сбрасывает четверть руки (не больше 10 карт) по своему выбору"
   },
   {
    "id": "e12",
    "name": "Попутный ветер",
    "kind": "self",
-   "text": "Возьмите вслепую по 1 карте у каждого игрока, у которого очков больше, чем у вас"
+   "text": "Возьмите вслепую по 2 карты у каждого игрока, у которого очков больше, чем у вас"
   }
  ],
  "mainlines": [

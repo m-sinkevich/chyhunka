@@ -384,13 +384,14 @@ label.row .pcard .stamp { min-width: 26px; height: 30px; font-size: 17px; }
 .big-msg.warn { border-color: var(--acc); } .big-msg.warn .bm-title { color: #FF8A80; }
 @media (max-width: 700px) { .big-msg { min-width: 0; padding: 16px 18px; } .big-msg .bm-title { font-size: 28px; } .big-msg .bm-text { font-size: 16px; } }
 .topbar .langsel, header .langsel { font-size: 13px; padding: 3px 6px; }
-/* главная: компактная сетка, список партий со своей прокруткой, строка версии всегда на виду */
-.homescreen { max-width: 1060px; height: 100vh; box-sizing: border-box; display: flex; flex-direction: column; padding-top: 14px; padding-bottom: 52px !important; }
-.homescreen > * { flex-shrink: 0; }
-.homescreen .hero { padding-top: 0; }
-.homegrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 16px; margin-top: 18px; align-items: start; flex: 1 1 auto !important; min-height: 0; grid-template-rows: minmax(0, 1fr); }
-.homecol { max-height: 100%; overflow: auto; }
-.homecol { display: flex; flex-direction: column; gap: 16px; }
+/* главная: компактная сетка; высоту задаёт левая колонка, список партий прокручивается внутри */
+.homescreen { max-width: 1060px; padding-top: 10px; padding-bottom: 56px !important; }
+.homescreen .hero { padding: 0 0 4px; }
+.homescreen .hero h1 { font-size: clamp(44px, 6.2vh, 69px); }
+.homescreen .hero h1::after { margin-top: 4px; height: 10px; }
+.homescreen .hero p { font-size: 16px; margin-top: 2px; }
+.homegrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr); gap: 16px; margin-top: 14px; align-items: stretch; }
+.homecol { display: flex; flex-direction: column; gap: 14px; }
 .homegrid .panel { padding: 14px 16px; } .homegrid .panel h2 { margin: 0 0 10px; }
 .frow { display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap; }
 .frow .field { margin: 0; } .frow .grow { flex: 1 1 150px; }
@@ -398,15 +399,19 @@ label.row .pcard .stamp { min-width: 26px; height: 30px; font-size: 17px; }
 .frow.split > div:first-child { flex: 1 1 200px; } .frow.split p { margin: 6px 0 0; }
 .joinbox { display: flex; flex-direction: column; gap: 4px; padding-left: 14px; border-left: 1px dashed var(--line); }
 .joinbox input { width: 96px; }
-.sesspanel { display: flex; flex-direction: column; max-height: 100%; box-sizing: border-box; }
-.sesspanel .sessions { overflow: auto; flex: 1 1 auto; min-height: 60px; padding-right: 6px; scrollbar-width: thin; }
+.sesspanel { display: flex; flex-direction: column; height: 0; min-height: 100%; box-sizing: border-box; }
+.sesshead { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; } .sesshead h2 { margin: 0 !important; }
+.sesspanel .sessions { overflow: auto; flex: 1 1 auto; min-height: 120px; padding-right: 6px; scrollbar-width: thin; }
 .sessions li { gap: 10px; }
+.sessions li.over .code { opacity: .6; }
 .sinfo { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; line-height: 1.25; }
 .sinfo .smeta { font-size: 12px; color: var(--muted, #6b5d4a); }
 .otherdev { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; flex-shrink: 0; }
 .otherdev summary { font: 700 15px var(--head); cursor: pointer; }
+.rating td, .rating th { text-align: center; } .rating td:nth-child(2), .rating th:nth-child(2) { text-align: left; }
+.rating tr.top td { background: #FFF6D6; font-weight: 700; }
 body.home .homefoot { position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); margin: 0 !important; z-index: 6; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
-@media (max-width: 860px), (max-height: 560px) { .homescreen { height: auto; display: block; } .homegrid { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto; } .homecol { max-height: none; overflow: visible; } .sesspanel { max-height: 70vh; } body.home .homefoot { white-space: normal; width: max-content; max-width: 94vw; text-align: center; } }
+@media (max-width: 860px) { .homegrid { grid-template-columns: minmax(0, 1fr); } .sesspanel { height: auto; min-height: 0; max-height: 70vh; } body.home .homefoot { white-space: normal; width: max-content; max-width: 94vw; text-align: center; } }
 /* секреты на фоне */
 .bgspot { position: fixed; z-index: 4; border-radius: 50%; }
 .love-over { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: rgba(20, 12, 10, .8); overflow: hidden; cursor: pointer; animation: lovein .4s ease-out; }
@@ -417,3 +422,23 @@ body.home .homefoot { position: fixed; left: 50%; bottom: 10px; transform: trans
 .lheart { position: absolute; bottom: -60px; opacity: 0; animation: lfloat 6s linear infinite; text-shadow: 0 0 10px rgba(255, 120, 140, .6); z-index: 2; pointer-events: none; }
 @keyframes lfloat { 0% { transform: translateY(0) rotate(-10deg) scale(.7); opacity: 0; } 12% { opacity: .95; } 80% { opacity: .8; } 100% { transform: translateY(-112vh) rotate(14deg) scale(1.15); opacity: 0; } }
 @keyframes lovein { from { opacity: 0; } to { opacity: 1; } }
+/* нижняя панель: руку не сжимать в одну колонку */
+.bottom .handbox { flex: 0 1 360px; min-width: 200px; }
+.bottom .handbox .hand { flex-wrap: wrap; }
+.bottom > div { flex-shrink: 0; }
+.bottom > .handbox { flex-shrink: 1; }
+/* сброс карт: счётчик */
+.discount { margin: 4px 0 8px; padding: 4px 10px; border-radius: 8px; background: var(--paper3); display: inline-block; }
+/* сравнение наборов */
+.setstable th, .setstable td { vertical-align: top; font-size: 13px; }
+.setstable .cur { background: #FFF6D6; }
+.setlist { margin-top: 8px; } .setlist summary { cursor: pointer; font-weight: 700; }
+.tks { display: flex; flex-wrap: wrap; gap: 4px 8px; margin: 6px 0; font-size: 12.5px; }
+.tks .tk { padding: 1px 7px; border: 1px solid var(--line); border-radius: 6px; background: #fffdf6; }
+/* подсказки и предупреждения */
+.hintbtn { margin-left: 10px; padding: 2px 10px; border-color: #E0B000; background: #FFF6D0; font-family: inherit; font-size: 13px; vertical-align: 2px; }
+.card.hinted { outline: 4px solid #FFC400; outline-offset: 2px; animation: hintpulse .8s ease-in-out infinite alternate; }
+@keyframes hintpulse { from { transform: scale(1); } to { transform: scale(1.07); } }
+.ticket.blocked { border-color: #E08A8A; background: #FDEDEC; }
+.tkwarn { color: #B3262E; font-weight: 700; cursor: help; }
+.chartbox { margin: 12px 0 6px; } .scorechart { width: 100%; height: auto; background: #fffdf6; border: 1px solid var(--line); border-radius: 8px; }
