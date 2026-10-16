@@ -414,7 +414,10 @@ label.row .pcard .stamp { min-width: 26px; height: 30px; font-size: 17px; }
 body.home .homefoot { position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); margin: 0 !important; z-index: 6; white-space: nowrap; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
 @media (max-width: 860px) { .homegrid { grid-template-columns: minmax(0, 1fr); } .sesspanel { height: auto; min-height: 0; max-height: 70vh; } body.home .homefoot { white-space: normal; width: max-content; max-width: 94vw; text-align: center; } }
 /* секреты на фоне */
-.bgspot { position: fixed; z-index: 4; border-radius: 50%; }
+.bgspot { position: fixed; z-index: 4; border-radius: 50%; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+.footsecret { display: none; cursor: default; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; padding: 0 4px; }
+.footsecret.on { display: inline; }
+.footsecret.ff { color: #4A6FD8; font-size: 15px; margin-right: 4px; } .footsecret.fc { color: #8a7a5a; margin-left: 4px; }
 .love-over { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: rgba(20, 12, 10, .8); overflow: hidden; cursor: pointer; animation: lovein .4s ease-out; }
 .love-card { margin: 0; padding: 12px 12px 6px; background: #fffdf6; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: rotate(-1.5deg); z-index: 1; }
 .love-card img { display: block; max-width: min(86vw, 760px); max-height: 74vh; }

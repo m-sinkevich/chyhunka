@@ -28,7 +28,8 @@ export function ticketsDialog(G, { title, offer, min, maxLong = 9, postOffer = [
     const longs = [...keep].filter((id) => ['long', 'transit'].includes(M.tickets[id].set)).length;
     const okT = keep.size >= min && longs <= maxLong;
     const okP = keepP.size >= postMin;
-    info.textContent = tr(`Оставьте не меньше ${min} ${plural(min, 'маршрута', 'маршрутов', 'маршрутов')}` + (maxLong < 9 && offer.some((id) => ['long', 'transit'].includes(M.tickets[id].set)) ? `, длинный — не больше ${maxLong}` : '') +
+    if (!offer.length) info.textContent = '';
+    else info.textContent = tr(`Оставьте не меньше ${min} ${plural(min, 'маршрута', 'маршрутов', 'маршрутов')}` + (maxLong < 9 && offer.some((id) => ['long', 'transit'].includes(M.tickets[id].set)) ? `, длинный — не больше ${maxLong}` : '') +
       '. Невыполненный маршрут в конце вычитается. Наведите на маршрут — города подсветятся на поле.');
     if (dlg) dlg.buttons[0].disabled = !(okT && okP);
   };

@@ -3,7 +3,7 @@ import { h, clear, toast, confirmBox, modal } from './dom.js';
 import { APP_VERSION } from '../version.js';
 import { langSelect } from './lang.js';
 import { supabaseConfigured, backend } from '../net/client.js';
-import { listSessions, dropSession, patchSession, loadOffline, clearOffline, getPref, setPref } from '../net/sessions.js';
+import { listSessions, dropSession, patchSession, listResults, dropResult, loadOffline, clearOffline, getPref, setPref } from '../net/sessions.js';
 import { noTr, tr } from '../i18n.js';
 
 export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}) {
@@ -48,7 +48,7 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
           } catch (e) {
             if (!/не найден|not found/i.test(e.message)) { toast('Не удалось удалить на сервере: ' + e.message, 'err', 8000); return; }
           }
-          dropSession(s.backend, s.room_id); redraw();
+          dropSession(s.backend, s.room_id); dropResult(s.backend, s.room_id); redraw();
         } }] : []),
       ] });
   };
@@ -85,7 +85,7 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
             saved?.state ? h('button.link', { onclick: async () => { if (await confirmBox('Удалить сохранение', 'Удалить сохранённую партию с ботами?')) { clearOffline(); renderHome(root, app); } } }, 'удалить') : null))),
       h('div.panel.sesspanel',
         h('div.sesshead', h('h2', 'Вернуться в партию', sessions.length ? h('span.badge', { style: { marginLeft: '8px' } }, sessions.length) : null),
-          sessions.length ? h('button.small', { onclick: () => ratingDialog(), title: 'Рейтинг игроков по законченным партиям из этого списка' }, '🏆 Рейтинг') : null),
+          sessions.length || listResults().length ? h('button.small', { onclick: () => ratingDialog(), title: 'Рейтинг игроков по законченным партиям в этом браузере' }, '🏆 Рейтинг') : null),
         sessions.length ? h('ul.sessions', sessions.map(sessionRow)) : h('p.small.muted', 'В этом браузере сохранённых партий нет.'),
         h('details.otherdev', h('summary', 'С другого устройства'),
           h('p.small.muted', 'Код возврата выдаётся при входе в комнату (например «2-ABCD2345»: номер места и код).'),
@@ -97,15 +97,8 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
     for (const s of sessions) {
       if (!root.isConnected) return;
       try {
-        const api = await backend(s.backend);
-        const [room] = await api.select('rooms', { id: s.room_id });
-        const patch = room ? { created: Date.parse(room.created_at) || s.created, players: (await api.select('seats', { room_id: s.room_id })).filter((x) => x.kind !== 'closed').length, gone: false } : { gone: true };
-        if (room && !s.result) {   // партия закончена — запомнить победителя и очки (для списка и рейтинга)
-          const [ps] = await api.select('public_state', { room_id: s.room_id }).catch(() => []);
-          const r = ps?.state?.result;
-          if (ps?.state?.phase === 'over' && r) patch.result = { winner: r.rows[r.order[0]].name, rows: r.order.map((i) => ({ name: r.rows[i].name, total: r.rows[i].total })) };
-        }
-        patchSession(s.backend, s.room_id, patch);
+        const patch = await refreshSession(s);
+        if (!patch) continue;
         const el = metaEls.get(s.backend + s.room_id);
         if (el) el.textContent = tr(metaText({ ...s, ...patch }));
         if (patch.result) el?.closest('li')?.classList.add('over');
@@ -119,20 +112,38 @@ export function renderHome(root, app, { joinCode = '', joinBackend = null } = {}
 const BG = { w: 1408, h: 768, flower: [205, 228, 40], clock: [1296, 392, 52] };   // координаты на img/home_bg.jpg
 function homeSecrets(root) {
   document.querySelectorAll('.bgspot').forEach((x) => x.remove());
-  const flower = h('div.bgspot', { ondblclick: showLove });
-  const clock = h('div.bgspot', { onclick: () => {
+  // двойное нажатие: dblclick на компьютере, два касания подряд на телефоне
+  const dbl = (fn) => { let t = 0; return (e) => { e.preventDefault(); const now = Date.now(); if (now - t < 450) { t = 0; fn(); } else t = now; }; };
+  const toggleLove = () => {
     const on = getPref('love', '0') !== '1';
     setPref('love', on ? '1' : '0');
     noTr(() => toast(on ? 'В новых партиях на поле будет надпись «Сделано с любовью для Коти» ♥' : 'Надпись на поле выключена', 'ok', 4500));
-  } });
+  };
+  const flower = h('div.bgspot', { onclick: dbl(showLove) });
+  const clock = h('div.bgspot', { onclick: toggleLove });
+  // запасные «двери» в строке с версией — видны, только если василёк или часы закрыты панелями (маленький экран)
+  const foot = root.querySelector('.homefoot');
+  const fFlower = h('span.footsecret.ff', { onclick: dbl(showLove), 'aria-hidden': 'true' }, '✿');
+  const fClock = h('span.footsecret.fc', { onclick: toggleLove, 'aria-hidden': 'true' }, '◷');
+  foot?.prepend(fFlower); foot?.append(fClock);
+  const hidden = (el) => {
+    const b = el.getBoundingClientRect();
+    const x = b.left + b.width / 2, y = b.top + b.height / 2;
+    if (b.width < 14 || x < 0 || y < 0 || x > window.innerWidth || y > window.innerHeight) return true;
+    const top = document.elementFromPoint(x, y);
+    return top !== el;
+  };
   const place = () => {
-    if (!flower.isConnected) { window.removeEventListener('resize', place); return; }
+    if (!flower.isConnected) { window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true); return; }
     const vw = window.innerWidth, vh = window.innerHeight, k = Math.max(vw / BG.w, vh / BG.h), ox = (vw - BG.w * k) / 2;   // фон: cover, center top, fixed
     for (const [el, [x, y, r]] of [[flower, BG.flower], [clock, BG.clock]]) Object.assign(el.style, { left: `${ox + (x - r) * k}px`, top: `${(y - r) * k}px`, width: `${2 * r * k}px`, height: `${2 * r * k}px` });
+    fFlower.classList.toggle('on', hidden(flower));
+    fClock.classList.toggle('on', hidden(clock));
   };
   (root.querySelector('.homescreen') || root).append(flower, clock);
   window.addEventListener('resize', place);
-  requestAnimationFrame(place);
+  window.addEventListener('scroll', place, true);
+  requestAnimationFrame(place); setTimeout(place, 400); setTimeout(place, 1500);
 }
 function showLove() {
   document.querySelector('.love-over')?.remove();
@@ -144,8 +155,29 @@ function showLove() {
 }
 
 // ---------- рейтинг по законченным партиям из списка этого браузера ----------
-function ratingDialog() {
-  const games = listSessions().filter((s) => s.result?.rows?.length);
+/** Свежие данные о партии с сервера: дата, число игроков, итог (если закончена). Сохраняет их в список и архив. */
+async function refreshSession(s) {
+  const api = await backend(s.backend);
+  const [room] = await api.select('rooms', { id: s.room_id });
+  const patch = room ? { created: Date.parse(room.created_at) || s.created, players: (await api.select('seats', { room_id: s.room_id })).filter((x) => x.kind !== 'closed').length, gone: false } : { gone: true };
+  if (room && !s.result) {   // партия закончена — запомнить победителя и очки (для списка и рейтинга)
+    const [ps] = await api.select('public_state', { room_id: s.room_id }).catch(() => []);
+    const r = ps?.state?.result;
+    if (ps?.state?.phase === 'over' && r) patch.result = { winner: r.rows[r.order[0]].name, rows: r.order.map((i) => ({ name: r.rows[i].name, total: r.rows[i].total })) };
+  }
+  patchSession(s.backend, s.room_id, patch);
+  return patch;
+}
+
+async function ratingDialog() {
+  // сначала подтянуть итоги партий, которые закончились, пока этот браузер в них не смотрел
+  const todo = listSessions().filter((s) => !s.result && !s.gone);
+  if (todo.length) {
+    const t = toast('Обновляю итоги партий…', 'info', 8000);
+    await Promise.race([Promise.all(todo.map((s) => refreshSession(s).catch(() => null))), new Promise((r) => setTimeout(r, 6000))]);
+    t?.remove?.();
+  }
+  const games = listResults();
   const by = new Map();
   for (const g of games) g.result.rows.forEach((r, place) => {
     const key = (r.name || '').trim().toLowerCase();
@@ -159,7 +191,7 @@ function ratingDialog() {
   modal({
     title: 'Рейтинг игроков', wide: true,
     body: h('div',
-      h('p.small.muted', `По законченным партиям из списка «Вернуться в партию» в этом браузере: ${games.length}. Боты считаются как игроки.`),
+      h('p.small.muted', `По законченным сетевым партиям, сыгранным в этом браузере: ${games.length}. Рейтинг хранится в каждом браузере свой, поэтому у игроков он может отличаться, если они играли разные партии или с разных устройств. Боты считаются как игроки.`),
       rows.length ? h('table.rtable.rating', h('tr', ['#', 'Игрок', 'Победы', 'Партий', '% побед', 'Средние очки', 'Лучший счёт', 'Среднее место'].map((x) => h('th', x))),
         rows.map((x, i) => h('tr' + (i === 0 ? '.top' : ''), h('td', i + 1), h('td', i === 0 ? '🏆 ' : '', x.name), h('td', x.wins), h('td', x.games), h('td', `${Math.round((100 * x.wins) / x.games)}%`),
           h('td', Math.round(x.sum / x.games)), h('td', x.best), h('td', (x.places / x.games).toFixed(1)))))

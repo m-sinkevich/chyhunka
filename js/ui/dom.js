@@ -41,6 +41,7 @@ export function toast(text, kind = 'info', ms = 4200) {
   box.append(t);
   setTimeout(() => t.classList.add('out'), ms);
   setTimeout(() => t.remove(), ms + 400);
+  return t;
 }
 
 /** Модальное окно. Возвращает {el, close}. opts: {title, body, buttons:[{text, primary, onClick, disabled}], wide, closable} */

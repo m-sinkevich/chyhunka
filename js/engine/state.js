@@ -116,10 +116,34 @@ export function initState(M, cfgIn, players, seed) {
   if (cfg.duelOn && cfg.tickets !== 'mega') { startLong = 0; startMain = 4; }   // дуэль: на старте без длинных маршрутов
   shuffle(st, st.ticketDeck); shuffle(st, st.longDeck);
   // честная раздача: стартовые предложения подбираются так, чтобы сумма очков у всех была примерно равной (±10% от средней)
+  // «Маршруты в разных частях карты»: обычные стартовые маршруты одного игрока не кучкуются —
+  // середины маршрутов далеко друг от друга и нет общих городов (если в колоде такого нет, требование постепенно ослабляется)
+  const C = (id) => M.cities[id];
+  const mid = (t) => { const T0 = M.tickets[t]; return [(C(T0.from).x + C(T0.to).x) / 2, (C(T0.from).y + C(T0.to).y) / 2]; };
+  const far = (t, picked, d) => picked.every((u) => {
+    const a = M.tickets[t], b = M.tickets[u];
+    if ([a.from, a.to].some((c) => c === b.from || c === b.to)) return false;
+    const [x1, y1] = mid(t), [x2, y2] = mid(u);
+    return Math.hypot(x1 - x2, y1 - y2) >= d;
+  });
+  const SPREAD = 260;   // ≈ четверть ширины поля
+  const pickMain = (offer) => {
+    const got = [];
+    for (let i = 0; i < startMain && st.ticketDeck.length; i++) {
+      let idx = -1;
+      for (let d = SPREAD; d > 1 && idx < 0; d *= 0.75) {
+        for (let j = st.ticketDeck.length - 1; j >= 0; j--) if (far(st.ticketDeck[j], got, d)) { idx = j; break; }
+      }
+      if (idx < 0) idx = st.ticketDeck.length - 1;
+      got.push(st.ticketDeck.splice(idx, 1)[0]);
+    }
+    offer.push(...got);
+  };
   const deal = () => Array.from({ length: n }, () => {
     const offer = [];
     for (let i = 0; i < startLong && st.longDeck.length; i++) offer.push(st.longDeck.pop());
-    for (let i = 0; i < startMain && st.ticketDeck.length; i++) offer.push(st.ticketDeck.pop());
+    if (cfg.spreadTickets) pickMain(offer);
+    else for (let i = 0; i < startMain && st.ticketDeck.length; i++) offer.push(st.ticketDeck.pop());
     return offer;
   });
   const sum = (o) => o.reduce((a, id) => a + M.tickets[id].points, 0);

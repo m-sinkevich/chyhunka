@@ -9,10 +9,10 @@ import { tr } from '../i18n.js';
 import { cityDialog } from './cityinfo.js';
 import { legalFromView, stateFromView } from '../engine/viewstate.js';
 import { bestStationUse } from '../engine/scoring.js';
-import { components, routeBlock } from '../engine/rules.js';
+import { components, routeBlock, goalMetric } from '../engine/rules.js';
 import { smartMove } from '../bots/smart.js';
 import { makeRng } from '../engine/rng.js';
-import { CARD_TYPES, COLOR_NAMES } from '../engine/data.js';
+import { CARD_TYPES, COLOR_NAMES, RACE_THRESHOLDS } from '../engine/data.js';
 import { BOTS } from '../bots/index.js';
 import { getPref, setPref, dropSession, clearOffline, patchSession } from '../net/sessions.js';
 import { icon } from './icons.js';
@@ -232,7 +232,7 @@ export class GameScreen {
     }));
     const goals = v.goals.open.map((g) => {
       const G = M.goals[g]; const won = v.goals.race[g];
-      return h('div.goal' + (won != null ? '.won' : ''), icon('goal', null, 14), ' ', h('b', G.name), ` · ${G.points} очк. `, ruleLink('goals', 'Цели в правилах'),
+      return h('div.goal' + (won != null ? '.won' : ''), { title: this.goalProgress(g) }, icon('goal', null, 14), ' ', h('b', G.name), ` · ${G.points} очк. `, ruleLink('goals', 'Цели в правилах'),
         h('div.small', v.cfg.duelOn ? `Гонка: ${G.race}` : G.rule), won != null ? h('div.small', '✓ ', v.players[won].name) : null);
     });
     const hidden = v.goals.total - v.goals.open.length;
@@ -274,6 +274,15 @@ export class GameScreen {
         const r = e.route ? M.routes[e.route] : null;
         this.board.focus(r ? [r.from, r.to] : [e.city]);
       });
+    }
+    else if (e.tickets?.length) {   // маршруты (билеты): подсветить их города на поле
+      const cities = [...new Set(e.tickets.filter((t) => M.tickets[t]).flatMap((t) => [M.tickets[t].from, M.tickets[t].to]))];
+      if (cities.length) {
+        line.classList.add('hov');
+        line.addEventListener('mouseenter', () => this.highlight(cities, true));
+        line.addEventListener('mouseleave', () => this.highlight([]));
+        line.addEventListener('click', () => this.board.focus(cities));
+      }
     }
     return line;
   }
@@ -402,7 +411,7 @@ export class GameScreen {
     const has = (t) => this.legal.find((a) => a.type === t);
     const st = has('station');
     const hintsOn = getPref('hints', '1') === '1';
-    R.append(h('h4', 'Действия', hintsOn && this.legal.length && v.phase === 'play' && !v.pending ? h('button.small.hintbtn', { onclick: () => this.hint(), title: 'Что сделал бы на вашем месте бот «Сильный» (выключается в настройках)' }, '💡 Подсказка') : null), h('div.acts',
+    R.append(h('h4', 'Действия', hintsOn && this.legal.length && v.phase === 'play' && !v.pending ? h('button.small.hintbtn', { onclick: () => this.hint(), title: 'Что сделал бы на вашем месте бот «Эксперт» (выключается в настройках)' }, '💡 Подсказка') : null), h('div.acts',
       h('button', { disabled: !has('tickets'), onclick: () => this.act({ type: 'tickets' }), title: 'Взять 3 маршрута, оставить хотя бы 1 (весь ход)' }, icon('ticket'), ' Взять маршруты'),
       v.cfg.stations > 0 ? h('button', { disabled: !st, onclick: () => this.setMode('station'), title: st ? `Станция стоит ${st.cost} карт(ы) одного цвета; в конце позволяет использовать один чужой перегон из города` : 'Станций не осталось' }, icon('station'), ` Станция${st ? ` (${st.cost})` : ''}`) : null,
       h('button', { disabled: !has('swap'), onclick: () => swapDialog(this), title: 'Сбросить 1–5 карт и взять столько же из колоды (весь ход)' }, icon('swap'), ' Сменить состав'),
@@ -514,13 +523,26 @@ export class GameScreen {
     }
     return out;
   }
-  /** Подсказка: что сделал бы «Сильный» бот на вашем месте. */
+  /** Прогресс по цели для подсказки при наведении: сколько уже набрал каждый игрок (чужие маршруты и открытки скрыты). */
+  goalProgress(gid) {
+    const v = this.view; const M = this.M;
+    const unit = { g_express: 'ваг. подряд', g_ring: 'ваг. по окружной', g_globe: 'маршр. выполнено', g_tourist: 'откр. выполнено', g_local: 'городов в сети', g_capital: 'перег. из Минска', g_border: 'перег. через границу', g_polesie: 'ваг. у Полесья', g_vilnius: 'перег. в Вильнюс' }[gid] || '';
+    const need = v.cfg.duelOn ? RACE_THRESHOLDS[gid] : null;
+    const rows = v.players.map((p, s) => {
+      if ((gid === 'g_globe' && !v.tickets[s]) || (gid === 'g_tourist' && !v.postcards[s])) return tr(`${p.name}: скрыто`);
+      let x = '?';
+      try { x = goalMetric(M, v, s, gid); } catch { /* нет данных */ }
+      return `${p.name}${s === v.me ? ' ' + tr('(вы)') : ''}: ${x}${need ? ' ' + tr(`из ${need}`) : ''}`;
+    });
+    return tr(`Сейчас (${tr(unit)}):`) + '\n' + rows.join('\n');
+  }
+  /** Подсказка: что сделал бы бот «Эксперт» на вашем месте. */
   hint() {
     const v = this.view; const M = this.M;
     const legal = this.legal;
     if (!legal.length || v.pending || v.phase !== 'play') return toast('Подсказка доступна в свой ход');
     let a = null;
-    try { a = smartMove('strong')(this.app.E, v, legal, makeRng(Date.now() & 0xffff)); } catch (e) { console.warn(e); }
+    try { a = smartMove('expert')(this.app.E, v, legal, makeRng(Date.now() & 0xffff)); } catch (e) { console.warn(e); }
     if (!a) return toast('Не получилось подобрать ход');
     const col = (c) => (c === 'loco' ? 'Локомотив' : COLOR_NAMES[c]);
     let text = '';
@@ -632,7 +654,7 @@ export class GameScreen {
       this.setMode('setupDepot');
     } else if (a.type === 'keep' && this.dlgKey !== key('k')) {
       this.dlgKey = key('k');
-      this.autoDlg = { kind: a.type }; this.autoDlg.dlg = ticketsDialog(this, { title: 'Новые маршруты', offer: a.offer, min: a.min, postOffer: a.postOffer, onDone: (t, p) => this.act({ type: 'keep', tickets: t, postcards: p }) });
+      this.autoDlg = { kind: a.type }; this.autoDlg.dlg = ticketsDialog(this, { title: a.offer.length ? 'Новые маршруты' : 'Туристические открытки', offer: a.offer, min: a.min, postOffer: a.postOffer, onDone: (t, p) => this.act({ type: 'keep', tickets: t, postcards: p }) });
     } else if (a.type === 'tunnelPay' && this.dlgKey !== key('t')) {
       this.dlgKey = key('t'); this.autoDlg = { kind: a.type, dlg: tunnelDialog(this) };
     } else if (a.type === 'discard' && this.dlgKey !== key('d')) {

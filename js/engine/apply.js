@@ -58,6 +58,7 @@ const SETUP = {
     for (const t of o.offer) if (!keep.includes(t) && !['long', 'transit'].includes(M.tickets[t].set)) st.ticketDeck.unshift(t);
     delete st.setup.tickets[seat];
     ctx.log(`${ctx.name(seat)} оставляет ${keep.length} ${plural(keep.length, 'маршрут', 'маршрута', 'маршрутов')}`, 'all', { kind: 'keep', count: keep.length });
+    ctx.log(`Ваши маршруты: ${keep.map((t) => `${M.cities[M.tickets[t].from].name} — ${M.cities[M.tickets[t].to].name} (${M.tickets[t].points})`).join('; ')}`, seat, { kind: 'keep', own: true, tickets: keep });
   },
   setupPostcards(ctx, seat, a) {
     const { st } = ctx;
@@ -173,7 +174,11 @@ const TURN = {
     const got = picks.sort((x, y) => y - x).map((i) => st.ticketRow.splice(i, 1)[0]);
     st.tickets[seat].push(...got);
     while (st.ticketRow.length < 4 && st.ticketDeck.length) st.ticketRow.push(st.ticketDeck.pop());
-    ctx.log(`${ctx.name(seat)} берёт из ряда: ${got.map((t) => `${M.cities[M.tickets[t].from].name} — ${M.cities[M.tickets[t].to].name}`).join('; ')}`, 'all', { kind: 'tickets', count: got.length, row: true });
+    ctx.log(`${ctx.name(seat)} берёт из ряда: ${got.map((t) => `${M.cities[M.tickets[t].from].name} — ${M.cities[M.tickets[t].to].name}`).join('; ')}`, 'all', { kind: 'tickets', count: got.length, row: true, tickets: got });
+    st.stats[seat].ticketsDrawn++;
+    // «Туризм»: вместе с маршрутами из ряда — 2 открытки на выбор, как при наборе из колоды
+    const postOffer = st.cfg.modules.tourism ? st.postcardDeck.splice(-Math.min(2, st.postcardDeck.length)).reverse() : [];
+    if (postOffer.length) { st.pend.push({ seat, kind: 'keepTickets', offer: [], min: 0, postOffer }); return; }
     finishAction(ctx);
   },
 
@@ -287,8 +292,9 @@ const PENDING = {
     for (const t of p.offer) if (!keep.includes(t)) st.ticketDeck.unshift(t);
     st.postcards[p.seat].push(...keepP);
     for (const t of p.postOffer) if (!keepP.includes(t)) st.postcardDeck.unshift(t);
-    ctx.log(`${ctx.name(p.seat)} оставляет ${keep.length} ${plural(keep.length, 'маршрут', 'маршрута', 'маршрутов')}${p.postOffer.length ? ` и ${keepP.length} откр.` : ''}`, 'all', { kind: 'keep', count: keep.length });
-    void M;
+    if (p.offer.length) ctx.log(`${ctx.name(p.seat)} оставляет ${keep.length} ${plural(keep.length, 'маршрут', 'маршрута', 'маршрутов')}${p.postOffer.length ? ` и ${keepP.length} откр.` : ''}`, 'all', { kind: 'keep', count: keep.length });
+    else ctx.log(`${ctx.name(p.seat)} оставляет открыток: ${keepP.length}`, 'all', { kind: 'keep', postcards: keepP.length });
+    if (keep.length) ctx.log(`Ваши новые маршруты: ${keep.map((t) => `${M.cities[M.tickets[t].from].name} — ${M.cities[M.tickets[t].to].name} (${M.tickets[t].points})`).join('; ')}`, p.seat, { kind: 'keep', own: true, tickets: keep });
     finishAction(ctx);
   },
   discard(ctx, p, a) {
