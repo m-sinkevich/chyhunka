@@ -9,6 +9,8 @@ export function leaders(st) {
   const m = Math.max(...st.score);
   return st.score.map((s, i) => (s === m ? i : -1)).filter((i) => i >= 0);
 }
+/** Закрывается ли второй ряд двойного перегона: дуэль, 2–3 игрока (или только 2 — с настройкой «двойные с 3 игроков»). Работает и с состоянием, и с видом. */
+export const doublesClosed = (x) => !!x.cfg.duelOn || x.n <= (x.cfg.doubles3 ? 2 : 3);
 export const isSoleLeader = (st, seat) => { const L = leaders(st); return L.length === 1 && L[0] === seat; };
 
 export function blindOnly(st, seat) {
@@ -24,7 +26,7 @@ export function routeBlock(M, st, seat, r, use = {}) {
     const owner = st.claims[s];
     if (owner == null) continue;
     if (use.e1) continue; // «Ремонтная бригада»
-    if (st.n <= 3 || st.cfg.duelOn) return 'Второй ряд двойного перегона закрыт при 2–3 игроках';
+    if (doublesClosed(st)) return st.cfg.doubles3 && !st.cfg.duelOn ? 'Второй ряд двойного перегона закрыт при 2 игроках' : 'Второй ряд двойного перегона закрыт при 2–3 игроках';
     if (owner === seat) return 'Нельзя занять оба ряда двойного перегона';
   }
   if (st.trains[seat] < r.length) return `Не хватает вагонов: перегон на ${r.length}, а у вас осталось ${st.trains[seat]}`;
@@ -119,6 +121,30 @@ export function longestTrail(M, routes) {
   };
   for (const c of Object.keys(adj)) dfs(c, 0);
   return best;
+}
+
+/** То же, что longestTrail, но возвращает и сам путь: { len, routes: [id…] } — для подсказки и подсветки на поле. */
+export function longestTrailPath(M, routes) {
+  const adj = {};
+  for (const r of routes) { (adj[r.from] ||= []).push(r); (adj[r.to] ||= []).push(r); }
+  let best = 0, bestPath = [];
+  const used = new Set(), path = [];
+  const dfs = (u, len) => {
+    if (len > best) { best = len; bestPath = path.slice(); }
+    for (const r of adj[u] || []) {
+      if (used.has(r.id)) continue;
+      used.add(r.id); path.push(r.id); dfs(M.other(r, u), len + r.length); path.pop(); used.delete(r.id);
+    }
+  };
+  for (const c of Object.keys(adj)) dfs(c, 0);
+  return { len: best, routes: bestPath };
+}
+/** Перегоны, из которых засчитывается цель-путь («Беларусский экспресс», «Окружная»), или null для других целей. */
+export function goalTrail(M, st, seat, gid) {
+  const own = ownRoutes(M, st, seat);
+  if (gid === 'g_express') return longestTrailPath(M, own.filter((r) => M.touchesBelarus(r)));
+  if (gid === 'g_ring') return longestTrailPath(M, own.filter((r) => r.ring));
+  return null;
 }
 
 /** Метрики целей. net — сеть с учётом станций (для билетов и открыток), по умолчанию только свои перегоны. */

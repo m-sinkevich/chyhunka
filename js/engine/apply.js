@@ -271,6 +271,13 @@ const PENDING = {
       finishAction(ctx);
       return;
     }
+    if (a.diplomat) {   // предъявил «Дипломатический коридор» — доплата отменена
+      if (!st.routeCards[p.seat].includes('e5')) { st.pend.unshift(p); fail('У вас нет карты «Дипломатический коридор»'); }
+      ctx.log(`${ctx.name(p.seat)} предъявляет «Дипломатический коридор» — доплата на погранконтроле отменена`, 'all', { kind: 'routeCard', card: 'e5', route: r.id });
+      finalizeClaim(ctx, p.seat, r, p.pay, { n: 0, loco: 0 }, { ...p.use, e5: true }, p.raid);
+      finishAction(ctx);
+      return;
+    }
     const n = a.pay?.n | 0, loco = a.pay?.loco | 0;
     const h = st.hands[p.seat];
     if (n + loco !== p.extra) { st.pend.unshift(p); fail(`Доплатите ${p.extra} карт(ы)`); }
@@ -509,8 +516,8 @@ function endTurn(ctx) {
     const g = M.goals[st.goals.ids[st.goals.open - 1]];
     ctx.log(`Открыта третья цель: «${g.name}» (${g.points} очк.) — ${g.rule}`, 'all', { kind: 'goal', goal: g.id });
   }
-  // цели-гонка в дуэли
-  if (st.cfg.duelOn) {
+  // цели-гонка (дуэль или настройка «Цели: кто первый»)
+  if ((st.cfg.duelOn || st.cfg.goalRace)) {
     for (const gid of st.goals.ids.slice(0, st.goals.open)) {
       if (st.goals.race[gid] != null) continue;
       const order = [seat, ...st.players.map((_, i) => i).filter((i) => i !== seat)];

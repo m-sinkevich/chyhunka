@@ -9,7 +9,7 @@ import { tr } from '../i18n.js';
 import { cityDialog } from './cityinfo.js';
 import { legalFromView, stateFromView } from '../engine/viewstate.js';
 import { bestStationUse } from '../engine/scoring.js';
-import { components, routeBlock, goalMetric } from '../engine/rules.js';
+import { components, routeBlock, goalMetric, goalTrail } from '../engine/rules.js';
 import { smartMove } from '../bots/smart.js';
 import { makeRng } from '../engine/rng.js';
 import { CARD_TYPES, COLOR_NAMES, RACE_THRESHOLDS } from '../engine/data.js';
@@ -70,7 +70,7 @@ export class GameScreen {
         const b = (this.stationRoutes || []).find((x) => x.route === rid);
         const r = this.M.routes[rid];
         const city = b ? [r.from, r.to].find((c) => (this.view.stationsAt[c] || []).includes(b.seat)) : null;
-        return routeTipHtml(this.M, this.view, rid) + (b ? `<br><b>Используется станцией</b> ${this.view.players[b.seat].name}${city ? ' в городе ' + this.M.cities[city].name : ''} (пунктир)` : '');
+        return routeTipHtml(this.M, this.view, rid) + (b ? `<br><b>Используется станцией</b> ${this.view.players[b.seat].name}${city ? ' в городе ' + this.M.cities[city].name : ''} (пунктир)` : '') + this.goalDeltaHtml(rid);
       },
       cityTip: (cid) => (this.view ? cityTipHtml(this.M, this.view, cid) : null),
     });
@@ -197,7 +197,7 @@ export class GameScreen {
       const tip = `Бот «${B.name}»` + (B.rank ? ` — уровень ${B.rank} из 4` : '') + (B.desc ? `: ${B.desc}` : '');
       return h('span.botlv', { title: tip, 'aria-label': tip }, icon(BOTS[level] ? 'bot_' + level : 'bot', null, 20));
     };
-    const wonGoals = (s) => (v.phase === 'over' && v.result ? v.result.rows[s].goals.map((g) => g.id) : v.goals.open.filter((g) => v.goals.race[g] === s)).map((g) => M.goals[g]);
+    const wonGoals = (s) => (v.phase === 'over' && v.result ? v.result.rows[s].goals.map((g) => ({ G: M.goals[g.id], pts: g.points, shared: g.shared || 1 })) : v.goals.open.filter((g) => v.goals.race[g] === s).map((g) => ({ G: M.goals[g], pts: M.goals[g].points, shared: 1 })));
     const pls = h('div.players', v.players.map((p, s) => {
       const si = info[s] || {};
       const bot = si.kind === 'bot' || (si.kind == null && p.bot);
@@ -227,13 +227,17 @@ export class GameScreen {
           s === v.me ? h('span.badge.gold', 'вы') : null,
           s === v.me && v.phase !== 'over' ? myScore(v.score[s]) : h('span.score', { title: 'Очки на треке: перегоны, сквозной экспресс, электрификация. Маршруты, цели и бонусы добавятся в конце партии' }, v.score[s])),
         h('div.stats', stats),
-        wonGoals(s).length ? h('div.wongoals', wonGoals(s).map((G) => h('span.wongoal', { title: `Цель выполнена: «${G.name}» — +${G.points} очк. (${v.cfg.duelOn ? G.race : G.rule})` }, icon('trophy', null, 14), ' ', G.name, h('b', ` +${G.points}`)))) : null,
+        wonGoals(s).length ? h('div.wongoals', wonGoals(s).map(({ G, pts, shared }) => h('span.wongoal', { title: `Цель выполнена: «${G.name}» — +${pts} очк. (${(v.cfg.duelOn || v.cfg.goalRace) ? G.race : G.rule})` + (shared > 1 ? tr(`. Ничья: ${G.points} очк. поделены на ${shared}`) : '') }, icon('trophy', null, 14), ' ', G.name, h('b', ` +${pts}`)))) : null,
         hostBtns, bubble);
     }));
     const goals = v.goals.open.map((g) => {
       const G = M.goals[g]; const won = v.goals.race[g];
-      return h('div.goal' + (won != null ? '.won' : ''), { title: this.goalProgress(g) }, icon('goal', null, 14), ' ', h('b', G.name), ` · ${G.points} очк. `, ruleLink('goals', 'Цели в правилах'),
-        h('div.small', v.cfg.duelOn ? `Гонка: ${G.race}` : G.rule), won != null ? h('div.small', '✓ ', v.players[won].name) : null);
+      let fx = [];
+      const trail = v.players[v.me] ? (() => { try { return goalTrail(M, v, v.me, g); } catch { return null; } })() : null;
+      const enter = () => { fx.forEach((f) => f?.stop()); fx = (trail?.routes || []).map((rid) => this.board.flashRoute(rid, playerColor(v.players[v.me].color), null, Infinity, 'pulse')); };
+      const leave = () => { fx.forEach((f) => f?.stop()); fx = []; };
+      return h('div.goal' + (won != null ? '.won' : ''), { title: this.goalProgress(g), onmouseenter: enter, onmouseleave: leave }, icon('goal', null, 14), ' ', h('b', G.name), ` · ${G.points} очк. `, ruleLink('goals', 'Цели в правилах'),
+        h('div.small', (v.cfg.duelOn || v.cfg.goalRace) ? `Гонка: ${G.race}` : G.rule), won != null ? h('div.small', '✓ ', v.players[won].name) : this.goalMine(g));
     });
     const hidden = v.goals.total - v.goals.open.length;
     this.logEl = h('div.log', this.ctrl.events.slice(-150).map((e) => this.logLine(e)));
@@ -527,14 +531,55 @@ export class GameScreen {
   goalProgress(gid) {
     const v = this.view; const M = this.M;
     const unit = { g_express: 'ваг. подряд', g_ring: 'ваг. по окружной', g_globe: 'маршр. выполнено', g_tourist: 'откр. выполнено', g_local: 'городов в сети', g_capital: 'перег. из Минска', g_border: 'перег. через границу', g_polesie: 'ваг. у Полесья', g_vilnius: 'перег. в Вильнюс' }[gid] || '';
-    const need = v.cfg.duelOn ? RACE_THRESHOLDS[gid] : null;
+    const need = (v.cfg.duelOn || v.cfg.goalRace) ? RACE_THRESHOLDS[gid] : null;
     const rows = v.players.map((p, s) => {
       if ((gid === 'g_globe' && !v.tickets[s]) || (gid === 'g_tourist' && !v.postcards[s])) return tr(`${p.name}: скрыто`);
       let x = '?';
       try { x = goalMetric(M, v, s, gid); } catch { /* нет данных */ }
       return `${p.name}${s === v.me ? ' ' + tr('(вы)') : ''}: ${x}${need ? ' ' + tr(`из ${need}`) : ''}`;
     });
-    return tr(`Сейчас (${tr(unit)}):`) + '\n' + rows.join('\n');
+    let out = tr(`Сейчас (${tr(unit)}):`) + '\n' + rows.join('\n');
+    const trail = v.players[v.me] ? (() => { try { return goalTrail(M, v, v.me, gid); } catch { return null; } })() : null;
+    if (trail?.routes.length) out += '\n\n' + tr(`Ваш засчитанный путь (${trail.len} ваг.):`) + '\n' + this.trailText(trail.routes) + '\n' + tr('Наведите — путь подсветится на поле.');
+    return out;
+  }
+  /** Цепочка городов пути: Минск → Молодечно → Лида. */
+  trailText(rids) {
+    const M = this.M; const rs = rids.map((id) => M.routes[id]);
+    if (!rs.length) return '';
+    const a = rs[0], b = rs[1];
+    let cur = b && (a.from === b.from || a.from === b.to) ? a.to : a.from;
+    const cities = [cur];
+    for (const r of rs) { cur = M.other(r, cur); cities.push(cur); }
+    return cities.map((c) => M.cities[c].name).join(' → ');
+  }
+  /** Строка под целью: сколько у вас сейчас и у лучшего соперника. */
+  goalMine(gid) {
+    const v = this.view; const M = this.M;
+    if (!v.players[v.me] || v.phase === 'over') return null;
+    const val = (s) => { try { return goalMetric(M, v, s, gid); } catch { return null; } };
+    const mine = val(v.me);
+    if (mine == null) return null;
+    const need = (v.cfg.duelOn || v.cfg.goalRace) ? RACE_THRESHOLDS[gid] : null;
+    const others = ['g_globe', 'g_tourist'].includes(gid) ? [] : v.players.map((_, s) => s).filter((s) => s !== v.me).map((s) => [s, val(s)]).filter(([, x]) => x != null);
+    const top = others.sort((x, y) => y[1] - x[1])[0];
+    return h('div.small.goalmine', tr(`У вас: ${mine}`) + (need ? ' ' + tr(`из ${need}`) : '') + (top ? ' ' + tr(`· лучший соперник: ${v.players[top[0]].name} ${top[1]}`) : ''));
+  }
+  /** Как изменятся цели, если занять перегон rid: строки для подсказки на поле. */
+  goalDeltaHtml(rid) {
+    const v = this.view; const M = this.M;
+    if (!v || !v.players[v.me] || v.phase !== 'play' || v.claims[rid] != null) return '';
+    const v2 = { ...v, claims: { ...v.claims, [rid]: v.me } };
+    const lines = [];
+    for (const gid of v.goals.open) {
+      if (v.goals.race[gid] != null) continue;
+      let a, b;
+      try { a = goalMetric(M, v, v.me, gid); b = goalMetric(M, v2, v.me, gid); } catch { continue; }
+      if (a === b) continue;
+      const need = (v.cfg.duelOn || v.cfg.goalRace) ? RACE_THRESHOLDS[gid] : null;
+      lines.push(`🏆 ${tr(M.goals[gid].name)}: ${a} → <b>${b}</b>${need ? ' ' + tr(`из ${need}`) : ''}${need && b >= need ? ' ✓' : ''}`);
+    }
+    return lines.length ? '<br>' + lines.join('<br>') : '';
   }
   /** Подсказка: что сделал бы бот «Эксперт» на вашем месте. */
   hint() {

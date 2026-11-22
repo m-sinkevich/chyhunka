@@ -417,7 +417,7 @@ body.home .homefoot { position: fixed; left: 50%; bottom: 10px; transform: trans
 .bgspot { position: fixed; z-index: 4; border-radius: 50%; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
 .footsecret { display: none; cursor: default; user-select: none; touch-action: manipulation; -webkit-tap-highlight-color: transparent; padding: 0 4px; }
 .footsecret.on { display: inline; }
-.footsecret.ff { color: #4A6FD8; font-size: 15px; margin-right: 4px; } .footsecret.fc { color: #8a7a5a; margin-left: 4px; }
+.footsecret.ff { color: #4A6FD8; font-size: 17px; margin-right: 6px; cursor: pointer; } .footsecret.fc { color: #8a7a5a; font-size: 15px; margin-left: 6px; cursor: pointer; }
 .love-over { position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; background: rgba(20, 12, 10, .8); overflow: hidden; cursor: pointer; animation: lovein .4s ease-out; }
 .love-card { margin: 0; padding: 12px 12px 6px; background: #fffdf6; border-radius: 4px; box-shadow: 0 20px 60px rgba(0,0,0,.6); transform: rotate(-1.5deg); z-index: 1; }
 .love-card img { display: block; max-width: min(86vw, 760px); max-height: 74vh; }

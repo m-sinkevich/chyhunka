@@ -1,4 +1,5 @@
 // Отрисовка карт, маршрутов и подписей к перегонам.
+import { doublesClosed } from '../engine/rules.js';
 import { h } from './dom.js';
 import { COLOR_NAMES, COLORS } from '../engine/data.js';
 import { playerColor } from '../net/room.js';
@@ -33,7 +34,7 @@ export function payChips(M, pay) {
 export const pdot = (color) => h('span.dot', { style: { background: playerColor(color) } });
 
 export function routeFeatures(M, r, v = null) {
-  const cfg = v?.cfg; const narrow = v && (v.n <= 3 || cfg?.duelOn);
+  const cfg = v?.cfg; const narrow = v && doublesClosed(v);
   const f = [];
   f.push(`${r.length} ${r.length === 1 ? 'вагон' : r.length < 5 ? 'вагона' : 'вагонов'}`);
   f.push(r.color === 'grey' ? 'серый — любой один цвет' : COLOR_NAMES[r.color]);
@@ -54,7 +55,7 @@ export function routeTipHtml(M, v, rid) {
   let s = `<b>${M.routeName(r)}</b><br>${routeFeatures(M, r, v).join('<br>')}<br>Очки: ${pts}`;
   if (owner != null) s += `<br><i>Занят: ${escapeHtml(v.players[owner].name)}</i>`;
   if (v.removed?.[rid]) s += v.removed[rid] === 'duel' ? '<br><i>Закрыт: в дуэли окружная не используется</i>' : '<br><i>Убран (строгий исторический режим)</i>';
-  if (owner == null && (v.n <= 3 || v.cfg.duelOn) && M.siblings[rid].some((x) => v.claims[x] != null)) s += '<br><i>Второй ряд закрыт — занять можно только с путевой картой «Ремонтная бригада»</i>';
+  if (owner == null && doublesClosed(v) && M.siblings[rid].some((x) => v.claims[x] != null)) s += '<br><i>Второй ряд закрыт — занять можно только с путевой картой «Ремонтная бригада»</i>';
   return s;
 }
 export function cityTipHtml(M, v, cid) {

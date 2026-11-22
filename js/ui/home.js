@@ -137,8 +137,9 @@ function homeSecrets(root) {
     if (!flower.isConnected) { window.removeEventListener('resize', place); window.removeEventListener('scroll', place, true); return; }
     const vw = window.innerWidth, vh = window.innerHeight, k = Math.max(vw / BG.w, vh / BG.h), ox = (vw - BG.w * k) / 2;   // фон: cover, center top, fixed
     for (const [el, [x, y, r]] of [[flower, BG.flower], [clock, BG.clock]]) Object.assign(el.style, { left: `${ox + (x - r) * k}px`, top: `${(y - r) * k}px`, width: `${2 * r * k}px`, height: `${2 * r * k}px` });
-    fFlower.classList.toggle('on', hidden(flower));
-    fClock.classList.toggle('on', hidden(clock));
+    // значки в строке версии показываем всегда: василёк на фоне часто прячется под панелями или у края окна
+    fFlower.classList.add('on'); fClock.classList.add('on');
+    void hidden;
   };
   (root.querySelector('.homescreen') || root).append(flower, clock);
   window.addEventListener('resize', place);

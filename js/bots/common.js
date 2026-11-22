@@ -1,4 +1,5 @@
 // Общие помощники ботов. Бот видит только то, что видел бы человек на его месте: view + legal.
+import { doublesClosed } from '../engine/rules.js';
 import { COLORS } from '../engine/data.js';
 
 export class BotContext {
@@ -13,7 +14,7 @@ export class BotContext {
     for (const s of M.siblings[r.id]) {
       const o = v.claims[s];
       if (o == null) continue;
-      if (v.n <= 3 || v.cfg.duelOn || o === me) return false;
+      if (doublesClosed(v) || o === me) return false;
     }
     return true;
   }
@@ -161,8 +162,8 @@ export class BotContext {
     const need = this.neededColors(targets || new Map());
     switch (a.type) {
       case 'tunnelPay': {
-        const pays = this.legal.filter((x) => !x.decline).sort((x, y) => x.pay.loco - y.pay.loco);
-        return pays[0] || this.legal.find((x) => x.decline);
+        const pays = this.legal.filter((x) => x.pay).sort((x, y) => x.pay.loco - y.pay.loco);
+        return pays[0] || this.legal.find((x) => x.diplomat) || this.legal.find((x) => x.decline);
       }
       case 'keep': return { type: 'keep', seat: this.me, tickets: this.chooseTickets(a.offer, a.min), postcards: this.choosePostcards(a.postOffer, 0) };
       case 'discard': return { type: 'discard', seat: this.me, cards: this.discardCards(a.count, need) };

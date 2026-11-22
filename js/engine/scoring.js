@@ -48,10 +48,10 @@ export function postcardPart(M, st, seat, net) {
   return { rows, total: rows.reduce((s, r) => s + (r.done ? r.points : -r.points), 0) };
 }
 
-/** Кто получает цель: в режиме гонки — первый выполнивший, иначе максимум метрики (>0), ничья — все. */
+/** Кто получает цель: в режиме гонки — первый выполнивший, иначе максимум метрики (>0); при ничьей очки цели делятся поровну (с округлением). */
 export function goalHolders(M, st, gid, nets) {
-  if (st.cfg.duelOn && st.goals.race[gid] != null) return [st.goals.race[gid]];
-  if (st.cfg.duelOn) {   // гонку никто не выиграл по ходу — в конце считается с учётом станций
+  if ((st.cfg.duelOn || st.cfg.goalRace) && st.goals.race[gid] != null) return [st.goals.race[gid]];
+  if ((st.cfg.duelOn || st.cfg.goalRace)) {   // гонку никто не выиграл по ходу — в конце считается с учётом станций
     const ok = st.players.map((_, s) => goalMetric(M, st, s, gid, nets ? nets[s] : null) >= (RACE_THRESHOLDS[gid] ?? Infinity));
     return ok.map((x, i) => (x ? i : -1)).filter((i) => i >= 0);
   }
@@ -70,7 +70,7 @@ export function finalScore(M, st) {
   const rows = st.players.map((p, s) => {
     const tk = ticketPart(M, st, s, nets[s]);
     const pc = postcardPart(M, st, s, nets[s]);
-    const goals = goalIds.filter((g) => holders[g].includes(s)).map((g) => ({ id: g, points: M.goals[g].points }));
+    const goals = goalIds.filter((g) => holders[g].includes(s)).map((g) => ({ id: g, points: Math.round(M.goals[g].points / holders[g].length), shared: holders[g].length }));
     const depots = st.cfg.modules.depots && maxDepots > 0 && st.depotsHome[s] === maxDepots ? DEPOT_BONUS : 0;
     const neighbors = st.neighbors.got[s].reduce((a, x) => a + x.points, 0);
     const terminus = Object.values(st.terminus).filter((o) => o === s).length * TERMINUS_POINTS;

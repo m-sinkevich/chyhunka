@@ -19,6 +19,7 @@ export function legalActions(M, st, seat) {
         const n = p.extra - loco;
         if (n <= colorLeft && loco <= locoLeft && (p.pay.n > 0 || n === 0)) out.push({ type: 'tunnelPay', seat, pay: { n, loco } });
       }
+      if (st.routeCards?.[seat]?.includes('e5') && !p.use.e5) out.push({ type: 'tunnelPay', seat, diplomat: true });   // «Дипломатический коридор» отменяет доплату
       out.push({ type: 'tunnelPay', seat, decline: true });
       return out;
     }

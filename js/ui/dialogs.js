@@ -1,4 +1,5 @@
 // Диалоги действий: выбор маршрутов, оплата перегона, погранконтроль, сброс, станция, смена состава и т. д.
+import { doublesClosed } from '../engine/rules.js';
 import { tr, noTr } from '../i18n.js';
 import { h, modal, plural } from './dom.js';
 import { cardEl, chip, payChips, routeFeatures, ticketEl, postcardEl, pdot } from './cards.js';
@@ -56,7 +57,7 @@ export function claimDialog(G, rid) {
   const sibClaimed = M.siblings[rid].some((s) => v.claims[s] != null);
   if (mine.includes('e1') && sibClaimed) rc.push(['e1', 'Ремонтная бригада — занять второй ряд']);
   // второй ряд закрыт (2–3 игрока или дуэль) — без «Ремонтной бригады» его не занять, поэтому отмечаем её сразу
-  if (mine.includes('e1') && sibClaimed && (v.n <= 3 || v.cfg.duelOn)) use.e1 = true;
+  if (mine.includes('e1') && sibClaimed && doublesClosed(v)) use.e1 = true;
   if (mine.includes('e2') && r.color !== 'grey') rc.push(['e2', 'Перекраска — оплатить как серый']);
   if (mine.includes('e5') && r.tunnel && !r.ghost) rc.push(['e5', 'Дипломатический коридор — без погранконтроля']);
   if (mine.includes('e6')) rc.push(['e6', 'Запасной локомотив — +1 Локомотив']);
@@ -64,6 +65,7 @@ export function claimDialog(G, rid) {
   let chosen = 0;
   const optsBox = h('div.pay-opts');
   const note = h('div.small');
+  const dipNote = h('div.notice', '🛂 У вас есть «Дипломатический коридор»: отметьте его ниже, чтобы пройти без погранконтроля, или предъявите на погранконтроле, если выпадет доплата.');
   let dlg;
   const render = () => {
     const { block, options } = claimOptionsFromView(M, v, rid, use);
@@ -76,6 +78,7 @@ export function claimDialog(G, rid) {
     })));
     const extra = v.flags[me]?.extraCard ? '«Выгиб рельсов»: перегон стоит на 1 карту больше. ' : '';
     note.textContent = tr(extra + (r.tunnel && !r.ghost && !use.e5 ? `После оплаты откроются ${v.score[me] === Math.max(...v.score) && v.score.filter((x) => x === v.score[me]).length === 1 && v.cfg.leader4 ? 4 : 3} карты колоды: за каждую карту вашего цвета или Локомотив — доплата.` : ''));
+    dipNote.style.display = mine.includes('e5') && r.tunnel && !r.ghost && !use.e5 ? '' : 'none';
     if (dlg) dlg.buttons[1].disabled = Boolean(block) || !options.length;
     dlg && (dlg.opts = options);
   };
@@ -88,7 +91,7 @@ export function claimDialog(G, rid) {
       r.ghost ? h('div.small', 'Призрачная ветка: +1 обязательный Локомотив ', ruleLink('ghost')) : null,
       r.mountain ? h('div.small', 'Горный перегон: нужен хотя бы 1 Локомотив ', ruleLink('mountain')) : null,
       h('div', 'Всего: ', h('b', pts), ' (без учёта экспресса)')),
-    h('h4', 'Оплата'), optsBox, note,
+    h('h4', 'Оплата'), optsBox, note, dipNote,
     rc.length ? h('h4', 'Путевые карты') : null,
     ...rc.map(([k, label]) => h('label.row', h('input', { type: 'checkbox', checked: Boolean(use[k]), onchange: (e) => { use[k] = e.target.checked; render(); } }), label)),
     depotCities.length ? h('h4', 'Склады (1921)') : null,
@@ -129,17 +132,20 @@ function chainBonus(G, r, p) {
 export function tunnelDialog(G) {
   const { M } = G;
   const p = G.view.pending;
-  const legal = G.legal.filter((a) => a.type === 'tunnelPay' && !a.decline);
+  const legal = G.legal.filter((a) => a.type === 'tunnelPay' && a.pay);
+  const dip = G.legal.some((a) => a.type === 'tunnelPay' && a.diplomat);
   const r = M.routes[p.route];
   return modal({ dock: true,
     title: `Погранконтроль: ${M.routeName(r)}`, closable: false,
     body: [
       h('p', 'Открыты карты колоды: ', ruleLink('tunnel', 'Погранконтроль в правилах')), h('div.market', p.revealed.map((c) => cardEl(M, c))),
       h('p', `Доплата: `, h('b', p.extra), ` ${plural(p.extra, 'карта', 'карты', 'карт')} ${p.pay.n > 0 ? `цвета «${COLOR_NAMES[p.pay.color]}» или Локомотивы` : '— Локомотивы'}.`),
-      legal.length ? null : h('div.notice.err', 'Доплатить нечем — перегон не будет занят, карты вернутся в руку.'),
+      legal.length || dip ? null : h('div.notice.err', 'Доплатить нечем — перегон не будет занят, карты вернутся в руку.'),
+      dip ? h('div.notice', h('b', 'У вас есть путевая карта «Дипломатический коридор»! '), legal.length ? 'Предъявите её — доплата отменится, перегон будет занят без доплаты.' : 'Доплатить нечем, но её можно предъявить — доплата отменится, перегон будет занят.') : null,
     ],
     buttons: [
       { text: 'Отказаться', onClick: (c) => { c(); G.act({ type: 'tunnelPay', decline: true }); } },
+      ...(dip ? [{ text: '🛂 Предъявить «Дипломатический коридор»', primary: !legal.length, onClick: (c) => { c(); G.act({ type: 'tunnelPay', diplomat: true }); } }] : []),
       ...legal.map((a) => ({ text: ['Доплатить: ', ...payChips(M, { color: p.pay.color, n: a.pay.n, loco: a.pay.loco }).map((x) => x.textContent)].join(' '), primary: true, onClick: (c) => { c(); G.act({ type: 'tunnelPay', pay: a.pay }); } })),
     ],
   });
@@ -231,7 +237,7 @@ function helpDialogRu() {
       h('p', h('b', 'Сквозной экспресс: '), 'занимаете перегоны подряд идущими ходами, продолжая предыдущий и платя тем же цветом — цепочка считается одним перегоном (7 ваг. — 18, 8 — 21, 9 — 24, 10 — 27). Любой ход без захвата обрывает цепочку.'),
       h('p', h('b', 'Погранпереход: '), 'после оплаты открываются 3 карты колоды (4, если вы единоличный лидер); за каждую карту вашего цвета или Локомотив — доплата. Можно отказаться.'),
       h('p', h('b', 'Призрачная ветка: '), 'длина + 1 обязательный Локомотив, без погранконтроля и электрификации. ', h('b', 'Горный перегон: '), 'нужен хотя бы 1 Локомотив.'),
-      h('p', h('b', 'Двойные перегоны: '), 'при 2–3 игроках второй ряд закрывается; при 4–5 оба открыты, но не для одного игрока. В Минске до 3 станций разных игроков (в дуэли — 1).'),
+      h('p', h('b', 'Двойные перегоны: '), 'при 2–3 игроках второй ряд закрывается (с настройкой «Двойные перегоны открыты с 3 игроков» — только при 2); при 4–5 оба открыты, но не для одного игрока. В Минске до 3 станций разных игроков (в дуэли — 1).'),
       h('p', h('b', 'Конец: '), 'когда у кого-то осталось 2 вагона или меньше, каждый делает ещё один ход. Затем: маршруты ±, цели, неиспользованные станции +3, модули.'),
       h('p', h('b', 'Цели: '), 'в партии 3 цели, 2 открыты сразу, третья — когда у кого-то останется 15 вагонов. В дуэли цели — гонка: кто первый выполнил, тот и получил. Дуэль: 40 вагонов, окружная закрыта, оба получают по 5 карт.'),
     ],

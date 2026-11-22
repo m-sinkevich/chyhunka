@@ -5,7 +5,7 @@
 // срочность спорных перегонов и концовку партии.
 import { BotContext } from './common.js';
 import { COLORS, POLESIE } from '../engine/data.js';
-import { neighborCountries, neighborPoints } from '../engine/rules.js';
+import { neighborCountries, neighborPoints, doublesClosed } from '../engine/rules.js';
 import { mediumTurn } from './medium.js';
 
 const CFG = {
@@ -223,7 +223,7 @@ class Smart extends BotContext {
   /** Спорность: одиночный перегон на плане, рядом с чужими сетями — занять раньше. */
   contested(r) {
     const { M, v } = this;
-    if (M.siblings[r.id].length && !(v.n <= 3 || v.cfg.duelOn)) return 0.2;
+    if (M.siblings[r.id].length && !doublesClosed(v)) return 0.2;
     let near = 0;
     for (const c of [r.from, r.to]) for (const x of M.adj[c]) { const o = v.claims[x.id]; if (o != null && o !== v.me) near++; }
     return Math.min(1, 0.35 + near * 0.2);
@@ -490,8 +490,10 @@ class Smart extends BotContext {
         const plan = this.netPlan();
         const pend = this.v.pending;
         const inPlan = pend && plan.planned.has(pend.route);
-        const pays = this.legal.filter((x) => !x.decline).sort((x, y) => x.pay.loco - y.pay.loco);
-        // доплачивать, если перегон в плане или конец близко; иначе беречь Локомотивы
+        const pays = this.legal.filter((x) => x.pay).sort((x, y) => x.pay.loco - y.pay.loco);
+        const dip = this.legal.find((x) => x.diplomat);
+        // доплачивать, если перегон в плане или конец близко; иначе беречь Локомотивы; дорогую доплату — «Дипломатическим коридором»
+        if (dip && (inPlan || this.endSoon) && (!pays.length || pays[0].pay.loco > 0 || pend.extra >= 2)) return dip;
         if (pays.length && (inPlan || this.endSoon || pays[0].pay.loco === 0)) return pays[0];
         return this.legal.find((x) => x.decline) || pays[0];
       }

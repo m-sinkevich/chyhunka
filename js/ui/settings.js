@@ -2,7 +2,7 @@
 import { h, fill, modal } from './dom.js';
 import { TICKET_SETS, MODULES, PRESETS } from '../engine/index.js';
 
-export const DEFAULT_CFG = { tickets: 'base', goals: 'random', modules: { routeCards: true, terminus: true }, trains: 45, chain: true, strictHistorical: false, quick: false, fairDeal: true, spreadTickets: false, duel: 'auto', randomOrder: true, turnTimer: 0 };
+export const DEFAULT_CFG = { tickets: 'base', goals: 'random', modules: { routeCards: true, terminus: true }, trains: 45, chain: true, strictHistorical: false, quick: false, fairDeal: true, spreadTickets: false, doubles3: false, goalRace: false, duel: 'auto', randomOrder: true, turnTimer: 0 };
 
 export function settingsForm(M, cfgIn, { editable = true, players = 2, onChange, online = true } = {}) {
   const cfg = JSON.parse(JSON.stringify({ ...DEFAULT_CFG, ...cfgIn, modules: { ...DEFAULT_CFG.modules, ...(cfgIn?.modules || {}) } }));
@@ -54,6 +54,8 @@ export function settingsForm(M, cfgIn, { editable = true, players = 2, onChange,
         players === 2 && h('label.opt', h('input', { type: 'checkbox', disabled: dis, checked: cfg.duel !== 'off', onchange: (e) => set({ duel: e.target.checked ? 'auto' : 'off' }) }), h('span', 'Дуэльные правила для двоих', h('small', 'Открытый ряд из 4 маршрутов, Минск — одна станция, один невыполненный маршрут не вычитается, цели — гонка. 40 вагонов, окружная закрыта, на старте без длинных маршрутов.'))),
         h('label.opt', h('input', { type: 'checkbox', disabled: dis, checked: cfg.fairDeal !== false, onchange: (e) => set({ fairDeal: e.target.checked }) }), h('span', 'Честная раздача маршрутов', h('small', 'Стартовые маршруты подбираются так, чтобы сумма очков у всех была примерно равной (±10%).'))),
         h('label.opt', h('input', { type: 'checkbox', disabled: dis, checked: !!cfg.spreadTickets, onchange: (e) => set({ spreadTickets: e.target.checked }) }), h('span', 'Маршруты в разных частях карты', h('small', 'Стартовые маршруты одного игрока не кучкуются в одном углу: они далеко друг от друга и без общих городов. Придётся строить широкую сеть.'))),
+        h('label.opt', h('input', { type: 'checkbox', disabled: dis || players === 2, checked: !!cfg.doubles3, onchange: (e) => set({ doubles3: e.target.checked }) }), h('span', 'Двойные перегоны открыты с 3 игроков', h('small', 'Обычно при 2–3 игроках второй ряд двойного перегона закрывается, когда первый занят. С этой галочкой при 3 игроках открыты оба ряда (но не оба для одного игрока). В дуэли второй ряд всегда закрыт.'))),
+        h('label.opt', h('input', { type: 'checkbox', disabled: dis || (players === 2 && cfg.duel !== 'off'), checked: !!cfg.goalRace || (players === 2 && cfg.duel !== 'off'), onchange: (e) => set({ goalRace: e.target.checked }) }), h('span', 'Цели: кто первый', h('small', 'Цель получает тот, кто первым достиг её порога (как в дуэли): она закрепляется за ним сразу, и отобрать её уже нельзя. Очки цели входят в итог. Пороги — в правилах, раздел «Цели». В дуэли включено всегда.'))),
         h('label.opt', h('input', { type: 'checkbox', disabled: dis, checked: cfg.quick, onchange: (e) => set({ quick: e.target.checked }) }), h('span', 'Быстрая партия', h('small', '30 вагонов, 2 станции, на старте 3 обычных маршрута без длинного.')))),
       h('div.summary', summary(cfg, players)),
     );

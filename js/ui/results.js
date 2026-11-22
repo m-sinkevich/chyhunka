@@ -23,7 +23,7 @@ export function showResults(G) {
   const table = h('table.results',
     h('tr', h('th', '№'), h('th', 'Игрок'), used.map(([k, t]) => h('th', { title: PART_TIP[k] }, t, ' ', ruleLink(PART_RULE[k], PART_TIP[k]))), h('th', 'Итого')),
     order.map((r, i) => h('tr' + (i === 0 ? '.win' : ''), h('td', i + 1), h('td', pdot(v.players[r.seat].color), ' ', r.name), used.map(([k]) => h('td', r.parts[k])), h('td.total', r.total))));
-  const details = order.map((r) => h('details', h('summary', `${r.name}: маршрутов выполнено ${r.ticketsDone} из ${r.ticketRows.length}` + (r.goals.length ? `, цели: ${r.goals.map((g) => M.goals[g.id].name).join(', ')}` : '')),
+  const details = order.map((r) => h('details', h('summary', `${r.name}: маршрутов выполнено ${r.ticketsDone} из ${r.ticketRows.length}` + (r.goals.length ? `, цели: ${r.goals.map((g) => M.goals[g.id].name + (g.shared > 1 ? ` (${g.points} из ${M.goals[g.id].points} — ничья, поделено на ${g.shared})` : '')).join(', ')}` : '')),
     h('div.tlist', r.ticketRows.map((t) => h('div.ticket' + (t.done ? '.done' : ''), t.done ? '✓ ' : '✗ ', `${M.cities[M.tickets[t.id].from].name} — ${M.cities[M.tickets[t.id].to].name}`, r.forgiven === t.id ? ' (списан)' : '', h('span.pts', (t.done || r.forgiven === t.id ? '+' : '−') + t.points)))),
     r.postcardRows.length ? h('div.small', 'Открытки: ', r.postcardRows.map((p) => `${M.cities[M.postcards[p.id].city].name} ${p.done ? '+' : '−'}${p.points}`).join(', ')) : null,
     r.stationRoutes.routes.some(Boolean) ? h('div.small', 'Станции использовали: ', r.stationRoutes.routes.filter(Boolean).map((id) => M.routeName(M.routes[id])).join(', ')) : null));

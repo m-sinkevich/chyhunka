@@ -1,5 +1,6 @@
 // Игровое поле: то же SVG, что и печатная версия, плюс слой с поездами игроков, станциями, депо и треком очков.
 // Масштаб колёсиком/щипком, перетаскивание, клик по перегону или городу.
+import { doublesClosed } from '../engine/rules.js';
 import { tr, trHtml, trDom } from '../i18n.js';
 import { playerColor } from '../net/room.js';
 
@@ -165,7 +166,7 @@ export class Board {
       g.classList.toggle('removed', Boolean(v.removed && v.removed[rid]));
       g.classList.toggle('claimed', v.claims[rid] != null);
       // при 2–3 игроках и в дуэли второй ряд двойного перегона закрывается — убираем его с поля
-      const closed = (v.n <= 3 || v.cfg.duelOn) && v.claims[rid] == null && M.siblings[rid].some((x) => v.claims[x] != null);
+      const closed = doublesClosed(v) && v.claims[rid] == null && M.siblings[rid].some((x) => v.claims[x] != null);
       // с путевой картой «Ремонтная бригада» закрытый второй ряд можно занять — тогда он виден и доступен
       const repair = closed && v.me >= 0 && (v.routeCards?.[v.me] || []).includes('e1');
       g.classList.toggle('closedlane', closed && !repair);
